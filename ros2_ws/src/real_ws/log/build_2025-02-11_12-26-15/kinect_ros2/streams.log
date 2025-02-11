@@ -1,0 +1,36 @@
+[0.016s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/kinect_ros2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=5 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/cmake /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/kinect_ros2 -DCMAKE_FIND_ROOT_PATH=/home/gptpetclient2/gpt-pet-v2/ros2_ws/src/real_ws/install;/Users/pj/sysroot -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY -DTinyXML2_DIR=/Users/pj/sysroot/usr/lib/aarch64-linux-gnu/cmake/tinyxml2 -Dtinyxml2_DIR=/Users/pj/sysroot/usr/lib/aarch64-linux-gnu/cmake/tinyxml2 -DCMAKE_PREFIX_PATH=/Users/pj/sysroot/usr/lib/aarch64-linux-gnu/cmake;/Users/pj/sysroot/opt/ros/humble/share;/Users/pj/sysroot/usr/lib/aarch64-linux-gnu/cmake/tinyxml2 -DOpenCV_DIR=/Users/pj/sysroot/usr/share/opencv4 -DPYTHON_SOABI=cpython-310-aarch64-linux-gnu -DTHREADS_PTHREAD_ARG=0 -DAMENT_IGNORE_TINYXML2_VENDOR=ON -DCMAKE_TOOLCHAIN_FILE=../../../cross_compile/cmake-toolchains/generic_linux.cmake -DCMAKE_INSTALL_PREFIX=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/kinect_ros2
+[0.116s] CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
+[0.116s]   Compatibility with CMake < 3.10 will be removed from a future version of
+[0.116s]   CMake.
+[0.116s] 
+[0.116s]   Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+[0.116s]   to tell CMake that the project requires at least <min> but has been updated
+[0.116s]   to work with policies introduced by <max> or earlier.
+[0.116s] 
+[0.116s] 
+[0.116s] -- Found ament_cmake: 1.3.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake/cmake)
+[0.168s] -- Found rclcpp_components: 16.0.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/rclcpp_components/cmake)
+[0.198s] -- Found rosidl_generator_c: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_c/cmake)
+[0.200s] -- Found rosidl_adapter: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_adapter/cmake)
+[0.207s] -- Found rosidl_generator_cpp: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_cpp/cmake)
+[0.218s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.230s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[3.782s] -- Found rmw_implementation_cmake: 6.1.2 (/Users/pj/.local/share/mamba/envs/ros_env/share/rmw_implementation_cmake/cmake)
+[3.783s] -- Found rmw_cyclonedds_cpp: 1.3.4 (/Users/pj/.local/share/mamba/envs/ros_env/share/rmw_cyclonedds_cpp/cmake)
+[3.802s] -- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+[7.228s] -- Found sensor_msgs: 4.2.4 (/Users/pj/sysroot/opt/ros/humble/share/sensor_msgs/cmake)
+[7.264s] -- Found cv_bridge: 3.2.1 (/Users/pj/sysroot/opt/ros/humble/share/cv_bridge/cmake)
+[7.266s] -- Found image_transport: 3.1.10 (/Users/pj/sysroot/opt/ros/humble/share/image_transport/cmake)
+[7.273s] -- Found TinyXML2 via Config file: /Users/pj/sysroot/usr/lib/aarch64-linux-gnu/cmake/tinyxml2
+[7.273s] CMake Error at /Users/pj/sysroot/opt/ros/humble/share/tinyxml2_vendor/cmake/Modules/FindTinyXML2.cmake:19 (message):
+[7.273s]   Unable to determine target for TinyXML2
+[7.273s] Call Stack (most recent call first):
+[7.273s]   /Users/pj/sysroot/opt/ros/humble/share/pluginlib/cmake/ament_cmake_export_dependencies-extras.cmake:21 (find_package)
+[7.273s]   /Users/pj/sysroot/opt/ros/humble/share/pluginlib/cmake/pluginlibConfig.cmake:41 (include)
+[7.273s]   /Users/pj/sysroot/opt/ros/humble/share/image_transport/cmake/ament_cmake_export_dependencies-extras.cmake:21 (find_package)
+[7.273s]   /Users/pj/sysroot/opt/ros/humble/share/image_transport/cmake/image_transportConfig.cmake:41 (include)
+[7.273s]   CMakeLists.txt:35 (find_package)
+[7.273s] 
+[7.273s] 
+[7.273s] -- Configuring incomplete, errors occurred!
+[7.278s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/kinect_ros2' returned '1': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=5 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/cmake /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/kinect_ros2 -DCMAKE_FIND_ROOT_PATH=/home/gptpetclient2/gpt-pet-v2/ros2_ws/src/real_ws/install;/Users/pj/sysroot -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY -DTinyXML2_DIR=/Users/pj/sysroot/usr/lib/aarch64-linux-gnu/cmake/tinyxml2 -Dtinyxml2_DIR=/Users/pj/sysroot/usr/lib/aarch64-linux-gnu/cmake/tinyxml2 -DCMAKE_PREFIX_PATH=/Users/pj/sysroot/usr/lib/aarch64-linux-gnu/cmake;/Users/pj/sysroot/opt/ros/humble/share;/Users/pj/sysroot/usr/lib/aarch64-linux-gnu/cmake/tinyxml2 -DOpenCV_DIR=/Users/pj/sysroot/usr/share/opencv4 -DPYTHON_SOABI=cpython-310-aarch64-linux-gnu -DTHREADS_PTHREAD_ARG=0 -DAMENT_IGNORE_TINYXML2_VENDOR=ON -DCMAKE_TOOLCHAIN_FILE=../../../cross_compile/cmake-toolchains/generic_linux.cmake -DCMAKE_INSTALL_PREFIX=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/kinect_ros2

@@ -1,0 +1,24 @@
+[0.387s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/proximity-sensors': CONDA_PROMPT_MODIFIER=(ros_env) PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/proximity-sensors/prefix_override:/Users/pj/.local/share/mamba/envs/ros_env/lib/python3.11/site-packages/colcon_core/task/python/colcon_distutils_commands:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/proximity-sensors/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=5 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/python3.11 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/proximity-sensors build --build-base /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/proximity-sensors/build install --record /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/proximity-sensors/install.log --single-version-externally-managed install_data
+[0.459s] /Users/pj/.local/share/mamba/envs/ros_env/lib/python3.11/site-packages/setuptools/_distutils/dist.py:270: UserWarning: Unknown distribution option: 'tests_require'
+[0.459s]   warnings.warn(msg)
+[0.497s] running egg_info
+[0.503s] writing ../../build/proximity-sensors/proximity_sensors.egg-info/PKG-INFO
+[0.503s] writing dependency_links to ../../build/proximity-sensors/proximity_sensors.egg-info/dependency_links.txt
+[0.503s] writing requirements to ../../build/proximity-sensors/proximity_sensors.egg-info/requires.txt
+[0.504s] writing top-level names to ../../build/proximity-sensors/proximity_sensors.egg-info/top_level.txt
+[0.516s] reading manifest file '../../build/proximity-sensors/proximity_sensors.egg-info/SOURCES.txt'
+[0.517s] writing manifest file '../../build/proximity-sensors/proximity_sensors.egg-info/SOURCES.txt'
+[0.517s] running build
+[0.517s] running build_py
+[0.517s] copying proximity-sensors/__init__.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/proximity-sensors/build/lib/proximity-sensors
+[0.517s] running install
+[0.520s] running install_lib
+[0.527s] running install_data
+[0.527s] copying resource/proximity-sensors -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/proximity-sensors/share/ament_index/resource_index/packages
+[0.527s] copying package.xml -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/proximity-sensors/share/proximity-sensors
+[0.527s] running install_egg_info
+[0.534s] removing '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/proximity-sensors/lib/python3.11/site-packages/proximity_sensors-0.0.0-py3.11.egg-info' (and everything under it)
+[0.534s] Copying ../../build/proximity-sensors/proximity_sensors.egg-info to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/proximity-sensors/lib/python3.11/site-packages/proximity_sensors-0.0.0-py3.11.egg-info
+[0.535s] running install_scripts
+[0.579s] writing list of installed files to '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/proximity-sensors/install.log'
+[0.593s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/proximity-sensors' returned '0': CONDA_PROMPT_MODIFIER=(ros_env) PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/proximity-sensors/prefix_override:/Users/pj/.local/share/mamba/envs/ros_env/lib/python3.11/site-packages/colcon_core/task/python/colcon_distutils_commands:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/proximity-sensors/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=5 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/python3.11 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/proximity-sensors build --build-base /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/proximity-sensors/build install --record /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/proximity-sensors/install.log --single-version-externally-managed install_data

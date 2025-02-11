@@ -1,0 +1,21 @@
+CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+CMake Error at /Users/pj/.local/share/mamba/envs/ros_env/share/cmake-3.31/Modules/FindPackageHandleStandardArgs.cmake:233 (message):
+  Could NOT find TinyXML2 (missing: TINYXML2_LIBRARY)
+Call Stack (most recent call first):
+  /Users/pj/.local/share/mamba/envs/ros_env/share/cmake-3.31/Modules/FindPackageHandleStandardArgs.cmake:603 (_FPHSA_FAILURE_MESSAGE)
+  /Users/pj/sysroot/opt/ros/humble/share/tinyxml2_vendor/cmake/Modules/FindTinyXML2.cmake:60 (find_package_handle_standard_args)
+  /Users/pj/sysroot/opt/ros/humble/share/pluginlib/cmake/ament_cmake_export_dependencies-extras.cmake:21 (find_package)
+  /Users/pj/sysroot/opt/ros/humble/share/pluginlib/cmake/pluginlibConfig.cmake:41 (include)
+  /Users/pj/sysroot/opt/ros/humble/share/image_transport/cmake/ament_cmake_export_dependencies-extras.cmake:21 (find_package)
+  /Users/pj/sysroot/opt/ros/humble/share/image_transport/cmake/image_transportConfig.cmake:41 (include)
+  CMakeLists.txt:23 (find_package)
+
+
