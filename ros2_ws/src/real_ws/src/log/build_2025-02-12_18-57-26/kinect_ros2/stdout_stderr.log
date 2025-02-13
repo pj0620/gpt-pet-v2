@@ -1,0 +1,76 @@
+CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- Found ament_cmake: 1.3.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake/cmake)
+-- Found rclcpp_components: 16.0.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/rclcpp_components/cmake)
+-- Found rosidl_generator_c: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_c/cmake)
+-- Found rosidl_adapter: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_adapter/cmake)
+-- Found rosidl_generator_cpp: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_cpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 6.1.2 (/Users/pj/.local/share/mamba/envs/ros_env/share/rmw_implementation_cmake/cmake)
+-- Found rmw_cyclonedds_cpp: 1.3.4 (/Users/pj/.local/share/mamba/envs/ros_env/share/rmw_cyclonedds_cpp/cmake)
+-- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+-- Found sensor_msgs: 4.2.4 (/Users/pj/.local/share/mamba/envs/ros_env/share/sensor_msgs/cmake)
+-- Found cv_bridge: 3.2.1 (/Users/pj/.local/share/mamba/envs/ros_env/share/cv_bridge/cmake)
+-- Found image_transport: 3.1.10 (/Users/pj/.local/share/mamba/envs/ros_env/share/image_transport/cmake)
+-- Found TinyXML2 via Config file: /Users/pj/.local/share/mamba/envs/ros_env/lib/cmake/tinyxml2
+-- Found depth_image_proc: 3.0.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/depth_image_proc/cmake)
+-- Found camera_info_manager: 3.1.10 (/Users/pj/.local/share/mamba/envs/ros_env/share/camera_info_manager/cmake)
+-- Configuring done (0.8s)
+-- Generating done (0.2s)
+-- Build files have been written to: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/kinect_ros2
+[ 25%] Building CXX object CMakeFiles/kinect_ros2_component.dir/src/kinect_ros2_component.cpp.o
+/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/kinect_ros2/src/kinect_ros2_component.cpp:109:53: warning: unused parameter 'dev' [-Wunused-parameter]
+  109 | void KinectRosComponent::depth_cb(freenect_device * dev, void * depth_ptr, uint32_t timestamp)
+      |                                                     ^
+/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/kinect_ros2/src/kinect_ros2_component.cpp:109:85: warning: unused parameter 'timestamp' [-Wunused-parameter]
+  109 | void KinectRosComponent::depth_cb(freenect_device * dev, void * depth_ptr, uint32_t timestamp)
+      |                                                                                     ^
+/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/kinect_ros2/src/kinect_ros2_component.cpp:123:51: warning: unused parameter 'dev' [-Wunused-parameter]
+  123 | void KinectRosComponent::rgb_cb(freenect_device * dev, void * rgb_ptr, uint32_t timestamp)
+      |                                                   ^
+/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/kinect_ros2/src/kinect_ros2_component.cpp:123:81: warning: unused parameter 'timestamp' [-Wunused-parameter]
+  123 | void KinectRosComponent::rgb_cb(freenect_device * dev, void * rgb_ptr, uint32_t timestamp)
+      |                                                                                 ^
+4 warnings generated.
+[ 50%] Linking CXX shared library libkinect_ros2_component.dylib
+[ 50%] Built target kinect_ros2_component
+[ 75%] Building CXX object CMakeFiles/kinect_ros2_node.dir/src/kinect_ros2_node.cpp.o
+[100%] Linking CXX executable kinect_ros2_node
+[100%] Built target kinect_ros2_node
+-- Install configuration: ""
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/lib/libkinect_ros2_component.dylib
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/lib/kinect_ros2/kinect_ros2_node
+/Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/lib/kinect_ros2/kinect_ros2_node
+[cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/lib/kinect_ros2/kinect_ros2_node'
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/cfg
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/cfg/calibration_rgb.yaml
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/cfg/calibration_depth.yaml
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/launch
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/launch/showimage.launch.py
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/launch/pointcloud.launch.py
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/rviz
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/rviz/pointcloud.rviz
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/ament_index/resource_index/package_run_dependencies/kinect_ros2
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/ament_index/resource_index/parent_prefix_path/kinect_ros2
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/environment/ament_prefix_path.sh
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/environment/ament_prefix_path.dsv
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/environment/path.sh
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/environment/path.dsv
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/local_setup.bash
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/local_setup.sh
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/local_setup.zsh
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/local_setup.dsv
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/package.dsv
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/ament_index/resource_index/packages/kinect_ros2
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/ament_index/resource_index/rclcpp_components/kinect_ros2
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/cmake/kinect_ros2Config.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/cmake/kinect_ros2Config-version.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/package.xml

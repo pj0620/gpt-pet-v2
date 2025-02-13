@@ -1,0 +1,82 @@
+[0.018s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/kinect_ros2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=4 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/cmake /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/kinect_ros2 -DCMAKE_INSTALL_PREFIX=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2
+[0.123s] CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
+[0.123s]   Compatibility with CMake < 3.10 will be removed from a future version of
+[0.123s]   CMake.
+[0.123s] 
+[0.123s]   Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+[0.123s]   to tell CMake that the project requires at least <min> but has been updated
+[0.123s]   to work with policies introduced by <max> or earlier.
+[0.123s] 
+[0.123s] 
+[0.123s] -- Found ament_cmake: 1.3.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake/cmake)
+[0.212s] -- Found rclcpp_components: 16.0.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/rclcpp_components/cmake)
+[0.252s] -- Found rosidl_generator_c: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_c/cmake)
+[0.256s] -- Found rosidl_adapter: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_adapter/cmake)
+[0.264s] -- Found rosidl_generator_cpp: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_cpp/cmake)
+[0.276s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.287s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.415s] -- Found rmw_implementation_cmake: 6.1.2 (/Users/pj/.local/share/mamba/envs/ros_env/share/rmw_implementation_cmake/cmake)
+[0.417s] -- Found rmw_cyclonedds_cpp: 1.3.4 (/Users/pj/.local/share/mamba/envs/ros_env/share/rmw_cyclonedds_cpp/cmake)
+[0.441s] -- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+[0.491s] -- Found sensor_msgs: 4.2.4 (/Users/pj/.local/share/mamba/envs/ros_env/share/sensor_msgs/cmake)
+[0.540s] -- Found cv_bridge: 3.2.1 (/Users/pj/.local/share/mamba/envs/ros_env/share/cv_bridge/cmake)
+[0.542s] -- Found image_transport: 3.1.10 (/Users/pj/.local/share/mamba/envs/ros_env/share/image_transport/cmake)
+[0.552s] -- Found TinyXML2 via Config file: /Users/pj/.local/share/mamba/envs/ros_env/lib/cmake/tinyxml2
+[0.559s] -- Found depth_image_proc: 3.0.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/depth_image_proc/cmake)
+[0.748s] -- Found camera_info_manager: 3.1.10 (/Users/pj/.local/share/mamba/envs/ros_env/share/camera_info_manager/cmake)
+[0.822s] -- Configuring done (0.8s)
+[1.016s] -- Generating done (0.2s)
+[1.017s] -- Build files have been written to: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/kinect_ros2
+[1.024s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/kinect_ros2' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=4 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/cmake /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/kinect_ros2 -DCMAKE_INSTALL_PREFIX=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2
+[1.026s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/kinect_ros2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=4 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/cmake --build /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/kinect_ros2 -- -j14 -l14
+[1.107s] [ 25%] Building CXX object CMakeFiles/kinect_ros2_component.dir/src/kinect_ros2_component.cpp.o
+[2.357s] /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/kinect_ros2/src/kinect_ros2_component.cpp:109:53: warning: unused parameter 'dev' [-Wunused-parameter]
+[2.357s]   109 | void KinectRosComponent::depth_cb(freenect_device * dev, void * depth_ptr, uint32_t timestamp)
+[2.357s]       |                                                     ^
+[2.357s] /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/kinect_ros2/src/kinect_ros2_component.cpp:109:85: warning: unused parameter 'timestamp' [-Wunused-parameter]
+[2.357s]   109 | void KinectRosComponent::depth_cb(freenect_device * dev, void * depth_ptr, uint32_t timestamp)
+[2.357s]       |                                                                                     ^
+[2.357s] /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/kinect_ros2/src/kinect_ros2_component.cpp:123:51: warning: unused parameter 'dev' [-Wunused-parameter]
+[2.357s]   123 | void KinectRosComponent::rgb_cb(freenect_device * dev, void * rgb_ptr, uint32_t timestamp)
+[2.357s]       |                                                   ^
+[2.357s] /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/kinect_ros2/src/kinect_ros2_component.cpp:123:81: warning: unused parameter 'timestamp' [-Wunused-parameter]
+[2.357s]   123 | void KinectRosComponent::rgb_cb(freenect_device * dev, void * rgb_ptr, uint32_t timestamp)
+[2.357s]       |                                                                                 ^
+[2.929s] 4 warnings generated.
+[2.954s] [ 50%] Linking CXX shared library libkinect_ros2_component.dylib
+[3.043s] [ 50%] Built target kinect_ros2_component
+[3.073s] [ 75%] Building CXX object CMakeFiles/kinect_ros2_node.dir/src/kinect_ros2_node.cpp.o
+[4.429s] [100%] Linking CXX executable kinect_ros2_node
+[4.510s] [100%] Built target kinect_ros2_node
+[4.522s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/kinect_ros2' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=4 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/cmake --build /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/kinect_ros2 -- -j14 -l14
+[4.642s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/kinect_ros2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=4 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/cmake --install /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/kinect_ros2
+[4.653s] -- Install configuration: ""
+[4.653s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/lib/libkinect_ros2_component.dylib
+[4.653s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/lib/kinect_ros2/kinect_ros2_node
+[4.665s] /Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/lib/kinect_ros2/kinect_ros2_node
+[4.666s] [cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/lib/kinect_ros2/kinect_ros2_node'
+[4.733s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/cfg
+[4.733s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/cfg/calibration_rgb.yaml
+[4.734s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/cfg/calibration_depth.yaml
+[4.734s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/launch
+[4.734s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/launch/showimage.launch.py
+[4.734s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/launch/pointcloud.launch.py
+[4.735s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/rviz
+[4.735s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/rviz/pointcloud.rviz
+[4.735s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/ament_index/resource_index/package_run_dependencies/kinect_ros2
+[4.736s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/ament_index/resource_index/parent_prefix_path/kinect_ros2
+[4.736s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/environment/ament_prefix_path.sh
+[4.737s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/environment/ament_prefix_path.dsv
+[4.737s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/environment/path.sh
+[4.737s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/environment/path.dsv
+[4.737s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/local_setup.bash
+[4.738s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/local_setup.sh
+[4.738s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/local_setup.zsh
+[4.738s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/local_setup.dsv
+[4.739s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/package.dsv
+[4.739s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/ament_index/resource_index/packages/kinect_ros2
+[4.740s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/ament_index/resource_index/rclcpp_components/kinect_ros2
+[4.740s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/cmake/kinect_ros2Config.cmake
+[4.741s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/cmake/kinect_ros2Config-version.cmake
+[4.741s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/kinect_ros2/share/kinect_ros2/package.xml
+[4.744s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/kinect_ros2' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=4 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/cmake --install /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/kinect_ros2
