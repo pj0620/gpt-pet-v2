@@ -1,0 +1,216 @@
+-- Found ament_cmake: 1.3.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake/cmake)
+-- Found Python3: /Users/pj/.local/share/mamba/envs/ros_env/bin/python3 (found version "3.11.11") found components: Interpreter
+-- Override CMake install command with custom implementation using symlinks instead of copying resources
+-- Found geometry_msgs: 4.2.4 (/Users/pj/.local/share/mamba/envs/ros_env/share/geometry_msgs/cmake)
+-- Found rosidl_generator_c: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_c/cmake)
+-- Found rosidl_adapter: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_adapter/cmake)
+-- Found rosidl_generator_cpp: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_cpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rosidl_default_generators: 1.2.0 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_default_generators/cmake)
+-- Found ament_cmake_ros: 0.10.0 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake_ros/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found python_cmake_module: 0.10.0 (/Users/pj/.local/share/mamba/envs/ros_env/share/python_cmake_module/cmake)
+CMake Warning (dev) at /Users/pj/.local/share/mamba/envs/ros_env/share/python_cmake_module/cmake/Modules/FindPythonExtra.cmake:52 (find_package):
+  Policy CMP0148 is not set: The FindPythonInterp and FindPythonLibs modules
+  are removed.  Run "cmake --help-policy CMP0148" for policy details.  Use
+  the cmake_policy command to set the policy and suppress this warning.
+
+Call Stack (most recent call first):
+  /Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_py/cmake/rosidl_generator_py_generate_interfaces.cmake:21 (find_package)
+  /Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake_core/cmake/core/ament_execute_extensions.cmake:48 (include)
+  /Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_cmake/cmake/rosidl_generate_interfaces.cmake:286 (ament_execute_extensions)
+  CMakeLists.txt:17 (rosidl_generate_interfaces)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Using PythonExtra_INCLUDE_DIRS: /Users/pj/.local/share/mamba/envs/ros_env/include/python3.11;/Users/pj/.local/share/mamba/envs/ros_env/include/python3.11
+-- Using PythonExtra_LIBRARIES: /Users/pj/.local/share/mamba/envs/ros_env/lib/libpython3.11.dylib
+-- Found Python3: /Users/pj/.local/share/mamba/envs/ros_env/include/python3.11 (found version "3.11.11") found components: Development NumPy Interpreter Development.Module Development.Embed
+-- Found ament_lint_auto: 0.12.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_lint_auto/cmake)
+-- Added test 'lint_cmake' to check CMake code style
+-- Added test 'xmllint' to check XML markup files
+-- Configuring done (0.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces
+[  2%] Generating C code for ROS interfaces
+[  5%] Generating C++ code for ROS interfaces
+[  5%] Built target ament_cmake_python_symlink_common_interfaces
+[  5%] Built target common_interfaces__cpp
+[ 10%] Building C object CMakeFiles/common_interfaces__rosidl_generator_c.dir/rosidl_generator_c/common_interfaces/msg/detail/velocities__functions.c.o
+[ 10%] Building C object CMakeFiles/common_interfaces__rosidl_generator_c.dir/rosidl_generator_c/common_interfaces/srv/detail/motor_control__functions.c.o
+running egg_info
+[ 12%] Generating C++ type support dispatch for ROS interfaces
+writing common_interfaces.egg-info/PKG-INFO
+writing dependency_links to common_interfaces.egg-info/dependency_links.txt
+writing top-level names to common_interfaces.egg-info/top_level.txt
+[ 15%] Generating C++ type support for eProsima Fast-RTPS
+[ 17%] Generating C++ introspection for ROS interfaces
+reading manifest file 'common_interfaces.egg-info/SOURCES.txt'
+writing manifest file 'common_interfaces.egg-info/SOURCES.txt'
+[ 17%] Built target ament_cmake_python_build_common_interfaces_egg
+[ 20%] Linking C shared library libcommon_interfaces__rosidl_generator_c.dylib
+[ 23%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/common_interfaces/srv/motor_control__type_support.cpp.o
+[ 25%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/common_interfaces/msg/velocities__type_support.cpp.o
+[ 28%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/common_interfaces/msg/detail/velocities__type_support.cpp.o
+[ 30%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/common_interfaces/srv/detail/motor_control__type_support.cpp.o
+[ 33%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/common_interfaces/msg/detail/dds_fastrtps/velocities__type_support.cpp.o
+[ 35%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/common_interfaces/srv/detail/dds_fastrtps/motor_control__type_support.cpp.o
+[ 35%] Built target common_interfaces__rosidl_generator_c
+[ 38%] Generating C introspection for ROS interfaces
+[ 41%] Generating C type support dispatch for ROS interfaces
+[ 43%] Generating C type support for eProsima Fast-RTPS
+[ 46%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_c.dir/rosidl_typesupport_c/common_interfaces/srv/motor_control__type_support.cpp.o
+[ 48%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_c.dir/rosidl_typesupport_c/common_interfaces/msg/velocities__type_support.cpp.o
+[ 51%] Building C object CMakeFiles/common_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/common_interfaces/msg/detail/velocities__type_support.c.o
+[ 53%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/common_interfaces/srv/detail/motor_control__type_support_c.cpp.o
+[ 56%] Building C object CMakeFiles/common_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/common_interfaces/srv/detail/motor_control__type_support.c.o
+[ 58%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/common_interfaces/msg/detail/velocities__type_support_c.cpp.o
+[ 61%] Linking CXX shared library libcommon_interfaces__rosidl_typesupport_c.dylib
+[ 64%] Linking C shared library libcommon_interfaces__rosidl_typesupport_introspection_c.dylib
+[ 66%] Linking CXX shared library libcommon_interfaces__rosidl_typesupport_cpp.dylib
+[ 66%] Built target common_interfaces__rosidl_typesupport_introspection_c
+[ 66%] Built target common_interfaces__rosidl_typesupport_c
+[ 69%] Linking CXX shared library libcommon_interfaces__rosidl_typesupport_introspection_cpp.dylib
+[ 69%] Built target common_interfaces__rosidl_typesupport_cpp
+[ 71%] Linking CXX shared library libcommon_interfaces__rosidl_typesupport_fastrtps_cpp.dylib
+[ 71%] Built target common_interfaces__rosidl_typesupport_introspection_cpp
+[ 71%] Built target common_interfaces__rosidl_typesupport_fastrtps_cpp
+[ 74%] Linking CXX shared library libcommon_interfaces__rosidl_typesupport_fastrtps_c.dylib
+[ 74%] Built target common_interfaces__rosidl_typesupport_fastrtps_c
+[ 74%] Built target common_interfaces
+[ 76%] Generating Python code for ROS interfaces
+[ 76%] Built target common_interfaces__py
+[ 82%] Building C object CMakeFiles/common_interfaces__rosidl_generator_py.dir/rosidl_generator_py/common_interfaces/msg/_velocities_s.c.o
+[ 82%] Building C object CMakeFiles/common_interfaces__rosidl_generator_py.dir/rosidl_generator_py/common_interfaces/srv/_motor_control_s.c.o
+[ 84%] Linking C shared library rosidl_generator_py/common_interfaces/libcommon_interfaces__rosidl_generator_py.dylib
+[ 84%] Built target common_interfaces__rosidl_generator_py
+[ 89%] Building C object CMakeFiles/common_interfaces__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/common_interfaces/_common_interfaces_s.ep.rosidl_typesupport_c.c.o
+[ 89%] Building C object CMakeFiles/common_interfaces__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/common_interfaces/_common_interfaces_s.ep.rosidl_typesupport_introspection_c.c.o
+[ 92%] Building C object CMakeFiles/common_interfaces__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/common_interfaces/_common_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c.o
+[ 97%] Linking C shared library rosidl_generator_py/common_interfaces/common_interfaces_s__rosidl_typesupport_fastrtps_c.cpython-311-darwin.so
+[ 97%] Linking C shared library rosidl_generator_py/common_interfaces/common_interfaces_s__rosidl_typesupport_c.cpython-311-darwin.so
+[100%] Linking C shared library rosidl_generator_py/common_interfaces/common_interfaces_s__rosidl_typesupport_introspection_c.cpython-311-darwin.so
+[100%] Built target common_interfaces__rosidl_typesupport_introspection_c__pyext
+[100%] Built target common_interfaces__rosidl_typesupport_fastrtps_c__pyext
+[100%] Built target common_interfaces__rosidl_typesupport_c__pyext
+-- Install configuration: ""
+-- Execute custom install script
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/ament_index/resource_index/rosidl_interfaces/common_interfaces
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/detail/velocities__functions.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/detail/velocities__struct.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/detail/velocities__type_support.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/rosidl_generator_c__visibility_control.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/velocities.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/detail/motor_control__functions.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/detail/motor_control__struct.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/detail/motor_control__type_support.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/motor_control.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/detail/velocities__rosidl_typesupport_fastrtps_c.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/detail/motor_control__rosidl_typesupport_fastrtps_c.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/detail/velocities__builder.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/detail/velocities__struct.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/detail/velocities__traits.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/detail/velocities__type_support.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/rosidl_generator_cpp__visibility_control.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/velocities.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/detail/motor_control__builder.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/detail/motor_control__struct.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/detail/motor_control__traits.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/detail/motor_control__type_support.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/motor_control.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/detail/velocities__rosidl_typesupport_fastrtps_cpp.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/detail/motor_control__rosidl_typesupport_fastrtps_cpp.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/detail/velocities__rosidl_typesupport_introspection_c.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/rosidl_typesupport_introspection_c__visibility_control.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/detail/motor_control__rosidl_typesupport_introspection_c.h
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/msg/detail/velocities__rosidl_typesupport_introspection_cpp.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/include/common_interfaces/common_interfaces/srv/detail/motor_control__rosidl_typesupport_introspection_cpp.hpp
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/environment/pythonpath.sh
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/environment/pythonpath.dsv
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces-0.0.0-py3.11.egg-info/PKG-INFO
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces-0.0.0-py3.11.egg-info/SOURCES.txt
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces-0.0.0-py3.11.egg-info/dependency_links.txt
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces-0.0.0-py3.11.egg-info/top_level.txt
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/__init__.py
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/_common_interfaces_s.ep.rosidl_typesupport_c.c
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/_common_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/_common_interfaces_s.ep.rosidl_typesupport_introspection_c.c
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/common_interfaces_s__rosidl_typesupport_c.cpython-311-darwin.so
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/common_interfaces_s__rosidl_typesupport_fastrtps_c.cpython-311-darwin.so
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/common_interfaces_s__rosidl_typesupport_introspection_c.cpython-311-darwin.so
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/libcommon_interfaces__rosidl_generator_py.dylib
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/msg/__init__.py
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/msg/_velocities.py
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/msg/_velocities_s.c
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/srv/__init__.py
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/srv/_motor_control.py
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/srv/_motor_control_s.c
+-- Up-to-date symlink: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/common_interfaces_s__rosidl_typesupport_fastrtps_c.cpython-311-darwin.so
+-- Up-to-date symlink: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/common_interfaces_s__rosidl_typesupport_introspection_c.cpython-311-darwin.so
+-- Up-to-date symlink: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages/common_interfaces/common_interfaces_s__rosidl_typesupport_c.cpython-311-darwin.so
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/msg/Velocities.idl
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/srv/MotorControl.idl
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/msg/Velocities.msg
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/srv/MotorControl.srv
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/srv/MotorControl_Request.msg
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/srv/MotorControl_Response.msg
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/ament_index/resource_index/package_run_dependencies/common_interfaces
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/ament_index/resource_index/parent_prefix_path/common_interfaces
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/environment/ament_prefix_path.sh
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/environment/ament_prefix_path.dsv
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/environment/path.sh
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/environment/path.dsv
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/local_setup.bash
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/local_setup.sh
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/local_setup.zsh
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/local_setup.dsv
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/package.dsv
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/ament_index/resource_index/packages/common_interfaces
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/rosidl_cmake-extras.cmake
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/ament_cmake_export_include_directories-extras.cmake
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/ament_cmake_export_libraries-extras.cmake
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/ament_cmake_export_targets-extras.cmake
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/ament_cmake_export_dependencies-extras.cmake
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/common_interfacesConfig.cmake
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/common_interfacesConfig-version.cmake
+-- Symlinking: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/package.xml
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_generator_c.dylib
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_typesupport_fastrtps_c.dylib
+/Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_typesupport_fastrtps_c.dylib
+[cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_typesupport_fastrtps_c.dylib'
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_typesupport_fastrtps_cpp.dylib
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_typesupport_introspection_c.dylib
+/Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_typesupport_introspection_c.dylib
+[cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_typesupport_introspection_c.dylib'
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_typesupport_c.dylib
+/Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_typesupport_c.dylib
+[cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_typesupport_c.dylib'
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_typesupport_introspection_cpp.dylib
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_typesupport_cpp.dylib
+Listing 'lib/python3.11/site-packages/common_interfaces'...
+Can't list 'lib/python3.11/site-packages/common_interfaces'
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_generator_py.dylib
+/Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_generator_py.dylib
+[cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/lib/libcommon_interfaces__rosidl_generator_py.dylib'
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/export_common_interfaces__rosidl_generator_cExport.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/export_common_interfaces__rosidl_generator_cExport-noconfig.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/export_common_interfaces__rosidl_typesupport_fastrtps_cExport.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/export_common_interfaces__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/export_common_interfaces__rosidl_generator_cppExport.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/export_common_interfaces__rosidl_typesupport_fastrtps_cppExport.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/export_common_interfaces__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/common_interfaces__rosidl_typesupport_introspection_cExport.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/common_interfaces__rosidl_typesupport_introspection_cExport-noconfig.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/common_interfaces__rosidl_typesupport_cExport.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/common_interfaces__rosidl_typesupport_cExport-noconfig.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/common_interfaces__rosidl_typesupport_introspection_cppExport.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/common_interfaces__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/common_interfaces__rosidl_typesupport_cppExport.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/common_interfaces__rosidl_typesupport_cppExport-noconfig.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/export_common_interfaces__rosidl_generator_pyExport.cmake
+-- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces/share/common_interfaces/cmake/export_common_interfaces__rosidl_generator_pyExport-noconfig.cmake

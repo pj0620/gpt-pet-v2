@@ -1,0 +1,34 @@
+[0.328s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/motors': CONDA_PROMPT_MODIFIER=(ros_env) PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/prefix_override:/Users/pj/.local/share/mamba/envs/ros_env/lib/python3.11/site-packages/colcon_core/task/python/colcon_distutils_commands:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/python3.11 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../build/motors build --build-base /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/build install --record /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/install.log --single-version-externally-managed install_data
+[0.396s] /Users/pj/.local/share/mamba/envs/ros_env/lib/python3.11/site-packages/setuptools/_distutils/dist.py:270: UserWarning: Unknown distribution option: 'tests_require'
+[0.396s]   warnings.warn(msg)
+[0.430s] running egg_info
+[0.435s] creating ../build/motors/motors.egg-info
+[0.435s] writing ../build/motors/motors.egg-info/PKG-INFO
+[0.435s] writing dependency_links to ../build/motors/motors.egg-info/dependency_links.txt
+[0.435s] writing requirements to ../build/motors/motors.egg-info/requires.txt
+[0.436s] writing top-level names to ../build/motors/motors.egg-info/top_level.txt
+[0.436s] writing manifest file '../build/motors/motors.egg-info/SOURCES.txt'
+[0.447s] reading manifest file '../build/motors/motors.egg-info/SOURCES.txt'
+[0.447s] adding license file 'LICENSE'
+[0.447s] writing manifest file '../build/motors/motors.egg-info/SOURCES.txt'
+[0.447s] running build
+[0.447s] running build_py
+[0.447s] creating /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/build/lib/motors
+[0.447s] copying motors/motor_control.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/build/lib/motors
+[0.448s] copying motors/__init__.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/build/lib/motors
+[0.448s] running install
+[0.450s] running install_lib
+[0.455s] creating /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages/motors
+[0.455s] copying /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/build/lib/motors/motor_control.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages/motors
+[0.456s] copying /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/build/lib/motors/__init__.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages/motors
+[0.456s] byte-compiling /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages/motors/motor_control.py to motor_control.cpython-311.pyc
+[0.456s] byte-compiling /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages/motors/__init__.py to __init__.cpython-311.pyc
+[0.456s] running install_data
+[0.456s] creating /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/share/ament_index/resource_index/packages
+[0.457s] copying resource/motors -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/share/ament_index/resource_index/packages
+[0.457s] copying package.xml -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/share/motors
+[0.457s] running install_egg_info
+[0.463s] Copying ../build/motors/motors.egg-info to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages/motors-0.0.0-py3.11.egg-info
+[0.464s] running install_scripts
+[0.506s] writing list of installed files to '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/install.log'
+[0.517s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/motors' returned '0': CONDA_PROMPT_MODIFIER=(ros_env) PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/prefix_override:/Users/pj/.local/share/mamba/envs/ros_env/lib/python3.11/site-packages/colcon_core/task/python/colcon_distutils_commands:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/python3.11 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../build/motors build --build-base /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/build install --record /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/install.log --single-version-externally-managed install_data

@@ -1,0 +1,11 @@
+{
+  "editor.tabSize": 2,
+  "editor.rulers": [100],
+  // "ros.rosSetupScript": "/Users/pj/.local/share/mamba/envs/ros_env/setup.bash",
+  // "ros.isolateEnvironment": "false",
+  "search.exclude": {
+    "**/build": true,
+    "**/install": true,
+    "**/log": true
+  }
+}

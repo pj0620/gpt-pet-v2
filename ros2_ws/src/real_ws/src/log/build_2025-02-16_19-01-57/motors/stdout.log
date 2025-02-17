@@ -1,0 +1,30 @@
+running egg_info
+creating ../build/motors/motors.egg-info
+writing ../build/motors/motors.egg-info/PKG-INFO
+writing dependency_links to ../build/motors/motors.egg-info/dependency_links.txt
+writing requirements to ../build/motors/motors.egg-info/requires.txt
+writing top-level names to ../build/motors/motors.egg-info/top_level.txt
+writing manifest file '../build/motors/motors.egg-info/SOURCES.txt'
+reading manifest file '../build/motors/motors.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file '../build/motors/motors.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/build/lib/motors
+copying motors/motor_control.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/build/lib/motors
+copying motors/__init__.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/build/lib/motors
+running install
+running install_lib
+creating /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages/motors
+copying /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/build/lib/motors/motor_control.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages/motors
+copying /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/build/lib/motors/__init__.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages/motors
+byte-compiling /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages/motors/motor_control.py to motor_control.cpython-311.pyc
+byte-compiling /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages/motors/__init__.py to __init__.cpython-311.pyc
+running install_data
+creating /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/share/ament_index/resource_index/packages
+copying resource/motors -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/share/ament_index/resource_index/packages
+copying package.xml -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/share/motors
+running install_egg_info
+Copying ../build/motors/motors.egg-info to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/install/motors/lib/python3.11/site-packages/motors-0.0.0-py3.11.egg-info
+running install_scripts
+writing list of installed files to '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/src/build/motors/install.log'

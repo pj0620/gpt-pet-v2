@@ -1,0 +1,20 @@
+running develop
+running egg_info
+creating motors.egg-info
+writing motors.egg-info/PKG-INFO
+writing dependency_links to motors.egg-info/dependency_links.txt
+writing entry points to motors.egg-info/entry_points.txt
+writing requirements to motors.egg-info/requires.txt
+writing top-level names to motors.egg-info/top_level.txt
+writing manifest file 'motors.egg-info/SOURCES.txt'
+reading manifest file 'motors.egg-info/SOURCES.txt'
+writing manifest file 'motors.egg-info/SOURCES.txt'
+running build_ext
+Creating /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/motors/lib/python3.11/site-packages/motors.egg-link (link to .)
+Installing service script to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/motors/lib/motors
+
+Installed /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/motors
+running symlink_data
+creating /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/motors/share/ament_index/resource_index/packages
+symbolically linking /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/motors/resource/motors -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/motors/share/ament_index/resource_index/packages
+symbolically linking /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/build/motors/package.xml -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/motors/share/motors

@@ -1,0 +1,113 @@
+[0.016s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/cmake /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/src/common_interfaces -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces
+[0.185s] -- The C compiler identification is Clang 18.1.8
+[0.335s] -- The CXX compiler identification is Clang 18.1.8
+[0.342s] -- Detecting C compiler ABI info
+[0.510s] -- Detecting C compiler ABI info - done
+[0.515s] -- Check for working C compiler: /Users/pj/.local/share/mamba/envs/ros_env/bin/arm64-apple-darwin20.0.0-clang - skipped
+[0.516s] -- Detecting C compile features
+[0.516s] -- Detecting C compile features - done
+[0.519s] -- Detecting CXX compiler ABI info
+[0.668s] -- Detecting CXX compiler ABI info - done
+[0.672s] -- Check for working CXX compiler: /Users/pj/.local/share/mamba/envs/ros_env/bin/arm64-apple-darwin20.0.0-clang++ - skipped
+[0.672s] -- Detecting CXX compile features
+[0.673s] -- Detecting CXX compile features - done
+[0.684s] -- Found ament_cmake: 1.3.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake/cmake)
+[0.772s] -- Found Python3: /Users/pj/.local/share/mamba/envs/ros_env/bin/python3 (found version "3.11.11") found components: Interpreter
+[0.809s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.916s] -- Found geometry_msgs: 4.2.4 (/Users/pj/.local/share/mamba/envs/ros_env/share/geometry_msgs/cmake)
+[0.993s] -- Found rosidl_generator_c: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_c/cmake)
+[1.008s] -- Found rosidl_adapter: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_adapter/cmake)
+[1.025s] -- Found rosidl_generator_cpp: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_cpp/cmake)
+[1.045s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.073s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.131s] -- Found rosidl_default_generators: 1.2.0 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_default_generators/cmake)
+[1.364s] -- Found ament_cmake_ros: 0.10.0 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake_ros/cmake)
+[1.752s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.896s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.905s] -- Found python_cmake_module: 0.10.0 (/Users/pj/.local/share/mamba/envs/ros_env/share/python_cmake_module/cmake)
+[1.905s] CMake Warning (dev) at /Users/pj/.local/share/mamba/envs/ros_env/share/python_cmake_module/cmake/Modules/FindPythonExtra.cmake:52 (find_package):
+[1.905s]   Policy CMP0148 is not set: The FindPythonInterp and FindPythonLibs modules
+[1.905s]   are removed.  Run "cmake --help-policy CMP0148" for policy details.  Use
+[1.905s]   the cmake_policy command to set the policy and suppress this warning.
+[1.905s] 
+[1.905s] Call Stack (most recent call first):
+[1.905s]   /Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_py/cmake/rosidl_generator_py_generate_interfaces.cmake:21 (find_package)
+[1.905s]   /Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake_core/cmake/core/ament_execute_extensions.cmake:48 (include)
+[1.905s]   /Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_cmake/cmake/rosidl_generate_interfaces.cmake:286 (ament_execute_extensions)
+[1.905s]   CMakeLists.txt:17 (rosidl_generate_interfaces)
+[1.905s] This warning is for project developers.  Use -Wno-dev to suppress it.
+[1.905s] 
+[1.915s] -- Found PythonInterp: /Users/pj/.local/share/mamba/envs/ros_env/bin/python3 (found suitable version "3.11.11", minimum required is "3.6")
+[1.928s] -- Using PythonExtra_INCLUDE_DIRS: /Users/pj/.local/share/mamba/envs/ros_env/include/python3.11;/Users/pj/.local/share/mamba/envs/ros_env/include/python3.11
+[1.948s] -- Using PythonExtra_LIBRARIES: /Users/pj/.local/share/mamba/envs/ros_env/lib/libpython3.11.dylib
+[1.961s] -- Found PythonExtra: .so
+[2.196s] -- Found Python3: /Users/pj/.local/share/mamba/envs/ros_env/include/python3.11 (found version "3.11.11") found components: Development NumPy Interpreter Development.Module Development.Embed
+[2.223s] -- Found ament_lint_auto: 0.12.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_lint_auto/cmake)
+[2.278s] -- Added test 'lint_cmake' to check CMake code style
+[2.279s] -- Added test 'xmllint' to check XML markup files
+[2.284s] -- Configuring done (2.3s)
+[2.360s] -- Generating done (0.1s)
+[2.360s] -- Build files have been written to: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces
+[2.365s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/cmake /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/src/common_interfaces -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/install/common_interfaces
+[2.366s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/cmake --build /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces -- -j14 -l14
+[2.426s] [  2%] Generating C code for ROS interfaces
+[2.445s] [  5%] Generating C++ code for ROS interfaces
+[2.456s] [  5%] Built target ament_cmake_python_symlink_common_interfaces
+[2.620s] [  5%] Built target common_interfaces__cpp
+[2.625s] [ 10%] Building C object CMakeFiles/common_interfaces__rosidl_generator_c.dir/rosidl_generator_c/common_interfaces/msg/detail/velocities__functions.c.o
+[2.625s] [ 10%] Building C object CMakeFiles/common_interfaces__rosidl_generator_c.dir/rosidl_generator_c/common_interfaces/srv/detail/motor_control__functions.c.o
+[2.630s] running egg_info
+[2.639s] creating common_interfaces.egg-info
+[2.639s] writing common_interfaces.egg-info/PKG-INFO
+[2.640s] writing dependency_links to common_interfaces.egg-info/dependency_links.txt
+[2.640s] writing top-level names to common_interfaces.egg-info/top_level.txt
+[2.640s] writing manifest file 'common_interfaces.egg-info/SOURCES.txt'
+[2.644s] [ 12%] Generating C++ type support for eProsima Fast-RTPS
+[2.645s] [ 17%] Generating C++ type support dispatch for ROS interfaces
+[2.645s] [ 17%] Generating C++ introspection for ROS interfaces
+[2.662s] reading manifest file 'common_interfaces.egg-info/SOURCES.txt'
+[2.662s] writing manifest file 'common_interfaces.egg-info/SOURCES.txt'
+[2.665s] In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces/rosidl_generator_c/common_interfaces/srv/detail/motor_control__functions.c:4:
+[2.665s] In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces/rosidl_generator_c/common_interfaces/srv/detail/motor_control__functions.h:19:
+[2.665s] /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces/rosidl_generator_c/common_interfaces/srv/detail/motor_control__struct.h:22:10: fatal error: 'common/msg/detail/velocities__struct.h' file not found
+[2.665s]    22 | #include "common/msg/detail/velocities__struct.h"
+[2.665s]       |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[2.671s] 1 error generated.
+[2.673s] make[2]: *** [CMakeFiles/common_interfaces__rosidl_generator_c.dir/build.make:138: CMakeFiles/common_interfaces__rosidl_generator_c.dir/rosidl_generator_c/common_interfaces/srv/detail/motor_control__functions.c.o] Error 1
+[2.673s] make[2]: *** Waiting for unfinished jobs....
+[2.691s] [ 17%] Built target ament_cmake_python_build_common_interfaces_egg
+[2.704s] make[1]: *** [CMakeFiles/Makefile2:258: CMakeFiles/common_interfaces__rosidl_generator_c.dir/all] Error 2
+[2.704s] make[1]: *** Waiting for unfinished jobs....
+[2.788s] [ 23%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/common_interfaces/msg/velocities__type_support.cpp.o
+[2.788s] [ 23%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/common_interfaces/srv/motor_control__type_support.cpp.o
+[2.798s] [ 25%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/common_interfaces/srv/detail/motor_control__type_support.cpp.o
+[2.798s] [ 28%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/common_interfaces/msg/detail/velocities__type_support.cpp.o
+[2.804s] [ 33%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/common_interfaces/msg/detail/dds_fastrtps/velocities__type_support.cpp.o
+[2.804s] [ 33%] Building CXX object CMakeFiles/common_interfaces__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/common_interfaces/srv/detail/dds_fastrtps/motor_control__type_support.cpp.o
+[3.075s] In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces/rosidl_typesupport_fastrtps_cpp/common_interfaces/srv/detail/dds_fastrtps/motor_control__type_support.cpp:4:
+[3.075s] In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces/rosidl_typesupport_fastrtps_cpp/common_interfaces/srv/detail/motor_control__rosidl_typesupport_fastrtps_cpp.hpp:11:
+[3.075s] /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces/rosidl_generator_cpp/common_interfaces/srv/detail/motor_control__struct.hpp:20:10: fatal error: 'common/msg/detail/velocities__struct.hpp' file not found
+[3.075s]    20 | #include "common/msg/detail/velocities__struct.hpp"
+[3.075s]       |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[3.075s] In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces/rosidl_typesupport_cpp/common_interfaces/srv/motor_control__type_support.cpp:7:
+[3.075s] /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces/rosidl_generator_cpp/common_interfaces/srv/detail/motor_control__struct.hpp:20:10: fatal error: 'common/msg/detail/velocities__struct.hpp' file not found
+[3.075s]    20 | #include "common/msg/detail/velocities__struct.hpp"
+[3.075s]       |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[3.078s] 1 error generated.
+[3.081s] make[2]: *** [CMakeFiles/common_interfaces__rosidl_typesupport_cpp.dir/build.make:107: CMakeFiles/common_interfaces__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/common_interfaces/srv/motor_control__type_support.cpp.o] Error 1
+[3.081s] make[2]: *** Waiting for unfinished jobs....
+[3.087s] In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces/rosidl_typesupport_introspection_cpp/common_interfaces/srv/detail/motor_control__type_support.cpp:12:
+[3.087s] /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces/rosidl_generator_cpp/common_interfaces/srv/detail/motor_control__struct.hpp:20:10: fatal error: 'common/msg/detail/velocities__struct.hpp' file not found
+[3.087s]    20 | #include "common/msg/detail/velocities__struct.hpp"
+[3.087s]       |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[3.089s] 1 error generated.
+[3.093s] make[2]: *** [CMakeFiles/common_interfaces__rosidl_typesupport_introspection_cpp.dir/build.make:115: CMakeFiles/common_interfaces__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/common_interfaces/srv/detail/motor_control__type_support.cpp.o] Error 1
+[3.093s] make[2]: *** Waiting for unfinished jobs....
+[3.113s] make[1]: *** [CMakeFiles/Makefile2:482: CMakeFiles/common_interfaces__rosidl_typesupport_cpp.dir/all] Error 2
+[3.126s] make[1]: *** [CMakeFiles/Makefile2:450: CMakeFiles/common_interfaces__rosidl_typesupport_introspection_cpp.dir/all] Error 2
+[3.134s] 1 error generated.
+[3.137s] make[2]: *** [CMakeFiles/common_interfaces__rosidl_typesupport_fastrtps_cpp.dir/build.make:115: CMakeFiles/common_interfaces__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/common_interfaces/srv/detail/dds_fastrtps/motor_control__type_support.cpp.o] Error 1
+[3.137s] make[2]: *** Waiting for unfinished jobs....
+[3.180s] make[1]: *** [CMakeFiles/Makefile2:354: CMakeFiles/common_interfaces__rosidl_typesupport_fastrtps_cpp.dir/all] Error 2
+[3.180s] make: *** [Makefile:146: all] Error 2
+[3.183s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces' returned '2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /Users/pj/.local/share/mamba/envs/ros_env/bin/cmake --build /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/common/build/common_interfaces -- -j14 -l14
