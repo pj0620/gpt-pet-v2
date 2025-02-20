@@ -1,0 +1,53 @@
+running egg_info
+writing ../../../build/nav2_simple_commander/nav2_simple_commander.egg-info/PKG-INFO
+writing dependency_links to ../../../build/nav2_simple_commander/nav2_simple_commander.egg-info/dependency_links.txt
+writing entry points to ../../../build/nav2_simple_commander/nav2_simple_commander.egg-info/entry_points.txt
+writing requirements to ../../../build/nav2_simple_commander/nav2_simple_commander.egg-info/requires.txt
+writing top-level names to ../../../build/nav2_simple_commander/nav2_simple_commander.egg-info/top_level.txt
+reading manifest file '../../../build/nav2_simple_commander/nav2_simple_commander.egg-info/SOURCES.txt'
+writing manifest file '../../../build/nav2_simple_commander/nav2_simple_commander.egg-info/SOURCES.txt'
+running build
+running build_py
+copying nav2_simple_commander/demo_security.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/example_nav_through_poses.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/footprint_collision_checker.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/demo_recoveries.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/costmap_2d.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/robot_navigator.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/__init__.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/example_assisted_teleop.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/example_waypoint_follower.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/demo_inspection.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/example_follow_path.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/line_iterator.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/example_nav_to_pose.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+copying nav2_simple_commander/demo_picking.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/build/lib/nav2_simple_commander
+running install
+running install_lib
+running install_data
+copying resource/nav2_simple_commander -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/share/ament_index/resource_index/packages
+copying package.xml -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/share/nav2_simple_commander
+copying launch/picking_demo_launch.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/share/nav2_simple_commander
+copying launch/follow_path_example_launch.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/share/nav2_simple_commander
+copying launch/warehouse.world -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/share/nav2_simple_commander
+copying launch/nav_to_pose_example_launch.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/share/nav2_simple_commander
+copying launch/recoveries_example_launch.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/share/nav2_simple_commander
+copying launch/security_demo_launch.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/share/nav2_simple_commander
+copying launch/nav_through_poses_example_launch.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/share/nav2_simple_commander
+copying launch/waypoint_follower_example_launch.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/share/nav2_simple_commander
+copying launch/assisted_teleop_example_launch.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/share/nav2_simple_commander
+copying launch/inspection_demo_launch.py -> /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/share/nav2_simple_commander
+running install_egg_info
+removing '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/lib/python3.11/site-packages/nav2_simple_commander-1.0.0-py3.11.egg-info' (and everything under it)
+Copying ../../../build/nav2_simple_commander/nav2_simple_commander.egg-info to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/lib/python3.11/site-packages/nav2_simple_commander-1.0.0-py3.11.egg-info
+running install_scripts
+Installing demo_inspection script to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/lib/nav2_simple_commander
+Installing demo_picking script to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/lib/nav2_simple_commander
+Installing demo_recoveries script to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/lib/nav2_simple_commander
+Installing demo_security script to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/lib/nav2_simple_commander
+Installing example_assisted_teleop script to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/lib/nav2_simple_commander
+Installing example_follow_path script to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/lib/nav2_simple_commander
+Installing example_nav_through_poses script to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/lib/nav2_simple_commander
+Installing example_nav_to_pose script to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/lib/nav2_simple_commander
+Installing example_waypoint_follower script to /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_simple_commander/lib/nav2_simple_commander
+writing list of installed files to '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_simple_commander/install.log'

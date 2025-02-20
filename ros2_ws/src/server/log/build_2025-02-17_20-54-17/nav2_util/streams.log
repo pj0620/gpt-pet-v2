@@ -1,0 +1,102 @@
+[0.022s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_util': AMENT_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common:/opt/homebrew/opt/qt@5:/opt/homebrew/opt/qt@5:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) DYLD_LIBRARY_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs/lib PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs/lib/python3.11/site-packages:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util -DCMAKE_INSTALL_PREFIX=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_util
+[0.046s] CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
+[0.046s]   Compatibility with CMake < 3.10 will be removed from a future version of
+[0.046s]   CMake.
+[0.046s] 
+[0.046s]   Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+[0.046s]   to tell CMake that the project requires at least <min> but has been updated
+[0.046s]   to work with policies introduced by <max> or earlier.
+[0.046s] 
+[0.046s] 
+[0.078s] -- Found ament_cmake: 1.3.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake/cmake)
+[0.215s] -- Found nav2_common: 1.1.18 (/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common/share/nav2_common/cmake)
+[0.216s] -- Found nav2_msgs: 1.1.18 (/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs/share/nav2_msgs/cmake)
+[0.245s] -- Found rosidl_generator_c: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_c/cmake)
+[0.248s] -- Found rosidl_adapter: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_adapter/cmake)
+[0.256s] -- Found rosidl_generator_cpp: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_cpp/cmake)
+[0.269s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.285s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.418s] -- Found tf2_ros: 0.25.10 (/Users/pj/.local/share/mamba/envs/ros_env/share/tf2_ros/cmake)
+[0.582s] -- Found rmw_implementation_cmake: 6.1.2 (/Users/pj/.local/share/mamba/envs/ros_env/share/rmw_implementation_cmake/cmake)
+[0.584s] -- Found rmw_cyclonedds_cpp: 1.3.4 (/Users/pj/.local/share/mamba/envs/ros_env/share/rmw_cyclonedds_cpp/cmake)
+[0.615s] -- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+[0.711s] -- Found tf2_geometry_msgs: 0.25.10 (/Users/pj/.local/share/mamba/envs/ros_env/share/tf2_geometry_msgs/cmake)
+[0.717s] -- Found eigen3_cmake_module: 0.1.1 (/Users/pj/.local/share/mamba/envs/ros_env/share/eigen3_cmake_module/cmake)
+[0.718s] -- Ensuring Eigen3 include directory is part of orocos-kdl CMake target
+[0.720s] -- Found lifecycle_msgs: 1.2.1 (/Users/pj/.local/share/mamba/envs/ros_env/share/lifecycle_msgs/cmake)
+[0.733s] -- Found rclcpp_lifecycle: 16.0.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/rclcpp_lifecycle/cmake)
+[0.743s] -- Found bondcpp: 3.0.2 (/Users/pj/.local/share/mamba/envs/ros_env/share/bondcpp/cmake)
+[0.772s] CMake Warning (dev) at src/CMakeLists.txt:31 (find_package):
+[0.772s]   Policy CMP0167 is not set: The FindBoost module is removed.  Run "cmake
+[0.772s]   --help-policy CMP0167" for policy details.  Use the cmake_policy command to
+[0.772s]   set the policy and suppress this warning.
+[0.772s] 
+[0.773s] This warning is for project developers.  Use -Wno-dev to suppress it.
+[0.773s] 
+[0.778s] -- Found ament_lint_auto: 0.12.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_lint_auto/cmake)
+[0.780s] -- Found ament_cmake_pytest: 1.3.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake_pytest/cmake)
+[0.781s] -- Found launch_testing_ament_cmake: 1.0.7 (/Users/pj/.local/share/mamba/envs/ros_env/share/launch_testing_ament_cmake/cmake)
+[0.782s] -- Found python_cmake_module: 0.10.0 (/Users/pj/.local/share/mamba/envs/ros_env/share/python_cmake_module/cmake)
+[0.782s] CMake Warning (dev) at /Users/pj/.local/share/mamba/envs/ros_env/share/python_cmake_module/cmake/Modules/FindPythonExtra.cmake:52 (find_package):
+[0.782s]   Policy CMP0148 is not set: The FindPythonInterp and FindPythonLibs modules
+[0.782s]   are removed.  Run "cmake --help-policy CMP0148" for policy details.  Use
+[0.782s]   the cmake_policy command to set the policy and suppress this warning.
+[0.782s] 
+[0.782s] Call Stack (most recent call first):
+[0.782s]   /Users/pj/.local/share/mamba/envs/ros_env/share/launch_testing_ament_cmake/cmake/launch_testing_ament_cmake-extras.cmake:18 (find_package)
+[0.782s]   /Users/pj/.local/share/mamba/envs/ros_env/share/launch_testing_ament_cmake/cmake/launch_testing_ament_cmakeConfig.cmake:41 (include)
+[0.782s]   CMakeLists.txt:52 (find_package)
+[0.782s] This warning is for project developers.  Use -Wno-dev to suppress it.
+[0.782s] 
+[0.793s] -- Using PythonExtra_INCLUDE_DIRS: /Users/pj/.local/share/mamba/envs/ros_env/include/python3.11;/Users/pj/.local/share/mamba/envs/ros_env/include/python3.11
+[0.793s] -- Using PythonExtra_LIBRARIES: /Users/pj/.local/share/mamba/envs/ros_env/lib/libpython3.11.dylib
+[0.914s] -- Found gtest sources under '/Users/pj/.local/share/mamba/envs/ros_env/src/gtest_vendor': C++ tests using 'Google Test' will be built
+[0.915s] CMake Deprecation Warning at /Users/pj/.local/share/mamba/envs/ros_env/src/gtest_vendor/CMakeLists.txt:2 (cmake_minimum_required):
+[0.915s]   Compatibility with CMake < 3.10 will be removed from a future version of
+[0.915s]   CMake.
+[0.915s] 
+[0.915s]   Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+[0.915s]   to tell CMake that the project requires at least <min> but has been updated
+[0.915s]   to work with policies introduced by <max> or earlier.
+[0.915s] 
+[0.915s] 
+[0.939s] -- Added test 'copyright' to check source files copyright and LICENSE
+[0.941s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[0.941s] -- Configured cppcheck include dirs: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util/include
+[0.941s] -- Configured cppcheck exclude dirs and/or files: 
+[0.943s] -- Added test 'cpplint' to check C / C++ code against the Google style
+[0.943s] -- Configured cpplint exclude dirs and/or files: 
+[0.944s] -- Added test 'lint_cmake' to check CMake code style
+[0.946s] -- Added test 'uncrustify' to check C / C++ code style
+[0.946s] -- Configured uncrustify additional arguments: 
+[0.947s] -- Added test 'xmllint' to check XML markup files
+[0.951s] -- Configuring done (0.9s)
+[1.219s] -- Generating done (0.3s)
+[1.219s] -- Build files have been written to: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_util
+[1.226s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_util' returned '0': AMENT_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common:/opt/homebrew/opt/qt@5:/opt/homebrew/opt/qt@5:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) DYLD_LIBRARY_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs/lib PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs/lib/python3.11/site-packages:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util -DCMAKE_INSTALL_PREFIX=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_util
+[1.229s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_util': AMENT_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common:/opt/homebrew/opt/qt@5:/opt/homebrew/opt/qt@5:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) DYLD_LIBRARY_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs/lib PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs/lib/python3.11/site-packages:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake --build /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_util -- -j14 -l14
+[1.312s] [  5%] Linking CXX static library libgtest_main.a
+[1.312s] [  5%] Linking CXX static library libgtest.a
+[1.348s] [ 10%] Building CXX object src/CMakeFiles/nav2_util_core.dir/lifecycle_node.cpp.o
+[1.348s] [ 10%] Building CXX object src/CMakeFiles/nav2_util_core.dir/odometry_utils.cpp.o
+[1.377s] [ 12%] Built target gtest
+[1.381s] [ 15%] Built target gtest_main
+[1.424s] [ 17%] Linking CXX executable test_execution_timer
+[1.503s] [ 20%] Built target test_execution_timer
+[2.148s] In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util/src/lifecycle_node.cpp:15:
+[2.148s] /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util/include/nav2_util/lifecycle_node.hpp:25:10: fatal error: 'bondcpp/bond.hpp' file not found
+[2.148s]    25 | #include "bondcpp/bond.hpp"
+[2.148s]       |          ^~~~~~~~~~~~~~~~~~
+[2.152s] 1 error generated.
+[2.158s] make[2]: *** [src/CMakeFiles/nav2_util_core.dir/build.make:149: src/CMakeFiles/nav2_util_core.dir/lifecycle_node.cpp.o] Error 1
+[2.158s] make[2]: *** Waiting for unfinished jobs....
+[2.165s] In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util/src/odometry_utils.cpp:18:
+[2.165s] In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util/include/nav2_util/odometry_utils.hpp:29:
+[2.165s] /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util/include/nav2_util/lifecycle_node.hpp:25:10: fatal error: 'bondcpp/bond.hpp' file not found
+[2.165s]    25 | #include "bondcpp/bond.hpp"
+[2.165s]       |          ^~~~~~~~~~~~~~~~~~
+[2.168s] 1 error generated.
+[2.178s] make[2]: *** [src/CMakeFiles/nav2_util_core.dir/build.make:191: src/CMakeFiles/nav2_util_core.dir/odometry_utils.cpp.o] Error 1
+[2.178s] make[1]: *** [CMakeFiles/Makefile2:254: src/CMakeFiles/nav2_util_core.dir/all] Error 2
+[2.178s] make: *** [Makefile:146: all] Error 2
+[2.181s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_util' returned '2': AMENT_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common:/opt/homebrew/opt/qt@5:/opt/homebrew/opt/qt@5:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) DYLD_LIBRARY_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs/lib PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs/lib/python3.11/site-packages:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake --build /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_util -- -j14 -l14

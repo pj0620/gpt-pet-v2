@@ -1,0 +1,99 @@
+[0.025s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/bondcpp': AMENT_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond:/opt/homebrew/opt/qt@5:/opt/homebrew/opt/qt@5:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) DYLD_LIBRARY_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/lib PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib/lib/python3.11/site-packages:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/bond_core/bondcpp -DCMAKE_INSTALL_PREFIX=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp
+[0.149s] CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
+[0.149s]   Compatibility with CMake < 3.10 will be removed from a future version of
+[0.149s]   CMake.
+[0.149s] 
+[0.149s]   Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+[0.151s]   to tell CMake that the project requires at least <min> but has been updated
+[0.151s]   to work with policies introduced by <max> or earlier.
+[0.151s] 
+[0.152s] 
+[0.160s] -- The C compiler identification is Clang 18.1.8
+[0.346s] -- The CXX compiler identification is Clang 18.1.8
+[0.355s] -- Detecting C compiler ABI info
+[0.521s] -- Detecting C compiler ABI info - done
+[0.528s] -- Check for working C compiler: /Users/pj/.local/share/mamba/envs/ros_env/bin/arm64-apple-darwin20.0.0-clang - skipped
+[0.528s] -- Detecting C compile features
+[0.528s] -- Detecting C compile features - done
+[0.532s] -- Detecting CXX compiler ABI info
+[0.709s] -- Detecting CXX compiler ABI info - done
+[0.716s] -- Check for working CXX compiler: /Users/pj/.local/share/mamba/envs/ros_env/bin/arm64-apple-darwin20.0.0-clang++ - skipped
+[0.716s] -- Detecting CXX compile features
+[0.717s] -- Detecting CXX compile features - done
+[0.729s] -- Found ament_cmake: 1.3.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake/cmake)
+[0.839s] -- Found Python3: /Users/pj/.local/share/mamba/envs/ros_env/bin/python3 (found version "3.11.11") found components: Interpreter
+[1.003s] -- Found bond: 4.1.2 (/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/share/bond/cmake)
+[1.103s] -- Found rosidl_generator_c: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_c/cmake)
+[1.122s] -- Found rosidl_adapter: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_adapter/cmake)
+[1.146s] -- Found rosidl_generator_cpp: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_cpp/cmake)
+[1.172s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.209s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.273s] -- Found rclcpp: 16.0.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/rclcpp/cmake)
+[1.410s] -- Checking for module 'yaml-0.1'
+[1.592s] --   Found yaml-0.1, version 0.2.5
+[2.122s] -- Found rmw_implementation_cmake: 6.1.2 (/Users/pj/.local/share/mamba/envs/ros_env/share/rmw_implementation_cmake/cmake)
+[2.133s] -- Found rmw_cyclonedds_cpp: 1.3.4 (/Users/pj/.local/share/mamba/envs/ros_env/share/rmw_cyclonedds_cpp/cmake)
+[2.194s] -- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+[2.222s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[2.377s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[2.378s] -- Found Threads: TRUE
+[2.443s] -- Found rclcpp_lifecycle: 16.0.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/rclcpp_lifecycle/cmake)
+[2.480s] -- Found smclib: 4.1.2 (/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib/share/smclib/cmake)
+[2.491s] -- Found ament_lint_auto: 0.12.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_lint_auto/cmake)
+[2.615s] -- Added test 'copyright' to check source files copyright and LICENSE
+[2.616s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[2.616s] -- Configured cppcheck include dirs: $<BUILD_INTERFACE:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/bond_core/bondcpp/include>
+[2.616s] -- Configured cppcheck exclude dirs and/or files: 
+[2.617s] -- Added test 'cpplint' to check C / C++ code against the Google style
+[2.617s] -- Configured cpplint exclude dirs and/or files: 
+[2.618s] -- Added test 'lint_cmake' to check CMake code style
+[2.619s] -- Added test 'uncrustify' to check C / C++ code style
+[2.619s] -- Configured uncrustify additional arguments: 
+[2.620s] -- Added test 'xmllint' to check XML markup files
+[2.623s] -- Configuring done (2.6s)
+[2.658s] -- Generating done (0.0s)
+[2.659s] -- Build files have been written to: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/bondcpp
+[2.664s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/bondcpp' returned '0': AMENT_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond:/opt/homebrew/opt/qt@5:/opt/homebrew/opt/qt@5:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) DYLD_LIBRARY_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/lib PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib/lib/python3.11/site-packages:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/bond_core/bondcpp -DCMAKE_INSTALL_PREFIX=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp
+[2.667s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/bondcpp': AMENT_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond:/opt/homebrew/opt/qt@5:/opt/homebrew/opt/qt@5:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) DYLD_LIBRARY_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/lib PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib/lib/python3.11/site-packages:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake --build /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/bondcpp -- -j14 -l14
+[2.724s] [ 66%] Building CXX object CMakeFiles/bondcpp.dir/src/bond.cpp.o
+[2.724s] [ 66%] Building CXX object CMakeFiles/bondcpp.dir/src/BondSM_sm.cpp.o
+[4.375s] In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/bond_core/bondcpp/src/bond.cpp:31:
+[4.375s] /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/bond_core/bondcpp/include/bondcpp/bond.hpp:268:8: warning: private field 'deadpublishing_timer_reset_flag_' is not used [-Wunused-private-field]
+[4.375s]   268 |   bool deadpublishing_timer_reset_flag_ {false};
+[4.375s]       |        ^
+[6.210s] 1 warning generated.
+[6.231s] [100%] Linking CXX shared library libbondcpp.dylib
+[6.305s] [100%] Built target bondcpp
+[6.312s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/bondcpp' returned '0': AMENT_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond:/opt/homebrew/opt/qt@5:/opt/homebrew/opt/qt@5:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) DYLD_LIBRARY_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/lib PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib/lib/python3.11/site-packages:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake --build /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/bondcpp -- -j14 -l14
+[6.413s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/bondcpp': AMENT_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond:/opt/homebrew/opt/qt@5:/opt/homebrew/opt/qt@5:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) DYLD_LIBRARY_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/lib PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib/lib/python3.11/site-packages:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake --install /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/bondcpp
+[6.420s] -- Install configuration: ""
+[6.420s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/lib/libbondcpp.dylib
+[6.424s] /Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/lib/libbondcpp.dylib
+[6.427s] [cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/lib/libbondcpp.dylib'
+[6.441s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/include/bondcpp
+[6.441s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/include/bondcpp/bondcpp
+[6.441s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/include/bondcpp/bondcpp/BondSM_sm.hpp
+[6.442s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/include/bondcpp/bondcpp/visibility_control.hpp
+[6.442s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/include/bondcpp/bondcpp/bond.hpp
+[6.442s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/ament_index/resource_index/package_run_dependencies/bondcpp
+[6.443s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/ament_index/resource_index/parent_prefix_path/bondcpp
+[6.443s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/environment/ament_prefix_path.sh
+[6.443s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/environment/ament_prefix_path.dsv
+[6.444s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/environment/path.sh
+[6.444s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/environment/path.dsv
+[6.444s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/local_setup.bash
+[6.444s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/local_setup.sh
+[6.445s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/local_setup.zsh
+[6.445s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/local_setup.dsv
+[6.445s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/package.dsv
+[6.446s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/ament_index/resource_index/packages/bondcpp
+[6.446s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/cmake/bondcppExport.cmake
+[6.446s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/cmake/bondcppExport-noconfig.cmake
+[6.447s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/cmake/ament_cmake_export_dependencies-extras.cmake
+[6.447s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/cmake/ament_cmake_export_include_directories-extras.cmake
+[6.447s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/cmake/ament_cmake_export_libraries-extras.cmake
+[6.447s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/cmake/ament_cmake_export_targets-extras.cmake
+[6.448s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/cmake/bondcppConfig.cmake
+[6.448s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/cmake/bondcppConfig-version.cmake
+[6.448s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bondcpp/share/bondcpp/package.xml
+[6.451s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/bondcpp' returned '0': AMENT_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond:/opt/homebrew/opt/qt@5:/opt/homebrew/opt/qt@5:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) DYLD_LIBRARY_PATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/lib PYTHONPATH=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/smclib/lib/python3.11/site-packages:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/bond/lib/python3.11/site-packages:${PYTHONPATH} SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake --install /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/bondcpp

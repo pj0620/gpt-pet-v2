@@ -1,0 +1,46 @@
+-- Found ament_cmake: 1.3.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake/cmake)
+-- Found nav2_common: 1.1.18 (/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_common/share/nav2_common/cmake)
+-- Found nav2_msgs: 1.1.18 (/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav2_msgs/share/nav2_msgs/cmake)
+-- Found rosidl_generator_c: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_c/cmake)
+-- Found rosidl_adapter: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_adapter/cmake)
+-- Found rosidl_generator_cpp: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_cpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found tf2_ros: 0.25.10 (/Users/pj/.local/share/mamba/envs/ros_env/share/tf2_ros/cmake)
+-- Found rmw_implementation_cmake: 6.1.2 (/Users/pj/.local/share/mamba/envs/ros_env/share/rmw_implementation_cmake/cmake)
+-- Found rmw_cyclonedds_cpp: 1.3.4 (/Users/pj/.local/share/mamba/envs/ros_env/share/rmw_cyclonedds_cpp/cmake)
+-- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+-- Found tf2_geometry_msgs: 0.25.10 (/Users/pj/.local/share/mamba/envs/ros_env/share/tf2_geometry_msgs/cmake)
+-- Found eigen3_cmake_module: 0.1.1 (/Users/pj/.local/share/mamba/envs/ros_env/share/eigen3_cmake_module/cmake)
+-- Ensuring Eigen3 include directory is part of orocos-kdl CMake target
+-- Found lifecycle_msgs: 1.2.1 (/Users/pj/.local/share/mamba/envs/ros_env/share/lifecycle_msgs/cmake)
+-- Found rclcpp_lifecycle: 16.0.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/rclcpp_lifecycle/cmake)
+-- Found bondcpp: 3.0.2 (/Users/pj/.local/share/mamba/envs/ros_env/share/bondcpp/cmake)
+-- Found ament_lint_auto: 0.12.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_lint_auto/cmake)
+-- Found ament_cmake_pytest: 1.3.11 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake_pytest/cmake)
+-- Found launch_testing_ament_cmake: 1.0.7 (/Users/pj/.local/share/mamba/envs/ros_env/share/launch_testing_ament_cmake/cmake)
+-- Found python_cmake_module: 0.10.0 (/Users/pj/.local/share/mamba/envs/ros_env/share/python_cmake_module/cmake)
+-- Using PythonExtra_INCLUDE_DIRS: /Users/pj/.local/share/mamba/envs/ros_env/include/python3.11;/Users/pj/.local/share/mamba/envs/ros_env/include/python3.11
+-- Using PythonExtra_LIBRARIES: /Users/pj/.local/share/mamba/envs/ros_env/lib/libpython3.11.dylib
+-- Found gtest sources under '/Users/pj/.local/share/mamba/envs/ros_env/src/gtest_vendor': C++ tests using 'Google Test' will be built
+-- Added test 'copyright' to check source files copyright and LICENSE
+-- Added test 'cppcheck' to perform static code analysis on C / C++ code
+-- Configured cppcheck include dirs: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util/include
+-- Configured cppcheck exclude dirs and/or files: 
+-- Added test 'cpplint' to check C / C++ code against the Google style
+-- Configured cpplint exclude dirs and/or files: 
+-- Added test 'lint_cmake' to check CMake code style
+-- Added test 'uncrustify' to check C / C++ code style
+-- Configured uncrustify additional arguments: 
+-- Added test 'xmllint' to check XML markup files
+-- Configuring done (0.9s)
+-- Generating done (0.3s)
+-- Build files have been written to: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav2_util
+[  5%] Linking CXX static library libgtest_main.a
+[  5%] Linking CXX static library libgtest.a
+[ 10%] Building CXX object src/CMakeFiles/nav2_util_core.dir/lifecycle_node.cpp.o
+[ 10%] Building CXX object src/CMakeFiles/nav2_util_core.dir/odometry_utils.cpp.o
+[ 12%] Built target gtest
+[ 15%] Built target gtest_main
+[ 17%] Linking CXX executable test_execution_timer
+[ 20%] Built target test_execution_timer

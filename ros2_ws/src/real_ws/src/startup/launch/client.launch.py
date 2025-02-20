@@ -17,6 +17,12 @@ def generate_launch_description():
                 executable="kinect_ros2_node",
                 name="kinect_ros2",
                 namespace="kinect"
+            ),
+            launch_ros.actions.Node(
+              package='motors',
+              executable='service',
+              name='motor_control_service',
+              parameters=[{"serial_port": "/dev/cu.usbserial-0001"}]
             )
         ]
     )

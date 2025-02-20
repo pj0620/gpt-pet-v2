@@ -1,0 +1,384 @@
+[0.020s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav_2d_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/motors:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_dwb_controller/nav_2d_msgs -DCMAKE_INSTALL_PREFIX=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs
+[0.040s] CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
+[0.040s]   Compatibility with CMake < 3.10 will be removed from a future version of
+[0.040s]   CMake.
+[0.040s] 
+[0.040s]   Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+[0.040s]   to tell CMake that the project requires at least <min> but has been updated
+[0.040s]   to work with policies introduced by <max> or earlier.
+[0.040s] 
+[0.040s] 
+[0.435s] -- The C compiler identification is Clang 18.1.8
+[0.632s] -- The CXX compiler identification is Clang 18.1.8
+[0.643s] -- Detecting C compiler ABI info
+[0.820s] -- Detecting C compiler ABI info - done
+[0.828s] -- Check for working C compiler: /Users/pj/.local/share/mamba/envs/ros_env/bin/arm64-apple-darwin20.0.0-clang - skipped
+[0.828s] -- Detecting C compile features
+[0.828s] -- Detecting C compile features - done
+[0.833s] -- Detecting CXX compiler ABI info
+[0.977s] -- Detecting CXX compiler ABI info - done
+[0.984s] -- Check for working CXX compiler: /Users/pj/.local/share/mamba/envs/ros_env/bin/arm64-apple-darwin20.0.0-clang++ - skipped
+[0.984s] -- Detecting CXX compile features
+[0.985s] -- Detecting CXX compile features - done
+[1.005s] -- Found geometry_msgs: 4.2.4 (/Users/pj/.local/share/mamba/envs/ros_env/share/geometry_msgs/cmake)
+[1.118s] -- Found Python3: /Users/pj/.local/share/mamba/envs/ros_env/bin/python3 (found version "3.11.11") found components: Interpreter
+[1.475s] -- Found rosidl_generator_c: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_c/cmake)
+[1.499s] -- Found rosidl_adapter: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_adapter/cmake)
+[1.530s] -- Found rosidl_generator_cpp: 3.1.6 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_cpp/cmake)
+[1.564s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.630s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.719s] -- Found rosidl_default_generators: 1.2.0 (/Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_default_generators/cmake)
+[2.089s] -- Found ament_cmake_ros: 0.10.0 (/Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake_ros/cmake)
+[2.728s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[2.976s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[2.988s] -- Found python_cmake_module: 0.10.0 (/Users/pj/.local/share/mamba/envs/ros_env/share/python_cmake_module/cmake)
+[2.989s] CMake Warning (dev) at /Users/pj/.local/share/mamba/envs/ros_env/share/python_cmake_module/cmake/Modules/FindPythonExtra.cmake:52 (find_package):
+[2.989s]   Policy CMP0148 is not set: The FindPythonInterp and FindPythonLibs modules
+[2.989s]   are removed.  Run "cmake --help-policy CMP0148" for policy details.  Use
+[2.989s]   the cmake_policy command to set the policy and suppress this warning.
+[2.989s] 
+[2.989s] Call Stack (most recent call first):
+[2.989s]   /Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_generator_py/cmake/rosidl_generator_py_generate_interfaces.cmake:21 (find_package)
+[2.989s]   /Users/pj/.local/share/mamba/envs/ros_env/share/ament_cmake_core/cmake/core/ament_execute_extensions.cmake:48 (include)
+[2.989s]   /Users/pj/.local/share/mamba/envs/ros_env/share/rosidl_cmake/cmake/rosidl_generate_interfaces.cmake:286 (ament_execute_extensions)
+[2.989s]   CMakeLists.txt:8 (rosidl_generate_interfaces)
+[2.989s] This warning is for project developers.  Use -Wno-dev to suppress it.
+[2.989s] 
+[3.001s] -- Found PythonInterp: /Users/pj/.local/share/mamba/envs/ros_env/bin/python3 (found suitable version "3.11.11", minimum required is "3.6")
+[3.019s] -- Using PythonExtra_INCLUDE_DIRS: /Users/pj/.local/share/mamba/envs/ros_env/include/python3.11;/Users/pj/.local/share/mamba/envs/ros_env/include/python3.11
+[3.044s] -- Using PythonExtra_LIBRARIES: /Users/pj/.local/share/mamba/envs/ros_env/lib/libpython3.11.dylib
+[3.061s] -- Found PythonExtra: .so
+[3.520s] -- Found Python3: /Users/pj/.local/share/mamba/envs/ros_env/include/python3.11 (found version "3.11.11") found components: Development NumPy Interpreter Development.Module Development.Embed
+[3.593s] -- Configuring done (3.6s)
+[3.696s] -- Generating done (0.1s)
+[3.697s] -- Build files have been written to: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav_2d_msgs
+[3.702s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav_2d_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/motors:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_dwb_controller/nav_2d_msgs -DCMAKE_INSTALL_PREFIX=/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs
+[3.705s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav_2d_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/motors:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake --build /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav_2d_msgs -- -j14 -l14
+[3.752s] [  1%] Generating C code for ROS interfaces
+[3.768s] [  2%] Generating C++ code for ROS interfaces
+[3.774s] [  2%] Built target ament_cmake_python_copy_nav_2d_msgs
+[3.954s] running egg_info
+[3.955s] creating nav_2d_msgs.egg-info
+[3.955s] writing nav_2d_msgs.egg-info/PKG-INFO
+[3.956s] writing dependency_links to nav_2d_msgs.egg-info/dependency_links.txt
+[3.956s] writing top-level names to nav_2d_msgs.egg-info/top_level.txt
+[3.956s] writing manifest file 'nav_2d_msgs.egg-info/SOURCES.txt'
+[3.990s] reading manifest file 'nav_2d_msgs.egg-info/SOURCES.txt'
+[3.990s] writing manifest file 'nav_2d_msgs.egg-info/SOURCES.txt'
+[4.064s] [  2%] Built target nav_2d_msgs__cpp
+[4.079s] [  2%] Built target ament_cmake_python_build_nav_2d_msgs_egg
+[4.110s] [  4%] Generating C++ introspection for ROS interfaces
+[4.118s] [  5%] Generating C++ type support dispatch for ROS interfaces
+[4.121s] [  7%] Generating C++ type support for eProsima Fast-RTPS
+[4.142s] [  8%] Building C object CMakeFiles/nav_2d_msgs__rosidl_generator_c.dir/rosidl_generator_c/nav_2d_msgs/msg/detail/twist2_d__functions.c.o
+[4.144s] [  9%] Building C object CMakeFiles/nav_2d_msgs__rosidl_generator_c.dir/rosidl_generator_c/nav_2d_msgs/msg/detail/twist2_d_stamped__functions.c.o
+[4.147s] [ 11%] Building C object CMakeFiles/nav_2d_msgs__rosidl_generator_c.dir/rosidl_generator_c/nav_2d_msgs/msg/detail/twist2_d32__functions.c.o
+[4.147s] [ 12%] Building C object CMakeFiles/nav_2d_msgs__rosidl_generator_c.dir/rosidl_generator_c/nav_2d_msgs/msg/detail/path2_d__functions.c.o
+[4.154s] [ 15%] Building C object CMakeFiles/nav_2d_msgs__rosidl_generator_c.dir/rosidl_generator_c/nav_2d_msgs/msg/detail/pose2_d32__functions.c.o
+[4.154s] [ 15%] Building C object CMakeFiles/nav_2d_msgs__rosidl_generator_c.dir/rosidl_generator_c/nav_2d_msgs/msg/detail/pose2_d_stamped__functions.c.o
+[4.255s] [ 16%] Linking C shared library libnav_2d_msgs__rosidl_generator_c.dylib
+[4.367s] [ 16%] Built target nav_2d_msgs__rosidl_generator_c
+[4.396s] [ 18%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/nav_2d_msgs/msg/path2_d__type_support.cpp.o
+[4.400s] [ 19%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/nav_2d_msgs/msg/pose2_d32__type_support.cpp.o
+[4.400s] [ 21%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/nav_2d_msgs/msg/twist2_d_stamped__type_support.cpp.o
+[4.405s] [ 22%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/nav_2d_msgs/msg/detail/twist2_d_stamped__type_support.cpp.o
+[4.410s] [ 23%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/nav_2d_msgs/msg/twist2_d__type_support.cpp.o
+[4.414s] [ 25%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/nav_2d_msgs/msg/detail/path2_d__type_support.cpp.o
+[4.420s] [ 26%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/nav_2d_msgs/msg/twist2_d32__type_support.cpp.o
+[4.420s] [ 29%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/nav_2d_msgs/msg/pose2_d_stamped__type_support.cpp.o
+[4.421s] [ 32%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/nav_2d_msgs/msg/detail/pose2_d32__type_support.cpp.o
+[4.421s] [ 32%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/nav_2d_msgs/msg/detail/twist2_d__type_support.cpp.o
+[4.421s] [ 29%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/nav_2d_msgs/msg/detail/pose2_d_stamped__type_support.cpp.o
+[4.422s] [ 33%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/nav_2d_msgs/msg/detail/twist2_d32__type_support.cpp.o
+[4.450s] [ 35%] Generating C type support for eProsima Fast-RTPS
+[4.472s] [ 36%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/nav_2d_msgs/msg/detail/dds_fastrtps/path2_d__type_support.cpp.o
+[5.202s] [ 38%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/nav_2d_msgs/msg/detail/path2_d__type_support_c.cpp.o
+[5.319s] [ 39%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/nav_2d_msgs/msg/detail/pose2_d32__type_support_c.cpp.o
+[5.334s] [ 40%] Generating C introspection for ROS interfaces
+[5.362s] [ 42%] Generating C type support dispatch for ROS interfaces
+[5.367s] [ 43%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/nav_2d_msgs/msg/detail/dds_fastrtps/pose2_d32__type_support.cpp.o
+[5.418s] [ 45%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/nav_2d_msgs/msg/detail/dds_fastrtps/pose2_d_stamped__type_support.cpp.o
+[5.439s] [ 46%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/nav_2d_msgs/msg/detail/dds_fastrtps/twist2_d__type_support.cpp.o
+[5.441s] [ 47%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/nav_2d_msgs/msg/detail/dds_fastrtps/twist2_d32__type_support.cpp.o
+[5.455s] [ 49%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/nav_2d_msgs/msg/detail/pose2_d_stamped__type_support_c.cpp.o
+[5.512s] [ 50%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/nav_2d_msgs/msg/detail/twist2_d__type_support_c.cpp.o
+[5.549s] [ 52%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/nav_2d_msgs/msg/detail/twist2_d32__type_support_c.cpp.o
+[5.575s] [ 53%] Linking CXX shared library libnav_2d_msgs__rosidl_typesupport_cpp.dylib
+[5.616s] [ 54%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/nav_2d_msgs/msg/path2_d__type_support.cpp.o
+[5.620s] [ 56%] Linking CXX shared library libnav_2d_msgs__rosidl_typesupport_introspection_cpp.dylib
+[5.672s] [ 56%] Built target nav_2d_msgs__rosidl_typesupport_cpp
+[5.674s] [ 57%] Building C object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/nav_2d_msgs/msg/detail/path2_d__type_support.c.o
+[5.684s] [ 59%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/nav_2d_msgs/msg/pose2_d32__type_support.cpp.o
+[5.696s] [ 60%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/nav_2d_msgs/msg/detail/twist2_d_stamped__type_support_c.cpp.o
+[5.708s] [ 60%] Built target nav_2d_msgs__rosidl_typesupport_introspection_cpp
+[5.731s] [ 61%] Building C object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/nav_2d_msgs/msg/detail/pose2_d32__type_support.c.o
+[5.750s] [ 63%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/nav_2d_msgs/msg/pose2_d_stamped__type_support.cpp.o
+[5.752s] [ 64%] Building C object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/nav_2d_msgs/msg/detail/pose2_d_stamped__type_support.c.o
+[5.770s] [ 66%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/nav_2d_msgs/msg/detail/dds_fastrtps/twist2_d_stamped__type_support.cpp.o
+[5.801s] [ 67%] Building C object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/nav_2d_msgs/msg/detail/twist2_d__type_support.c.o
+[5.821s] [ 69%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/nav_2d_msgs/msg/twist2_d__type_support.cpp.o
+[5.826s] [ 70%] Building C object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/nav_2d_msgs/msg/detail/twist2_d32__type_support.c.o
+[5.904s] [ 71%] Building C object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/nav_2d_msgs/msg/detail/twist2_d_stamped__type_support.c.o
+[5.917s] [ 73%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/nav_2d_msgs/msg/twist2_d32__type_support.cpp.o
+[5.949s] [ 74%] Building CXX object CMakeFiles/nav_2d_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/nav_2d_msgs/msg/twist2_d_stamped__type_support.cpp.o
+[5.992s] [ 76%] Linking C shared library libnav_2d_msgs__rosidl_typesupport_introspection_c.dylib
+[6.026s] [ 77%] Linking CXX shared library libnav_2d_msgs__rosidl_typesupport_c.dylib
+[6.092s] [ 77%] Built target nav_2d_msgs__rosidl_typesupport_introspection_c
+[6.104s] [ 77%] Built target nav_2d_msgs__rosidl_typesupport_c
+[6.242s] [ 78%] Linking CXX shared library libnav_2d_msgs__rosidl_typesupport_fastrtps_c.dylib
+[6.294s] [ 80%] Linking CXX shared library libnav_2d_msgs__rosidl_typesupport_fastrtps_cpp.dylib
+[6.303s] [ 80%] Built target nav_2d_msgs__rosidl_typesupport_fastrtps_c
+[6.355s] [ 80%] Built target nav_2d_msgs__rosidl_typesupport_fastrtps_cpp
+[6.390s] [ 80%] Built target nav_2d_msgs
+[6.424s] [ 81%] Generating Python code for ROS interfaces
+[6.699s] [ 81%] Built target nav_2d_msgs__py
+[6.741s] [ 83%] Building C object CMakeFiles/nav_2d_msgs__rosidl_generator_py.dir/rosidl_generator_py/nav_2d_msgs/msg/_twist2_d_stamped_s.c.o
+[6.742s] [ 84%] Building C object CMakeFiles/nav_2d_msgs__rosidl_generator_py.dir/rosidl_generator_py/nav_2d_msgs/msg/_twist2_d32_s.c.o
+[6.743s] [ 85%] Building C object CMakeFiles/nav_2d_msgs__rosidl_generator_py.dir/rosidl_generator_py/nav_2d_msgs/msg/_twist2_d_s.c.o
+[6.743s] [ 90%] Building C object CMakeFiles/nav_2d_msgs__rosidl_generator_py.dir/rosidl_generator_py/nav_2d_msgs/msg/_pose2_d_stamped_s.c.o
+[6.743s] [ 90%] Building C object CMakeFiles/nav_2d_msgs__rosidl_generator_py.dir/rosidl_generator_py/nav_2d_msgs/msg/_pose2_d32_s.c.o
+[6.743s] [ 90%] Building C object CMakeFiles/nav_2d_msgs__rosidl_generator_py.dir/rosidl_generator_py/nav_2d_msgs/msg/_path2_d_s.c.o
+[6.872s] [ 91%] Linking C shared library rosidl_generator_py/nav_2d_msgs/libnav_2d_msgs__rosidl_generator_py.dylib
+[6.930s] [ 91%] Built target nav_2d_msgs__rosidl_generator_py
+[6.973s] [ 92%] Building C object CMakeFiles/nav_2d_msgs__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/nav_2d_msgs/_nav_2d_msgs_s.ep.rosidl_typesupport_c.c.o
+[6.975s] [ 95%] Building C object CMakeFiles/nav_2d_msgs__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/nav_2d_msgs/_nav_2d_msgs_s.ep.rosidl_typesupport_fastrtps_c.c.o
+[6.975s] [ 95%] Building C object CMakeFiles/nav_2d_msgs__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/nav_2d_msgs/_nav_2d_msgs_s.ep.rosidl_typesupport_introspection_c.c.o
+[7.061s] [100%] Linking C shared library rosidl_generator_py/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_introspection_c.cpython-311-darwin.so
+[7.061s] [100%] Linking C shared library rosidl_generator_py/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-darwin.so
+[7.062s] [100%] Linking C shared library rosidl_generator_py/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_c.cpython-311-darwin.so
+[7.138s] [100%] Built target nav_2d_msgs__rosidl_typesupport_introspection_c__pyext
+[7.138s] [100%] Built target nav_2d_msgs__rosidl_typesupport_c__pyext
+[7.138s] [100%] Built target nav_2d_msgs__rosidl_typesupport_fastrtps_c__pyext
+[7.149s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav_2d_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/motors:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake --build /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav_2d_msgs -- -j14 -l14
+[8.893s] Invoking command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav_2d_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/motors:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake --install /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav_2d_msgs
+[8.901s] -- Install configuration: ""
+[8.901s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/ament_index/resource_index/rosidl_interfaces/nav_2d_msgs
+[8.901s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs
+[8.902s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg
+[8.902s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/rosidl_generator_c__visibility_control.h
+[8.902s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/pose2_d32.h
+[8.902s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/path2_d.h
+[8.903s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/twist2_d32.h
+[8.903s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/twist2_d_stamped.h
+[8.903s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail
+[8.903s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__functions.h
+[8.904s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__struct.h
+[8.904s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__functions.h
+[8.904s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__functions.c
+[8.904s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__type_support.h
+[8.905s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__functions.h
+[8.905s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__struct.h
+[8.905s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__type_support.h
+[8.906s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__functions.c
+[8.906s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__functions.h
+[8.906s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__functions.c
+[8.907s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__type_support.h
+[8.907s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__functions.c
+[8.907s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__type_support.h
+[8.907s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__struct.h
+[8.908s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__struct.h
+[8.908s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__type_support.h
+[8.908s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__functions.c
+[8.908s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__functions.h
+[8.909s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__struct.h
+[8.909s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__functions.c
+[8.910s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__type_support.h
+[8.910s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__functions.h
+[8.910s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__struct.h
+[8.911s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/pose2_d_stamped.h
+[8.911s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/twist2_d.h
+[8.912s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_generator_c.dylib
+[8.912s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs
+[8.912s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg
+[8.912s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail
+[8.912s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__rosidl_typesupport_fastrtps_c.h
+[8.913s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__rosidl_typesupport_fastrtps_c.h
+[8.913s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__rosidl_typesupport_fastrtps_c.h
+[8.913s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__rosidl_typesupport_fastrtps_c.h
+[8.914s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__rosidl_typesupport_fastrtps_c.h
+[8.914s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__rosidl_typesupport_fastrtps_c.h
+[8.914s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[8.915s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_typesupport_fastrtps_c.dylib
+[8.920s] /Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_typesupport_fastrtps_c.dylib
+[8.920s] [cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_typesupport_fastrtps_c.dylib'
+[8.939s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs
+[8.940s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg
+[8.940s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/twist2_d.hpp
+[8.940s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/twist2_d_stamped.hpp
+[8.940s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/twist2_d32.hpp
+[8.941s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/pose2_d_stamped.hpp
+[8.941s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail
+[8.941s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__struct.hpp
+[8.942s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__builder.hpp
+[8.942s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__type_support.hpp
+[8.942s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__struct.hpp
+[8.942s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__traits.hpp
+[8.942s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__type_support.hpp
+[8.943s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__builder.hpp
+[8.943s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__struct.hpp
+[8.943s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__type_support.hpp
+[8.944s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__struct.hpp
+[8.944s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__struct.hpp
+[8.944s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__type_support.hpp
+[8.945s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__traits.hpp
+[8.945s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__struct.hpp
+[8.945s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__builder.hpp
+[8.945s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__traits.hpp
+[8.946s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__type_support.hpp
+[8.946s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__builder.hpp
+[8.946s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__traits.hpp
+[8.947s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__builder.hpp
+[8.948s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__traits.hpp
+[8.949s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__type_support.hpp
+[8.949s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__traits.hpp
+[8.951s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__builder.hpp
+[8.951s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/rosidl_generator_cpp__visibility_control.hpp
+[8.951s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/pose2_d32.hpp
+[8.956s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/path2_d.hpp
+[8.956s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs
+[8.956s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg
+[8.956s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[8.958s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail
+[8.958s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__rosidl_typesupport_fastrtps_cpp.hpp
+[8.958s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__rosidl_typesupport_fastrtps_cpp.hpp
+[8.958s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__rosidl_typesupport_fastrtps_cpp.hpp
+[8.958s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__rosidl_typesupport_fastrtps_cpp.hpp
+[8.958s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__rosidl_typesupport_fastrtps_cpp.hpp
+[8.958s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/dds_fastrtps
+[8.958s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__rosidl_typesupport_fastrtps_cpp.hpp
+[8.958s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_typesupport_fastrtps_cpp.dylib
+[8.958s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs
+[8.959s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg
+[8.959s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail
+[8.963s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__type_support.c
+[8.964s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__type_support.c
+[8.964s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__rosidl_typesupport_introspection_c.h
+[8.964s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__type_support.c
+[8.964s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__rosidl_typesupport_introspection_c.h
+[8.967s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__type_support.c
+[8.967s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__type_support.c
+[8.967s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__rosidl_typesupport_introspection_c.h
+[8.967s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__type_support.c
+[8.967s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__rosidl_typesupport_introspection_c.h
+[8.967s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__rosidl_typesupport_introspection_c.h
+[8.967s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__rosidl_typesupport_introspection_c.h
+[8.967s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[8.967s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_typesupport_introspection_c.dylib
+[8.978s] /Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_typesupport_introspection_c.dylib
+[8.978s] [cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_typesupport_introspection_c.dylib'
+[9.002s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_typesupport_c.dylib
+[9.005s] /Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_typesupport_c.dylib
+[9.005s] [cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_typesupport_c.dylib'
+[9.028s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs
+[9.028s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg
+[9.028s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail
+[9.028s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__rosidl_typesupport_introspection_cpp.hpp
+[9.029s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__type_support.cpp
+[9.029s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__rosidl_typesupport_introspection_cpp.hpp
+[9.029s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__type_support.cpp
+[9.029s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d32__type_support.cpp
+[9.029s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__rosidl_typesupport_introspection_cpp.hpp
+[9.029s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__rosidl_typesupport_introspection_cpp.hpp
+[9.029s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d32__rosidl_typesupport_introspection_cpp.hpp
+[9.030s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/pose2_d_stamped__type_support.cpp
+[9.030s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/path2_d__rosidl_typesupport_introspection_cpp.hpp
+[9.030s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d_stamped__type_support.cpp
+[9.031s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/include/nav_2d_msgs/nav_2d_msgs/msg/detail/twist2_d__type_support.cpp
+[9.031s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_typesupport_introspection_cpp.dylib
+[9.031s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_typesupport_cpp.dylib
+[9.032s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/environment/pythonpath.sh
+[9.032s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/environment/pythonpath.dsv
+[9.034s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs-1.1.18-py3.11.egg-info
+[9.034s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs-1.1.18-py3.11.egg-info/PKG-INFO
+[9.034s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs-1.1.18-py3.11.egg-info/SOURCES.txt
+[9.034s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs-1.1.18-py3.11.egg-info/top_level.txt
+[9.035s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs-1.1.18-py3.11.egg-info/dependency_links.txt
+[9.035s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs
+[9.035s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg
+[9.035s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/_twist2_d32.py
+[9.036s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/_twist2_d_s.c
+[9.037s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/_pose2_d_stamped.py
+[9.037s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/_twist2_d_stamped_s.c
+[9.037s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/__init__.py
+[9.037s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/_pose2_d32_s.c
+[9.037s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/_twist2_d_stamped.py
+[9.039s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/_pose2_d32.py
+[9.039s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/_twist2_d32_s.c
+[9.039s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/_path2_d_s.c
+[9.039s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/_twist2_d.py
+[9.039s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/_pose2_d_stamped_s.c
+[9.039s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/msg/_path2_d.py
+[9.039s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-darwin.so
+[9.039s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/__init__.py
+[9.040s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_introspection_c.cpython-311-darwin.so
+[9.040s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/_nav_2d_msgs_s.ep.rosidl_typesupport_introspection_c.c
+[9.041s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/_nav_2d_msgs_s.ep.rosidl_typesupport_c.c
+[9.041s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/_nav_2d_msgs_s.ep.rosidl_typesupport_fastrtps_c.c
+[9.041s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/libnav_2d_msgs__rosidl_generator_py.dylib
+[9.041s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_c.cpython-311-darwin.so
+[9.082s] Listing 'lib/python3.11/site-packages/nav_2d_msgs'...
+[9.082s] Can't list 'lib/python3.11/site-packages/nav_2d_msgs'
+[9.093s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-darwin.so
+[9.102s] /Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-darwin.so
+[9.106s] [cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-darwin.so'
+[9.151s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_introspection_c.cpython-311-darwin.so
+[9.160s] /Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_introspection_c.cpython-311-darwin.so
+[9.162s] [cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_introspection_c.cpython-311-darwin.so'
+[9.205s] -- Up-to-date: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_c.cpython-311-darwin.so
+[9.212s] /Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_c.cpython-311-darwin.so
+[9.213s] [cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/python3.11/site-packages/nav_2d_msgs/nav_2d_msgs_s__rosidl_typesupport_c.cpython-311-darwin.so'
+[9.243s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_generator_py.dylib
+[9.256s] /Users/pj/.local/share/mamba/envs/ros_env/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_generator_py.dylib
+[9.258s] [cctools-port]: generating fake signature for '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/lib/libnav_2d_msgs__rosidl_generator_py.dylib'
+[9.293s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/msg/Path2D.idl
+[9.294s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/msg/Pose2D32.idl
+[9.295s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/msg/Pose2DStamped.idl
+[9.296s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/msg/Twist2D.idl
+[9.297s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/msg/Twist2D32.idl
+[9.298s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/msg/Twist2DStamped.idl
+[9.299s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/msg/Path2D.msg
+[9.299s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/msg/Pose2D32.msg
+[9.299s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/msg/Pose2DStamped.msg
+[9.300s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/msg/Twist2D.msg
+[9.300s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/msg/Twist2D32.msg
+[9.300s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/msg/Twist2DStamped.msg
+[9.301s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/ament_index/resource_index/package_run_dependencies/nav_2d_msgs
+[9.301s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/ament_index/resource_index/parent_prefix_path/nav_2d_msgs
+[9.301s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/environment/ament_prefix_path.sh
+[9.302s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/environment/ament_prefix_path.dsv
+[9.302s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/environment/path.sh
+[9.303s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/environment/path.dsv
+[9.303s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/local_setup.bash
+[9.303s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/local_setup.sh
+[9.303s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/local_setup.zsh
+[9.304s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/local_setup.dsv
+[9.304s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/package.dsv
+[9.304s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/ament_index/resource_index/packages/nav_2d_msgs
+[9.305s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/export_nav_2d_msgs__rosidl_generator_cExport.cmake
+[9.305s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/export_nav_2d_msgs__rosidl_generator_cExport-noconfig.cmake
+[9.306s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/export_nav_2d_msgs__rosidl_typesupport_fastrtps_cExport.cmake
+[9.306s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/export_nav_2d_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[9.306s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/export_nav_2d_msgs__rosidl_generator_cppExport.cmake
+[9.307s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/export_nav_2d_msgs__rosidl_typesupport_fastrtps_cppExport.cmake
+[9.308s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/export_nav_2d_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[9.309s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/nav_2d_msgs__rosidl_typesupport_introspection_cExport.cmake
+[9.309s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/nav_2d_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[9.310s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/nav_2d_msgs__rosidl_typesupport_cExport.cmake
+[9.311s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/nav_2d_msgs__rosidl_typesupport_cExport-noconfig.cmake
+[9.311s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/nav_2d_msgs__rosidl_typesupport_introspection_cppExport.cmake
+[9.312s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/nav_2d_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[9.312s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/nav_2d_msgs__rosidl_typesupport_cppExport.cmake
+[9.312s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/nav_2d_msgs__rosidl_typesupport_cppExport-noconfig.cmake
+[9.312s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/export_nav_2d_msgs__rosidl_generator_pyExport.cmake
+[9.313s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/export_nav_2d_msgs__rosidl_generator_pyExport-noconfig.cmake
+[9.314s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/rosidl_cmake-extras.cmake
+[9.316s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/ament_cmake_export_dependencies-extras.cmake
+[9.317s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/ament_cmake_export_include_directories-extras.cmake
+[9.317s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/ament_cmake_export_libraries-extras.cmake
+[9.317s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/ament_cmake_export_targets-extras.cmake
+[9.318s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[9.318s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[9.319s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/nav_2d_msgsConfig.cmake
+[9.319s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/cmake/nav_2d_msgsConfig-version.cmake
+[9.319s] -- Installing: /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/install/nav_2d_msgs/share/nav_2d_msgs/package.xml
+[9.332s] Invoked command in '/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav_2d_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/real_ws/install/motors:/Users/pj/.local/share/mamba/envs/ros_env CONDA_PROMPT_MODIFIER=(ros_env) SHLVL=2 _=/Users/pj/.local/share/mamba/envs/ros_env/bin/env /opt/homebrew/bin/cmake --install /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/build/nav_2d_msgs

@@ -1,0 +1,39 @@
+In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util/src/odometry_utils.cpp:18:
+In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util/include/nav2_util/odometry_utils.hpp:29:
+In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util/include/nav2_util/lifecycle_node.hpp:22:
+In file included from /Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util/include/nav2_util/node_thread.hpp:20:
+In file included from /Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/rclcpp.hpp:155:
+In file included from /Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/executors.hpp:21:
+In file included from /Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/executors/multi_threaded_executor.hpp:25:
+In file included from /Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/executor.hpp:37:
+In file included from /Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/executor_options.hpp:20:
+In file included from /Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/memory_strategies.hpp:18:
+In file included from /Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/memory_strategy.hpp:25:
+In file included from /Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/any_executable.hpp:20:
+In file included from /Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/callback_group.hpp:29:
+In file included from /Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/subscription_base.hpp:32:
+/Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/any_subscription_callback.hpp:391:7: error: 'set_deprecated<nav_msgs::msg::Odometry_<std::allocator<void>>>' is deprecated: use 'void(std::shared_ptr<const MessageT>)' instead [-Werror,-Wdeprecated-declarations]
+  391 |       set_deprecated(static_cast<typename scbth::callback_type>(callback));
+      |       ^
+/Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/subscription_factory.hpp:94:29: note: in instantiation of function template specialization 'rclcpp::AnySubscriptionCallback<nav_msgs::msg::Odometry_<std::allocator<void>>>::set<std::__bind<void (nav2_util::OdomSmoother::*)(std::shared_ptr<nav_msgs::msg::Odometry_<std::allocator<void>>>), nav2_util::OdomSmoother *, const std::placeholders::__ph<1> &>>' requested here
+   94 |   any_subscription_callback.set(std::forward<CallbackT>(callback));
+      |                             ^
+/Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/create_subscription.hpp:122:26: note: in instantiation of function template specialization 'rclcpp::create_subscription_factory<nav_msgs::msg::Odometry_<std::allocator<void>>, std::__bind<void (nav2_util::OdomSmoother::*)(std::shared_ptr<nav_msgs::msg::Odometry_<std::allocator<void>>>), nav2_util::OdomSmoother *, const std::placeholders::__ph<1> &>, std::allocator<void>, rclcpp::Subscription<nav_msgs::msg::Odometry_<std::allocator<void>>>, rclcpp::message_memory_strategy::MessageMemoryStrategy<nav_msgs::msg::Odometry_<std::allocator<void>>>, nav_msgs::msg::Odometry_<std::allocator<void>>>' requested here
+  122 |   auto factory = rclcpp::create_subscription_factory<MessageT>(
+      |                          ^
+/Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/create_subscription.hpp:190:26: note: in instantiation of function template specialization 'rclcpp::detail::create_subscription<nav_msgs::msg::Odometry_<std::allocator<void>>, std::__bind<void (nav2_util::OdomSmoother::*)(std::shared_ptr<nav_msgs::msg::Odometry_<std::allocator<void>>>), nav2_util::OdomSmoother *, const std::placeholders::__ph<1> &>, std::allocator<void>, rclcpp::Subscription<nav_msgs::msg::Odometry_<std::allocator<void>>>, rclcpp::message_memory_strategy::MessageMemoryStrategy<nav_msgs::msg::Odometry_<std::allocator<void>>>, rclcpp::Node, rclcpp::Node, nav_msgs::msg::Odometry_<std::allocator<void>>>' requested here
+  190 |   return rclcpp::detail::create_subscription<
+      |                          ^
+/Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/node_impl.hpp:99:18: note: in instantiation of function template specialization 'rclcpp::create_subscription<nav_msgs::msg::Odometry_<std::allocator<void>>, std::__bind<void (nav2_util::OdomSmoother::*)(std::shared_ptr<nav_msgs::msg::Odometry_<std::allocator<void>>>), nav2_util::OdomSmoother *, const std::placeholders::__ph<1> &>, std::allocator<void>, rclcpp::Subscription<nav_msgs::msg::Odometry_<std::allocator<void>>>, rclcpp::message_memory_strategy::MessageMemoryStrategy<nav_msgs::msg::Odometry_<std::allocator<void>>>, rclcpp::Node>' requested here
+   99 |   return rclcpp::create_subscription<MessageT>(
+      |                  ^
+/Users/pj/Projects/GPTPet/code/gpt-pet-v2/ros2_ws/src/server/src/navigation2/nav2_util/src/odometry_utils.cpp:33:21: note: in instantiation of function template specialization 'rclcpp::Node::create_subscription<nav_msgs::msg::Odometry_<std::allocator<void>>, std::__bind<void (nav2_util::OdomSmoother::*)(std::shared_ptr<nav_msgs::msg::Odometry_<std::allocator<void>>>), nav2_util::OdomSmoother *, const std::placeholders::__ph<1> &>, std::allocator<void>, rclcpp::Subscription<nav_msgs::msg::Odometry_<std::allocator<void>>>, rclcpp::message_memory_strategy::MessageMemoryStrategy<nav_msgs::msg::Odometry_<std::allocator<void>>>>' requested here
+   33 |   odom_sub_ = node->create_subscription<nav_msgs::msg::Odometry>(
+      |                     ^
+/Users/pj/.local/share/mamba/envs/ros_env/include/rclcpp/rclcpp/any_subscription_callback.hpp:405:5: note: 'set_deprecated<nav_msgs::msg::Odometry_<std::allocator<void>>>' has been explicitly marked deprecated here
+  405 |   [[deprecated("use 'void(std::shared_ptr<const MessageT>)' instead")]]
+      |     ^
+1 error generated.
+make[2]: *** [src/CMakeFiles/nav2_util_core.dir/build.make:191: src/CMakeFiles/nav2_util_core.dir/odometry_utils.cpp.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:254: src/CMakeFiles/nav2_util_core.dir/all] Error 2
+make: *** [Makefile:146: all] Error 2

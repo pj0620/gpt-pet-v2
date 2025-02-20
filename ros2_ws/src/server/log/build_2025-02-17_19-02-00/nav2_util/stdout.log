@@ -1,0 +1,7 @@
+[ 10%] Built target gtest_main
+[ 10%] Built target gtest
+[ 15%] Building CXX object src/CMakeFiles/nav2_util_core.dir/odometry_utils.cpp.o
+[ 15%] Building CXX object src/CMakeFiles/nav2_util_core.dir/lifecycle_node.cpp.o
+[ 17%] Building CXX object test/CMakeFiles/test_execution_timer.dir/test_execution_timer.cpp.o
+[ 20%] Linking CXX executable test_execution_timer
+[ 20%] Built target test_execution_timer
