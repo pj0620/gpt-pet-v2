@@ -53,3 +53,4 @@ CATKIN_IGNORE
 ros2_ws/**/install/*
 ros2_ws/**/build/*
 ros2_ws/**/logs/*
+ros2_ws/**/log/*
