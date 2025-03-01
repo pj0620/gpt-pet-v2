@@ -30,14 +30,22 @@ def generate_launch_description():
       arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'camera_depth_frame']
     )
     
-    # Bring up Nav2
-    # nav2_bringup = Node(
-    #     package='nav2_bringup',
-    #     executable='bringup_launch.py',
-    #     parameters=[{
-    #         'use_sim_time': False,  # Set to True if using simulation
-    #     }]
-    # )
+    # Run SLAM to create /odom -> base_link dynamically
+    slam_toolbox = Node(
+        package='slam_toolbox',
+        executable='online_async_slam_node',  # Use `online_async_slam_node` for live mapping
+        name='slam_toolbox',
+        output='screen',
+        parameters=[{
+            'use_sim_time': False,  # Set to True if using a recorded bag file
+            'odom_frame': 'odom',
+            'base_frame': 'base_link',
+            'map_frame': 'map',
+            'scan_topic': '/scan',
+            'mode': 'mapping'
+        }]
+    )
+    
     navigation_launch = IncludeLaunchDescription(
       launch_description_source=PythonLaunchDescriptionSource(
         PathJoinSubstitution(
@@ -50,9 +58,9 @@ def generate_launch_description():
       ),
     )
 
-    ld = LaunchDescription([
+    return LaunchDescription([
         depth_to_scan_node,
-        tf_static_publisher
+        tf_static_publisher,
+        slam_toolbox,
+        navigation_launch
     ])
-    ld.add_action(navigation_launch)
-    return ld
