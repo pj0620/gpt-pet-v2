@@ -3,27 +3,38 @@ import launch
 import launch_ros.actions
 
 def generate_launch_description():
-    actions = []
+  actions = []
 
-    # Launch kinect_ros2_node with a unique internal node name override.
-    actions.append(
-        launch_ros.actions.Node(
-            package="kinect_ros2",
-            executable="kinect_ros2_node",
-            name="kinect_ros2",
-            namespace="kinect",
-            arguments=["__node:=unique_kinect_node"]
-        )
+  # Launch the kinect node in its own process with a unique node name.
+  actions.append(
+    launch_ros.actions.Node(
+      package="kinect_ros2",
+      executable="kinect_ros2_node",
+      name="kinect_ros2",
+      namespace="kinect",
+      arguments=["__node:=unique_kinect_node"]
     )
+  )
 
-    # Launch motor control service node.
-    actions.append(
-        launch_ros.actions.Node(
-            package="motors",
-            executable="service",
-            name="motor_control_service",
-            parameters=[{"serial_port": "/dev/ttyUSB0"}],
-        )
+  # Launch the depth image processing node as a separate executable.
+  actions.append(
+    launch_ros.actions.Node(
+      package="depth_image_proc",
+      executable="depth_image_proc_node",  # assuming a separate executable exists
+      name="depth_image_proc",
+      namespace="kinect",
+      arguments=["__node:=unique_depth_image_proc_node"]
     )
+  )
 
-    return launch.LaunchDescription(actions)
+  # Launch motor control service node.
+  actions.append(
+    launch_ros.actions.Node(
+      package="motors",
+      executable="service",
+      name="motor_control_service",
+      parameters=[{"serial_port": "/dev/ttyUSB0"}]
+    )
+  )
+
+  return launch.LaunchDescription(actions)
