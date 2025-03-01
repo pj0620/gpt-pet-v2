@@ -18,15 +18,15 @@ def generate_launch_description():
     actions = []
 
     # Only launch kinect_ros2_node if it's not already running
-    # if not is_node_running("/kinect2/kinect_ros2"):
-    actions.append(
-        launch_ros.actions.Node(
-            package="kinect_ros2",
-            executable="kinect_ros2_node",
-            name="kinect_ros2",
-            namespace="kinect2",
-        )
-    )
+    if not is_node_running("/kinect/kinect_ros2"):
+      actions.append(
+          launch_ros.actions.Node(
+              package="kinect_ros2",
+              executable="kinect_ros2_node",
+              name="kinect_ros2",
+              namespace="kinect",
+          )
+      )
 
     actions.append(
         launch_ros.actions.Node(
