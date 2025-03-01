@@ -23,8 +23,19 @@ def generate_launch_description():
         name='static_tf_pub',
         arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'camera_depth_frame']
     )
+    
+    # Bring up Nav2
+    nav2_bringup = Node(
+        package='nav2_bringup',
+        executable='bringup_launch.py',
+        output='screen',
+        parameters=[{
+            'use_sim_time': False,  # Set to True if using simulation
+        }]
+    )
 
     return LaunchDescription([
         depth_to_scan_node,
-        tf_static_publisher
+        tf_static_publisher,
+        nav2_bringup
     ])
