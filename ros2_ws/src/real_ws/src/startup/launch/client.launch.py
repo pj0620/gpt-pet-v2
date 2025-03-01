@@ -16,17 +16,6 @@ def generate_launch_description():
     )
   )
 
-  # Launch the depth image processing node as a separate executable.
-  actions.append(
-    launch_ros.actions.Node(
-      package="depth_image_proc",
-      executable="depth_image_proc_node",  # assuming a separate executable exists
-      name="depth_image_proc",
-      namespace="kinect",
-      arguments=["__node:=unique_depth_image_proc_node"]
-    )
-  )
-
   # Launch motor control service node.
   actions.append(
     launch_ros.actions.Node(
