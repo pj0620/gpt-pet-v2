@@ -2,7 +2,7 @@ import launch_ros
 import launch
 import launch_ros.actions
 import subprocess
-
+import time
 
 def is_node_running(node_name):
     """Check if a ROS 2 node with the given name is already running."""
@@ -18,6 +18,7 @@ def generate_launch_description():
     actions = []
 
     # Only launch kinect_ros2_node if it's not already running
+    time.sleep(1)
     if not is_node_running("/kinect/kinect_ros2"):
       actions.append(
           launch_ros.actions.Node(
