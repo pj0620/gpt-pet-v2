@@ -38,15 +38,14 @@ def generate_launch_description():
       output='screen',
       parameters=[{
           'use_sim_time': False,
-          'odom_frame': 'odom',
-          'base_frame': 'base_link',
+          'odom_frame': 'odom',  # SLAM needs this frame
+          'base_frame': 'base_link',  # Robot's main frame
           'map_frame': 'map',
           'scan_topic': '/scan',
-          'publish_odom': True,  # Ensure odometry is published
-          'transform_timeout': 0.5,  # Prevent TF timeouts
-          'mode': 'mapping'
-      }],
-      remappings=[('/scan', '/scan')]  # Ensure proper scan connection
+          'mode': 'mapping',
+          'transform_publish_period': 0.05,  # Ensure transforms are published regularly
+          'transform_timeout': 0.5  # Reduce timeout issues
+      }]
     )
     
     navigation_launch = IncludeLaunchDescription(
