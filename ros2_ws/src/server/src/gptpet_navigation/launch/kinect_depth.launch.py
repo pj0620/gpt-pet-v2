@@ -33,17 +33,20 @@ def generate_launch_description():
     # Run SLAM to create /odom -> base_link dynamically
     slam_toolbox = Node(
       package='slam_toolbox',
-      executable='async_slam_toolbox_node',  # Correct executable name
+      executable='async_slam_toolbox_node',
       name='slam_toolbox',
       output='screen',
       parameters=[{
-          'use_sim_time': False,  # Set to True if using a recorded bag file
+          'use_sim_time': False,
           'odom_frame': 'odom',
           'base_frame': 'base_link',
           'map_frame': 'map',
           'scan_topic': '/scan',
+          'publish_odom': True,  # Ensure odometry is published
+          'transform_timeout': 0.5,  # Prevent TF timeouts
           'mode': 'mapping'
-      }]
+      }],
+      remappings=[('/scan', '/scan')]  # Ensure proper scan connection
     )
     
     navigation_launch = IncludeLaunchDescription(
