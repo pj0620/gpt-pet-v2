@@ -48,21 +48,21 @@ def generate_launch_description():
       }]
     )
     
-    navigation_launch = IncludeLaunchDescription(
-      launch_description_source=PythonLaunchDescriptionSource(
-        PathJoinSubstitution(
-          [
-            FindPackageShare("nav2_bringup"),
-            "launch",
-            "navigation_launch.py",
-          ]
-        )
-      ),
-    )
+    # navigation_launch = IncludeLaunchDescription(
+    #   launch_description_source=PythonLaunchDescriptionSource(
+    #     PathJoinSubstitution(
+    #       [
+    #         FindPackageShare("nav2_bringup"),
+    #         "launch",
+    #         "navigation_launch.py",
+    #       ]
+    #     )
+    #   ),
+    # )
 
     return LaunchDescription([
         depth_to_scan_node,
         tf_static_publisher,
         slam_toolbox,
-        navigation_launch
+        # navigation_launch
     ])
