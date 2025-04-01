@@ -22,10 +22,11 @@
 #include <Preferences.h>
 #include <PID_v2.h>
 
-#define ENC_LEVEL 500
+#define ENC_LEVEL 300
 #define MAX_ENC_INTERVAL 1000
 #define MIN_ENC_INTERVAL 140
 #define ENC_WINDOW_SIZE 20
+#define PID_UPDATE_WINDOW 500
 
 // R1+, R1-, R2+, R2-
 const int rightMotorPins[] = {4, 5, 6, 7};
@@ -34,9 +35,10 @@ const int rightMotorPins[] = {4, 5, 6, 7};
 const int leftMotorPins[] = {15, 16, 17, 18};
 
 float encMult = 152.35;
-float kp = 100.0;
-float ki = 0;
+float kp = 155;
+float ki = 10;
 float kd = 0;
+unsigned int pidUpdateCounter = 0;
 
 // R1, nan, nan, nan
 int encPins[4] = {
@@ -78,7 +80,7 @@ float controlSpeeds[4] = {
 unsigned long lastPIDUpdateTime = 0;
 
 // Create PID controller instance
-PID_v2 myPID(kp, ki, kd, DIRECT);
+PID_v2 myPID(kp, ki, kd, PID::Direct);
 
 Preferences preferences;
 
@@ -227,26 +229,6 @@ void submitCallback(AsyncWebServerRequest *request) {
   request->send(200, "text/plain", "Updated!");
 }
 
-// void updateVelocities() {
-//   unsigned long now = millis();
-//   double timeChange = (double)(now - lastPIDUpdateTime);
-//   for (int i = 0; i < 4; i++) {
-//     double error = desiredSpeeds[i] - measuredSpeeds[i];
-//     sumErrors[i] += error * timeChange;
-//     double dErr = (error - lastErrors[i]) / timeChange;
-
-//     double rawOutput = kp * error + ki * sumErrors[i] + kd * dErr;
-
-//     //TODO: 
-//     Serial.print(rawOutput);
-//     Serial.print(" ");
-
-//     lastErrors[i] = error;
-//   }
-//   Serial.println("");
-//   lastPIDUpdateTime = now;
-// }
-
 bool isValidFloat(String str) {
   float num = str.toFloat();
   return !(num == 0.0 && str != "0" && str != "0.0"); // Ensure it's not false-positive
@@ -285,7 +267,7 @@ void handleVelocitiesCommand(String command) {
   String noHeaderCmd = command.substring(7);
 
   // Parse Velocities
-  int velocities[4];
+  float velocities[4];
   int lastCommaIdx = 0;
   int commaIdx;
   String vel;
@@ -340,14 +322,14 @@ void handleVelocitiesCommand(String command) {
   // writePair(rightMotorPins[2], rightMotorPins[3], velocities[3]); // R2
 
   for (int i = 0; i < 4; i++) {
+
     desiredSpeeds[i] = abs(velocities[i]);
     directions[i] = sgn(directions[i]);
   }
 
-  // // myPID.SetPoint(desiredSpeeds[2]);
-  // myPID.Start(controlSpeeds[2],       // input
-  //             measuredSpeeds[2],      // current output
-  //             desiredSpeeds[2]);      // setpoint
+  myPID.Start(measuredSpeeds[3],      // input
+              0,                      // current output
+              desiredSpeeds[3]);      // setpoint
 }
 
 void handleCommand(String command) {
@@ -373,10 +355,10 @@ void setup() {
 
   // Open Preferences with a namespace (e.g. "my-app"), RW mode
   preferences.begin("gptpet", false);
-  kp = preferences.getFloat("kp", 1);
-  ki = preferences.getFloat("ki", 0);
-  kd = preferences.getFloat("kd", 0);
-  encMult = preferences.getFloat("encMult", 304.7);
+  // kp = preferences.getFloat("kp", 1);
+  // ki = preferences.getFloat("ki", 0);
+  // kd = preferences.getFloat("kd", 0);
+  // encMult = preferences.getFloat("encMult", 304.7);
 
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
@@ -415,11 +397,13 @@ void setup() {
   // // Initialize the PID controller
   // myPID.SetMode(AUTOMATIC);
   // Output limited to valid PWM range (0-255)
-  myPID.SetOutputLimits(0, 255);
+  myPID.SetOutputLimits(75, 255);
 
   myPID.Start(0,       // input
               0,       // current output
               0);    // setpoint
+
+  // analogWrite(rightMotorPins[0], 75);
 }
 
 void loop() {
@@ -433,27 +417,23 @@ void loop() {
   // updateVelocities();
 
   // Run the PID computation
-  // myPID.Compute();
-  // if (desiredSpeeds[2] > 1) {
-  //   const double output = myPID.Run(measuredSpeeds[2]);
-  //   analogWrite(rightMotorPins[0], output);
-  // } 
+  if (pidUpdateCounter++ >= PID_UPDATE_WINDOW && desiredSpeeds[3] > 0) {
+    controlSpeeds[3] = myPID.Run(measuredSpeeds[3]);
+    analogWrite(rightMotorPins[0], controlSpeeds[3]);
+    pidUpdateCounter = 0;
+  } 
 
-  for (int i=0; i < 4; i++) {
-    Serial.print(measuredSpeeds[i]);
-    Serial.print(" ");
-  }
-  Serial.println(" -1000 1000");
+  // for (int i=0; i < 4; i++) {
+  //   Serial.print(measuredSpeeds[i]);
+  //   Serial.print(" ");
+  // }
+  // Serial.println(" -1000 1000");
 
-  // myPID.Start(controlSpeeds[2],       // input
-  //             measuredSpeeds[2],      // current output
-  //             desiredSpeeds[2]);      // setpoint
-
-  // Serial.print(controlSpeeds[2]);
-  // Serial.print(" ");
-  // Serial.print(measuredSpeeds[2]);
-  // Serial.print(" ");
-  // Serial.println(desiredSpeeds[2]);
+  Serial.print(controlSpeeds[3]);
+  Serial.print(" ");
+  Serial.print(measuredSpeeds[3]);
+  Serial.print(" ");
+  Serial.println(desiredSpeeds[3]);
 
   // for (int i = 0; i < 4; i++) {
   //   Serial.print(controlSpeeds[i] * directions[i]);
