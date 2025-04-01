@@ -26,7 +26,7 @@
 #define MAX_ENC_INTERVAL 1000
 #define MIN_ENC_INTERVAL 140
 #define ENC_WINDOW_SIZE 20
-#define PID_UPDATE_WINDOW 500
+#define PID_UPDATE_WINDOW 250
 
 // R1+, R1-, R2+, R2-
 const int rightMotorPins[] = {4, 5, 6, 7};
@@ -35,9 +35,9 @@ const int rightMotorPins[] = {4, 5, 6, 7};
 const int leftMotorPins[] = {15, 16, 17, 18};
 
 float encMult = 152.35;
-float kp = 155;
-float ki = 10;
-float kd = 0;
+float kp = 80;
+float ki = 120;
+float kd = 2;
 unsigned int pidUpdateCounter = 0;
 
 // R1, nan, nan, nan
@@ -421,6 +421,13 @@ void loop() {
     controlSpeeds[3] = myPID.Run(measuredSpeeds[3]);
     analogWrite(rightMotorPins[0], controlSpeeds[3]);
     pidUpdateCounter = 0;
+
+    Serial.print(controlSpeeds[3]);
+    Serial.print(" ");
+    Serial.print(100 * measuredSpeeds[3]);
+    Serial.print(" ");
+    Serial.print(100 * desiredSpeeds[3]);
+    Serial.println(" 0 100");
   } 
 
   // for (int i=0; i < 4; i++) {
@@ -428,12 +435,6 @@ void loop() {
   //   Serial.print(" ");
   // }
   // Serial.println(" -1000 1000");
-
-  Serial.print(controlSpeeds[3]);
-  Serial.print(" ");
-  Serial.print(measuredSpeeds[3]);
-  Serial.print(" ");
-  Serial.println(desiredSpeeds[3]);
 
   // for (int i = 0; i < 4; i++) {
   //   Serial.print(controlSpeeds[i] * directions[i]);
