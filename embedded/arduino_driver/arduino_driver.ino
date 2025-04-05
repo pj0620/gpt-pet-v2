@@ -25,7 +25,6 @@
 #define MAX_ENC_INTERVAL 1000
 #define MIN_ENC_INTERVAL 140
 #define ENC_WINDOW_SIZE 20
-#define PID_UPDATE_WINDOW 250
 
 // L1+, L1-, L2+, L2-, R1+, R1-, R2+, R2-
 const int motorPins[] = {15, 16, 17, 18, 4, 5, 6, 7};
@@ -34,7 +33,6 @@ double encMult = 152.35;
 double kps[4] = { 80,  80,  80,   80 };
 double kis[4] = { 120, 120, 120, 120 };
 double kds[4] = { 2,   2,   2,   2   };
-unsigned long lastPidUpdateTime = 0;
 
 // L1, L2, R1, R2
 int encPins[4] = {
@@ -70,13 +68,11 @@ static double controlSpeeds[4] = {
   0, 0, 0, 0
 };
 
-unsigned long lastPIDUpdateTime = 0;
-
-static PID_v2 l1Pid(kps[0], kis[0], kds[0], PID::Direct);
-static PID_v2 l2Pid(kps[1], kis[1], kds[1], PID::Direct);
-static PID_v2 r1Pid(kps[2], kis[2], kds[2], PID::Direct);
-static PID_v2 r2Pid(kps[3], kis[3], kds[3], PID::Direct);
-static PID_v2 pidControllers[4] = {l1Pid, l2Pid, r1Pid, r2Pid};
+PID l1Pid(&measuredSpeeds[0], &controlSpeeds[0], &desiredSpeeds[0], kps[0], kis[0], kds[0], DIRECT);
+PID l2Pid(&measuredSpeeds[1], &controlSpeeds[1], &desiredSpeeds[1], kps[1], kis[1], kds[1], DIRECT);
+PID r1Pid(&measuredSpeeds[2], &controlSpeeds[2], &desiredSpeeds[2], kps[2], kis[2], kds[2], DIRECT);
+PID r2Pid(&measuredSpeeds[3], &controlSpeeds[3], &desiredSpeeds[3], kps[3], kis[3], kds[3], DIRECT);
+static PID* pidControllers[4] = { &l1Pid, &l2Pid, &r1Pid, &r2Pid};
 
 void updateSpeedMeasurements() {
   unsigned long curTime = millis();
@@ -84,8 +80,6 @@ void updateSpeedMeasurements() {
     // current sensor measurement
     int encPin = encPins[i];
     int sensorValue = analogRead(encPin);
-
-    // measuredSpeeds[i] = sensorValue;
 
     // update slidding windoes for rising edge detection
     envPosVals[i] += sensorValue;
@@ -97,8 +91,6 @@ void updateSpeedMeasurements() {
     envNegVals[i] += lastEnvPosVal;
     envNegVals[i] -= lastEnvNegVal;
     envNegWindow[i][envWindowIdx] = lastEnvPosVal;
-
-    // measuredSpeeds[i] = (envPosVals[i] - envNegVals[i]) / ENC_WINDOW_SIZE;
 
     // time difference to last pulse
     unsigned long lastTime = times[i];
@@ -208,24 +200,10 @@ void handleVelocitiesCommand(String command) {
   for (int i = 0; i < 4; i++) {
     desiredSpeeds[i] = abs(velocities[i]);
     directions[i] = sgn(directions[i]);
-    // pidControllers[i].Start(
-    //   measuredSpeeds[i],
-    //   controlSpeeds[i],
-    //   desiredSpeeds[i]
-    // );
-    pidControllers[i].Setpoint(desiredSpeeds[i]);
   }
 }
 
 void handlePidControl() {
-
-  // exit if we are not at pid update interval
-  // auto currentTime = millis();
-  // if (currentTime - lastPidUpdateTime < PID_UPDATE_WINDOW) {
-  //   return;
-  // }
-  // lastPidUpdateTime = currentTime;
-
   for (int i = 0; i < 4; i++) {
 
     //V_L1,V_L2,V_R1,V_r2
@@ -236,15 +214,9 @@ void handlePidControl() {
       controlSpeeds[i] = 0;
       writePair(posPin, negPin, 0);
     } else {
-      Serial.print("test ");
-      pidControllers[i].Start(
-        measuredSpeeds[i],
-        controlSpeeds[i],
-        desiredSpeeds[i]
-      );
-      controlSpeeds[i] = pidControllers[i].Run(measuredSpeeds[i]);
-      Serial.printf("i=%d control=%f measured=%f setPoint=%f", i, controlSpeeds[i], measuredSpeeds[i], pidControllers[i].GetSetpoint());
-      Serial.println("");
+      pidControllers[i]->Compute();
+      // Serial.printf("i=%d control=%f measured=%f desired=%f", i, controlSpeeds[i], measuredSpeeds[i], desiredSpeeds[i]);
+      // Serial.println("");
       writePair(posPin, negPin, controlSpeeds[i] * directions[i]);
     }
   }
@@ -265,7 +237,6 @@ void handleCommand(String command) {
 }
 
 void setup() {
-  // initialize serial communication at 9600 bits per second:
   Serial.begin(115200);
 
   for (int i = 0; i < 8; i++) {
@@ -275,13 +246,8 @@ void setup() {
 
   for (int i = 0; i < 4; i++) {
     pinMode(encPins[i], INPUT);
-    pidControllers[i].SetOutputLimits(75, 255);
-    pidControllers[i].Start(
-      measuredSpeeds[i],      // input
-      controlSpeeds[i],       // current output
-      desiredSpeeds[i]        // setpoint
-    );
-    pidControllers[i].SetMode(PID::Mode::Automatic);
+    pidControllers[i]->SetOutputLimits(75, 255);
+    pidControllers[i]->SetMode(PID::Mode::Automatic);
   }
 
   Serial.println("READY");
