@@ -16,36 +16,35 @@
   - Where V_M sets the velocity of each motor in the range [-255, 255]
 */
 
-#include <WiFi.h>
-#include <ESPmDNS.h>
-#include <ESPAsyncWebServer.h>
-#include <Preferences.h>
+// #include <WiFi.h>
+// #include <ESPmDNS.h>
+// #include <ESPAsyncWebServer.h>
+// #include <Preferences.h>
 #include <PID_v2.h>
 
-#define ENC_LEVEL 300
 #define MAX_ENC_INTERVAL 1000
 #define MIN_ENC_INTERVAL 140
 #define ENC_WINDOW_SIZE 20
 #define PID_UPDATE_WINDOW 250
 
-// R1+, R1-, R2+, R2-
-const int rightMotorPins[] = {4, 5, 6, 7};
+// L1+, L1-, L2+, L2-, R1+, R1-, R2+, R2-
+const int motorPins[] = {15, 16, 17, 18, 4, 5, 6, 7};
 
-// L1+, L1-, L2+, L2-
-const int leftMotorPins[] = {15, 16, 17, 18};
+double encMult = 152.35;
+double kps[4] = { 80,  80,  80,   80 };
+double kis[4] = { 120, 120, 120, 120 };
+double kds[4] = { 2,   2,   2,   2   };
+unsigned long lastPidUpdateTime = 0;
 
-float encMult = 152.35;
-float kp = 80;
-float ki = 120;
-float kd = 2;
-unsigned int pidUpdateCounter = 0;
-
-// R1, nan, nan, nan
+// L1, L2, R1, R2
 int encPins[4] = {
   10, 11, 12, 13
 };
 unsigned long times[4] = {
   0, 0, 0, 0
+};
+int encLevels[4] = {
+  265, 300, 300, 300
 };
 
 int envNegWindow[4][ENC_WINDOW_SIZE];
@@ -55,95 +54,29 @@ int envPosVals[4] = {0, 0, 0, 0};
 int envWindowIdx = 0;
 
 // v_L1, v_L2, v_R1, v_R2
-float measuredSpeeds[4] = {
+static double measuredSpeeds[4] = {
   0, 0, 0, 0
 };
-float desiredSpeeds[4] = {
+static double desiredSpeeds[4] = {
   0, 0, 0, 0
 };
 
 // 1 -> forward, -1 -> reverse
-float directions[4] = {
+double directions[4] = {
   0, 0, 0, 0
 };
 
-float lastErrors[4] = {
-  0, 0, 0, 0
-};
-float sumErrors[4] = {
-  0, 0, 0, 0
-};
-float controlSpeeds[4] = {
+static double controlSpeeds[4] = {
   0, 0, 0, 0
 };
 
 unsigned long lastPIDUpdateTime = 0;
 
-// Create PID controller instance
-PID_v2 myPID(kp, ki, kd, PID::Direct);
-
-Preferences preferences;
-
-const char *ssid = "HONEST.NET-1905_2G";
-const char *password = "vuvohuge65";
-
-char homepage[2048];
-AsyncWebServer server(80);
-
-void generateHomepage() {
-  Serial.print("encMult = ");
-  Serial.println(encMult);
-  snprintf(homepage, sizeof(homepage), R"rawliteral(
-<!DOCTYPE html>
-<html>
-<head>
-  <title>GPTPet ESP Server</title>
-  <style>
-    body {
-      background-color: black;
-      color: white;
-      font-family: sans-serif;
-    }
-    .form-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    label {
-      flex: 1;
-      text-align: left;
-    }
-    input {
-      flex: 1;
-      text-align: right;
-    }
-  </style>
-</head>
-<body>
-  <h1>GPTPet ESP Control Server</h1>
-  <form action="/submit" method="POST">
-    <div class="form-row">
-      <label for="kp">KP:</label>
-      <input type="number" id="kp" name="kp" value="%f" required>
-    </div>
-    <div class="form-row">
-      <label for="ki">KI:</label>
-      <input type="number" id="ki" name="ki" value="%f" required>
-    </div>
-    <div class="form-row">
-      <label for="kd">KD:</label>
-      <input type="number" id="kd" name="kd" value="%f" required>
-    </div>
-    <div class="form-row">
-      <label for="encnum">Encoder Numerator:</label>
-      <input type="number" id="encnum" name="encnum" value="%f" required>
-    </div>
-    <button type="submit">Submit</button>
-  </form>
-</body>
-</html>
-)rawliteral", kp, ki, kd, encMult);
-}
+static PID_v2 l1Pid(kps[0], kis[0], kds[0], PID::Direct);
+static PID_v2 l2Pid(kps[1], kis[1], kds[1], PID::Direct);
+static PID_v2 r1Pid(kps[2], kis[2], kds[2], PID::Direct);
+static PID_v2 r2Pid(kps[3], kis[3], kds[3], PID::Direct);
+static PID_v2 pidControllers[4] = {l1Pid, l2Pid, r1Pid, r2Pid};
 
 void updateSpeedMeasurements() {
   unsigned long curTime = millis();
@@ -172,7 +105,7 @@ void updateSpeedMeasurements() {
     unsigned long delTime = curTime - lastTime;
 
     // rising edge is detected
-    if ((envPosVals[i] - envNegVals[i])/ENC_WINDOW_SIZE > ENC_LEVEL) {
+    if ((envPosVals[i] - envNegVals[i])/ENC_WINDOW_SIZE > encLevels[i]) {
       
       // time difference in correct interval, update measured speed
       if (MIN_ENC_INTERVAL < delTime && delTime < MAX_ENC_INTERVAL) {
@@ -193,44 +126,8 @@ void updateSpeedMeasurements() {
   envWindowIdx = (envWindowIdx + 1) % ENC_WINDOW_SIZE;
 }
 
-void submitCallback(AsyncWebServerRequest *request) {
-  Serial.println("/submit request recieved");
-  if (!(
-    request->hasParam("kp", true) &&
-    request->hasParam("ki", true) &&
-    request->hasParam("kd", true) &&
-    request->hasParam("encnum", true)
-  )) {
-    request->send(400, "text/plain", "invalid request!");
-  }
-  kp = atof(request->getParam("kp", true)->value().c_str());
-  Serial.print("kp = ");
-  Serial.println(kp);
-
-  ki = atof(request->getParam("ki", true)->value().c_str());
-  Serial.print("ki = ");
-  Serial.println(ki);
-
-  kd = atof(request->getParam("kd", true)->value().c_str());
-  Serial.print("kd = ");
-  Serial.println(kd);
-
-  encMult = atof(request->getParam("encnum", true)->value().c_str());
-  Serial.print("encMult = ");
-  Serial.println(encMult);
-
-  preferences.putFloat("kp", kp); 
-  preferences.putFloat("ki", ki); 
-  preferences.putFloat("kd", kd); 
-  preferences.putFloat("encMult", encMult); 
-
-  generateHomepage();
-
-  request->send(200, "text/plain", "Updated!");
-}
-
-bool isValidFloat(String str) {
-  float num = str.toFloat();
+bool isValiddouble(String str) {
+  double num = str.toDouble();
   return !(num == 0.0 && str != "0" && str != "0.0"); // Ensure it's not false-positive
 }
 
@@ -238,14 +135,7 @@ int sgn(int x) {
   return (x > 0) - (x < 0);
 }
 
-void stopAllMotors() {
-  for (int i = 0; i < 4; i++) {
-    analogWrite(rightMotorPins[i], 0);
-    analogWrite(leftMotorPins[i], 0);
-  }
-}
-
-void writePair(int positivePin, int negativePin, float value) {
+void writePair(int positivePin, int negativePin, double value) {
   if (value > 0) {
     analogWrite(positivePin, value);
     analogWrite(negativePin, 0);
@@ -267,7 +157,7 @@ void handleVelocitiesCommand(String command) {
   String noHeaderCmd = command.substring(7);
 
   // Parse Velocities
-  float velocities[4];
+  double velocities[4];
   int lastCommaIdx = 0;
   int commaIdx;
   String vel;
@@ -294,7 +184,7 @@ void handleVelocitiesCommand(String command) {
       return;
     }
 
-    velocities[i] = vel.toFloat();
+    velocities[i] = vel.toDouble();
     if (!(velocities[i] == 0.0 && vel != "0" && vel != "0.0")) {
       if (velocities[i] < -255.0 || velocities[i] > 255.0) {
         Serial.print("invalid velocity recieved (must be in range [-255, 255]) ");
@@ -303,7 +193,7 @@ void handleVelocitiesCommand(String command) {
         return;
       }
     } else {
-      Serial.print("invalid velocity recieved (not a float) ");
+      Serial.print("invalid velocity recieved (not a double) ");
       if (vel.length() == 0) {
         Serial.print("<EMPTY STRING>");
       } else {
@@ -315,21 +205,49 @@ void handleVelocitiesCommand(String command) {
     lastCommaIdx = commaIdx + 1;
   }
 
-  // Write to pins 
-  // writePair(leftMotorPins[0], leftMotorPins[1], velocities[0]); // L1
-  // writePair(leftMotorPins[2], leftMotorPins[3], velocities[1]); // L2
-  // writePair(rightMotorPins[0], rightMotorPins[1], velocities[2]); // R1
-  // writePair(rightMotorPins[2], rightMotorPins[3], velocities[3]); // R2
+  for (int i = 0; i < 4; i++) {
+    desiredSpeeds[i] = abs(velocities[i]);
+    directions[i] = sgn(directions[i]);
+    // pidControllers[i].Start(
+    //   measuredSpeeds[i],
+    //   controlSpeeds[i],
+    //   desiredSpeeds[i]
+    // );
+    pidControllers[i].Setpoint(desiredSpeeds[i]);
+  }
+}
+
+void handlePidControl() {
+
+  // exit if we are not at pid update interval
+  // auto currentTime = millis();
+  // if (currentTime - lastPidUpdateTime < PID_UPDATE_WINDOW) {
+  //   return;
+  // }
+  // lastPidUpdateTime = currentTime;
 
   for (int i = 0; i < 4; i++) {
 
-    desiredSpeeds[i] = abs(velocities[i]);
-    directions[i] = sgn(directions[i]);
-  }
+    //V_L1,V_L2,V_R1,V_r2
+    int posPin = motorPins[2 * i];
+    int negPin = motorPins[2 * i + 1];
 
-  myPID.Start(measuredSpeeds[3],      // input
-              0,                      // current output
-              desiredSpeeds[3]);      // setpoint
+    if (-0.001 < desiredSpeeds[i] && desiredSpeeds[i] < 0.001) {
+      controlSpeeds[i] = 0;
+      writePair(posPin, negPin, 0);
+    } else {
+      Serial.print("test ");
+      pidControllers[i].Start(
+        measuredSpeeds[i],
+        controlSpeeds[i],
+        desiredSpeeds[i]
+      );
+      controlSpeeds[i] = pidControllers[i].Run(measuredSpeeds[i]);
+      Serial.printf("i=%d control=%f measured=%f setPoint=%f", i, controlSpeeds[i], measuredSpeeds[i], pidControllers[i].GetSetpoint());
+      Serial.println("");
+      writePair(posPin, negPin, controlSpeeds[i] * directions[i]);
+    }
+  }
 }
 
 void handleCommand(String command) {
@@ -349,61 +267,24 @@ void handleCommand(String command) {
 void setup() {
   // initialize serial communication at 9600 bits per second:
   Serial.begin(115200);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  Serial.println("");
 
-  // Open Preferences with a namespace (e.g. "my-app"), RW mode
-  preferences.begin("gptpet", false);
-  // kp = preferences.getFloat("kp", 1);
-  // ki = preferences.getFloat("ki", 0);
-  // kd = preferences.getFloat("kd", 0);
-  // encMult = preferences.getFloat("encMult", 304.7);
-
-  // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  for (int i = 0; i < 8; i++) {
+    pinMode(motorPins[i], OUTPUT);
+    analogWrite(motorPins[i], 0);
   }
-  delay(500);  // <-- Add this right after connection
-  Serial.println("");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
 
   for (int i = 0; i < 4; i++) {
-    pinMode(rightMotorPins[i], OUTPUT);
-    analogWrite(rightMotorPins[i], 0);
-
-    pinMode(leftMotorPins[i], OUTPUT);
-    analogWrite(leftMotorPins[i], 0);
-
     pinMode(encPins[i], INPUT);
+    pidControllers[i].SetOutputLimits(75, 255);
+    pidControllers[i].Start(
+      measuredSpeeds[i],      // input
+      controlSpeeds[i],       // current output
+      desiredSpeeds[i]        // setpoint
+    );
+    pidControllers[i].SetMode(PID::Mode::Automatic);
   }
-  Serial.begin(115200); // ESP8266 prefers higher baud rates
 
-  generateHomepage();
-
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    Serial.println("/ request recieved");
-    request->send(200, "text/html", homepage);
-  });
-  server.on("/submit", HTTP_POST, submitCallback);
-
-  server.begin();
-  Serial.println("HTTP server started");
-
-  // // Initialize the PID controller
-  // myPID.SetMode(AUTOMATIC);
-  // Output limited to valid PWM range (0-255)
-  myPID.SetOutputLimits(75, 255);
-
-  myPID.Start(0,       // input
-              0,       // current output
-              0);    // setpoint
-
-  // analogWrite(rightMotorPins[0], 75);
+  Serial.println("READY");
 }
 
 void loop() {
@@ -414,33 +295,20 @@ void loop() {
   }
 
   updateSpeedMeasurements();
-  // updateVelocities();
+  handlePidControl();
 
-  // Run the PID computation
-  if (pidUpdateCounter++ >= PID_UPDATE_WINDOW && desiredSpeeds[3] > 0) {
-    controlSpeeds[3] = myPID.Run(measuredSpeeds[3]);
-    analogWrite(rightMotorPins[0], controlSpeeds[3]);
-    pidUpdateCounter = 0;
-
-    Serial.print(controlSpeeds[3]);
-    Serial.print(" ");
-    Serial.print(100 * measuredSpeeds[3]);
-    Serial.print(" ");
-    Serial.print(100 * desiredSpeeds[3]);
-    Serial.println(" 0 100");
-  } 
+  // Serial.print(controlSpeeds[3]);
+  // Serial.print(" ");
+  // Serial.print(100 * measuredSpeeds[3]);
+  // Serial.print(" ");
+  // Serial.print(100 * desiredSpeeds[3]);
+  // Serial.println(" 0 100");
 
   // for (int i=0; i < 4; i++) {
   //   Serial.print(measuredSpeeds[i]);
   //   Serial.print(" ");
   // }
-  // Serial.println(" -1000 1000");
-
-  // for (int i = 0; i < 4; i++) {
-  //   Serial.print(controlSpeeds[i] * directions[i]);
-  //   Serial.print(" ");
-  // }
-  // Serial.println();
+  // Serial.println(" -250 250");
 
   delay(1);
 }
