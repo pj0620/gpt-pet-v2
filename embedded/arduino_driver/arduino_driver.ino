@@ -146,62 +146,17 @@ void writePair(int positivePin, int negativePin, double value) {
 
   Where V_x is the velocity of each motor in the range [-255,255]
 */
-void handleVelocitiesCommand(String command) {
-  Serial.println("Processing velocities command");
-  String noHeaderCmd = command.substring(7);
-
-  // Parse Velocities
-  double velocities[4];
-  int lastCommaIdx = 0;
-  int commaIdx;
-  String vel;
+void handleVelocitiesCommand() {
   for (int i = 0; i < 4; i++) {
-    if (i == 0) {
-      commaIdx = noHeaderCmd.indexOf(",");
-      vel = noHeaderCmd.substring(0, commaIdx);
-    }
-    else if (0 < i && i < 3) {
-      commaIdx = noHeaderCmd.indexOf(",", lastCommaIdx);
-      vel = noHeaderCmd.substring(lastCommaIdx, commaIdx);
-    } 
-    else {
-      commaIdx = noHeaderCmd.indexOf(",", lastCommaIdx);
-      if (commaIdx != -1) {
-        Serial.println("Invalid number of arguments. Must provide 4 comma seperated values");
-        return;
-      }
-      vel = noHeaderCmd.substring(lastCommaIdx, noHeaderCmd.length());
-    }
-
-    if (commaIdx == -1 && i < 3) {
-      Serial.println("Invalid number of arguments. Must provide 4 comma seperated values");
-      return;
-    }
-
-    velocities[i] = vel.toDouble();
-    if (!(velocities[i] == 0.0 && vel != "0" && vel != "0.0")) {
-      if (velocities[i] < -255.0 || velocities[i] > 255.0) {
-        Serial.print("invalid velocity recieved (must be in range [-255, 255]) ");
-        Serial.print(vel);
-        Serial.println("!");
-        return;
-      }
+    int inpVel = Serial.read();
+    if (inpVel & 0x80) {
+      Serial.print("-");
+      directions[i] = -1.0;
     } else {
-      Serial.print("invalid velocity recieved (not a double) ");
-      if (vel.length() == 0) {
-        Serial.print("<EMPTY STRING>");
-      } else {
-        Serial.print(vel);
-      }
-      Serial.println("!");
-      return;
+      Serial.print("+");
+      directions[i] = 1.0;
     }
-    lastCommaIdx = commaIdx + 1;
-  }
-
-  for (int i = 0; i < 4; i++) {
-    desiredSpeeds[i] = abs(velocities[i]);
-    directions[i] = sgn(velocities[i]);
+    desiredSpeeds[i] = (inpVel & 0x7f) / 127.0;
   }
 }
 
@@ -224,15 +179,24 @@ void handlePidControl() {
   }
 }
 
-void handleCommand(String command) {
-  Serial.println("Processing command: " + command);
+void handleCommand() {
+  if (!Serial.available()) {
+    return;
+  }
 
-  if (command.startsWith("SET_VS ")) {
-    handleVelocitiesCommand(command);
+  char incomingByte = Serial.read();
+
+  if (incomingByte == 'V') {
+    handleVelocitiesCommand();
   }
 
   else {
     Serial.println("invalid command!");
+  }
+
+  // Flush input
+  while (Serial.available()) {
+    Serial.read();
   }
 
   Serial.println("DONE");
@@ -256,21 +220,9 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.available()) {
-    String command = Serial.readString();
-    command.trim();
-    handleCommand(command);
-  }
-
+  handleCommand();
   updateSpeedMeasurements();
   handlePidControl();
-
-  // Serial.print(controlSpeeds[3]);
-  // Serial.print(" ");
-  // Serial.print(100 * measuredSpeeds[3]);
-  // Serial.print(" ");
-  // Serial.print(100 * desiredSpeeds[3]);
-  // Serial.println(" 0 100");
 
   if (printCounter++ >= 100) {
     printCounter = 0;
