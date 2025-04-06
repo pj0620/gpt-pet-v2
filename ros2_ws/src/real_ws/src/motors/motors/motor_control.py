@@ -6,7 +6,7 @@ import serial
 class MotorControlService(Node):
     def __init__(self):
         super().__init__('motor_control_service')
-        self.declare_parameter('serial_port', '/dev/ttyUSB0')
+        self.declare_parameter('serial_port', '/dev/ttyACM0')
         serial_port = self.get_parameter('serial_port').get_parameter_value().string_value
         self.serial_port = serial.Serial(serial_port, 115200)
         self.srv = self.create_service(MotorControl, 'motor_control', self.motor_control_callback)
