@@ -21,7 +21,7 @@ def generate_launch_description():
       package="motors",
       executable="service",
       name="motor_control_service",
-      parameters=[{"serial_port": "/dev/ttyUSB0"}]
+      parameters=[{"serial_port": "/dev/ttyACM0"}]
     )
   )
 
