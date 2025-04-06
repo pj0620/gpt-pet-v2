@@ -24,5 +24,13 @@ def generate_launch_description():
       parameters=[{"serial_port": "/dev/ttyACM0"}]
     )
   )
+  
+  actions.append(
+     launch_ros.actions.Node(
+        package='motors',
+        executable='motor_speed_publisher',
+        name='motor_speed_publisher'
+      )
+  )
 
   return launch.LaunchDescription(actions)
