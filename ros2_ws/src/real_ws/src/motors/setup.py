@@ -24,6 +24,7 @@ setup(
     entry_points={
         'console_scripts': [
           'service = motors.motor_control:main',
+          'motor_speed_publisher = motors.motor_speed_publisher:main',
         ],
     },
 )
