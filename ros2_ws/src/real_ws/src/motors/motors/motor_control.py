@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from common_interfaces.srv import MotorControl  # Importing a service
+from common_interfaces.srv import MotorControl
 import serial
 
 class MotorControlService(Node):

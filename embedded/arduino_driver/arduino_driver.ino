@@ -25,8 +25,7 @@
 #define MAX_ENC_INTERVAL 1000
 #define MIN_ENC_INTERVAL 120
 #define ENC_WINDOW_SIZE 20
-
-int printCounter=0;
+#define SPEED_PUBLISH_INTERVAL 100
 
 // L1+, L1-, L2+, L2-, R1+, R1-, R2+, R2-
 const int motorPins[] = {15, 16, 17, 18, 4, 5, 6, 7};
@@ -75,6 +74,8 @@ PID l2Pid(&measuredSpeeds[1], &controlSpeeds[1], &desiredSpeeds[1], kps[1], kis[
 PID r1Pid(&measuredSpeeds[2], &controlSpeeds[2], &desiredSpeeds[2], kps[2], kis[2], kds[2], DIRECT);
 PID r2Pid(&measuredSpeeds[3], &controlSpeeds[3], &desiredSpeeds[3], kps[3], kis[3], kds[3], DIRECT);
 static PID* pidControllers[4] = { &l1Pid, &l2Pid, &r1Pid, &r2Pid};
+
+unsigned long lastPublishTime = 0;
 
 void updateSpeedMeasurements() {
   unsigned long curTime = millis();
@@ -202,6 +203,31 @@ void handleCommand() {
   Serial.println("DONE");
 }
 
+void writeSpeeds() {
+  auto currentTime = millis();
+  if (currentTime - lastPublishTime < SPEED_PUBLISH_INTERVAL) {
+    return;
+  }
+  lastPublishTime = currentTime;
+
+  Serial.print('M');
+  for (int i=0; i < 4; i++) {
+
+    char val = char(round(127 * measuredSpeeds[i]));
+
+    if (val > 127) {
+      val = 127;
+    }
+
+    if (directions[i] < 0) {
+      val = val & 0x80;
+    }
+
+    Serial.print(val);
+  }
+  Serial.println("");
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -223,15 +249,6 @@ void loop() {
   handleCommand();
   updateSpeedMeasurements();
   handlePidControl();
-
-  if (printCounter++ >= 100) {
-    printCounter = 0;
-    for (int i=0; i < 4; i++) {
-      Serial.print(measuredSpeeds[i]);
-      Serial.print(" ");
-    }
-    Serial.println(" -1 1");
-  }
-
+  writeSpeeds();
   delay(1);
 }
