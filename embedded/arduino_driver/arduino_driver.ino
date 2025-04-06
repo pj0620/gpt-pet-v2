@@ -23,8 +23,10 @@
 #include <PID_v2.h>
 
 #define MAX_ENC_INTERVAL 1000
-#define MIN_ENC_INTERVAL 140
+#define MIN_ENC_INTERVAL 120
 #define ENC_WINDOW_SIZE 20
+
+int printCounter=0;
 
 // L1+, L1-, L2+, L2-, R1+, R1-, R2+, R2-
 const int motorPins[] = {15, 16, 17, 18, 4, 5, 6, 7};
@@ -42,7 +44,7 @@ unsigned long times[4] = {
   0, 0, 0, 0
 };
 int encLevels[4] = {
-  265, 300, 300, 300
+  200, 300, 300, 300
 };
 
 int envNegWindow[4][ENC_WINDOW_SIZE];
@@ -61,7 +63,7 @@ static double desiredSpeeds[4] = {
 
 // 1 -> forward, -1 -> reverse
 double directions[4] = {
-  0, 0, 0, 0
+  1, 1, 1, 1
 };
 
 static double controlSpeeds[4] = {
@@ -123,8 +125,8 @@ bool isValiddouble(String str) {
   return !(num == 0.0 && str != "0" && str != "0.0"); // Ensure it's not false-positive
 }
 
-int sgn(int x) {
-  return (x > 0) - (x < 0);
+double sgn(double x) {
+  return (double) ((x > 0) - (x < 0));
 }
 
 void writePair(int positivePin, int negativePin, double value) {
@@ -199,7 +201,7 @@ void handleVelocitiesCommand(String command) {
 
   for (int i = 0; i < 4; i++) {
     desiredSpeeds[i] = abs(velocities[i]);
-    directions[i] = sgn(directions[i]);
+    directions[i] = sgn(velocities[i]);
   }
 }
 
@@ -215,7 +217,7 @@ void handlePidControl() {
       writePair(posPin, negPin, 0);
     } else {
       pidControllers[i]->Compute();
-      // Serial.printf("i=%d control=%f measured=%f desired=%f", i, controlSpeeds[i], measuredSpeeds[i], desiredSpeeds[i]);
+      // Serial.printf("i=%d direction=%f control=%f measured=%f desired=%f posPin=%d negPin=%d", i, directions[i], controlSpeeds[i] * directions[i], measuredSpeeds[i], desiredSpeeds[i], posPin, negPin);
       // Serial.println("");
       writePair(posPin, negPin, controlSpeeds[i] * directions[i]);
     }
@@ -270,11 +272,14 @@ void loop() {
   // Serial.print(100 * desiredSpeeds[3]);
   // Serial.println(" 0 100");
 
-  // for (int i=0; i < 4; i++) {
-  //   Serial.print(measuredSpeeds[i]);
-  //   Serial.print(" ");
-  // }
-  // Serial.println(" -250 250");
+  if (printCounter++ >= 100) {
+    printCounter = 0;
+    for (int i=0; i < 4; i++) {
+      Serial.print(measuredSpeeds[i]);
+      Serial.print(" ");
+    }
+    Serial.println(" -1 1");
+  }
 
   delay(1);
 }
