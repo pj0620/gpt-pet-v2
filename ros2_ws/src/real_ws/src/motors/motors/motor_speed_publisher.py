@@ -15,10 +15,10 @@ class MotorSpeedPublisher(Node):
 
     def timer_callback(self):
         msg = Velocities(
-          velocity_left_1=1,
-          velocity_left_2=2,
-          velocity_right_1=3,
-          velocity_right_2=4
+          velocity_left_1=1.0,
+          velocity_left_2=2.0,
+          velocity_right_1=3.0,
+          velocity_right_2=4.0
         )
         self.publisher_.publish(msg)
         self.get_logger().info('Publishing')
