@@ -35,7 +35,7 @@ class MotorControlService(Node):
     
     def motor_speed_callback(self, request, response):
       self.get_logger().info(f'Received speed request')
-      response.speeds = Velocities(
+      response.motor_speeds = Velocities(
         velocity_left_1=1.0,
         velocity_left_2=2.0,
         velocity_right_1=3.0,
