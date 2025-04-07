@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>common_interfaces</name>
+  <name>gptpet_common</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Common code and interfaces for client and server workspaces</description>
   <maintainer email="pjm7748@g.rit.edu">pj</maintainer>
   <license>Apache-2.0</license>
 

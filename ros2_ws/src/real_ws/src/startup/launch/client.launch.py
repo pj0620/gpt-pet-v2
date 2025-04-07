@@ -29,7 +29,8 @@ def generate_launch_description():
      launch_ros.actions.Node(
         package='motors',
         executable='motor_speed_publisher',
-        name='motor_speed_publisher'
+        name='motor_speed_publisher',
+        parameters=[{"serial_port": "/dev/ttyACM0"}]
       )
   )
 

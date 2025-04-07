@@ -26,6 +26,7 @@
 #define MIN_ENC_INTERVAL 120
 #define ENC_WINDOW_SIZE 20
 #define SPEED_PUBLISH_INTERVAL 100
+#define MAX_SPEED 2
 
 // L1+, L1-, L2+, L2-, R1+, R1-, R2+, R2-
 const int motorPins[] = {15, 16, 17, 18, 4, 5, 6, 7};
@@ -157,7 +158,7 @@ void handleVelocitiesCommand() {
       Serial.print("+");
       directions[i] = 1.0;
     }
-    desiredSpeeds[i] = (inpVel & 0x7f) / 127.0;
+    desiredSpeeds[i] = MAX_SPEED * (inpVel & 0x7f) / 127.0;
   }
 }
 
@@ -213,7 +214,7 @@ void writeSpeeds() {
   Serial.print('M');
   for (int i=0; i < 4; i++) {
 
-    char val = char(round(127 * measuredSpeeds[i]));
+    char val = char(round(127 * measuredSpeeds[i] / MAX_SPEED));
 
     if (val > 127) {
       val = 127;

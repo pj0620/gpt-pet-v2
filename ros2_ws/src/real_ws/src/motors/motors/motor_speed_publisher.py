@@ -1,13 +1,16 @@
 import rclpy
 from rclpy.node import Node
-from common_interfaces.msg import Velocities
-from std_msgs.msg import String
+from gptpet_common.msg import Velocities
+import serial
 
 
 class MotorSpeedPublisher(Node):
 
     def __init__(self):
         super().__init__('motor_speed_publisher')
+        # self.declare_parameter('serial_port', '/dev/ttyACM0')
+        # serial_port = self.get_parameter('serial_port').get_parameter_value().string_value
+        # self.serial_port = serial.Serial(serial_port, 115200)
         self.publisher_ = self.create_publisher(Velocities, 'motor_speed_topic', 10)
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
