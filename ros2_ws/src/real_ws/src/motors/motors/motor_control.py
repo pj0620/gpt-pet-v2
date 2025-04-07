@@ -26,8 +26,8 @@ class MotorControlService(Node):
       return bytes([encoded_byte])
     
     def byte_to_float(self, b: int) -> bytes:
-      val = 2.0 * float(b[0] & 0x7F) / 127.0
-      if b[0] & 0x80:
+      val = 2.0 * float(b & 0x7F) / 127.0
+      if b & 0x80:
         val = -val
       return val
 
