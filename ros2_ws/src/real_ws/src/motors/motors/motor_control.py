@@ -43,6 +43,7 @@ class MotorControlService(Node):
     def motor_speed_callback(self, request, response):
       self.get_logger().info(f'Received speed request')
       speeds = self.serial_port.readline()
+      self.get_logger().info(f'speeds = {speeds}')
       if speeds == b'':
         self.get_logger().error(f'No serial data recieved!')
         response.motor_speeds = Velocities(
