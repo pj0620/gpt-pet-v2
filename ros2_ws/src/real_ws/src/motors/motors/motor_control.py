@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
-from gptpet_common.srv import MotorControl
+from gptpet_common.msg import Velocities
+from gptpet_common.srv import MotorControl, MotorSpeed
 import serial
 
 class MotorControlService(Node):
@@ -10,12 +11,12 @@ class MotorControlService(Node):
         serial_port = self.get_parameter('serial_port').get_parameter_value().string_value
         self.serial_port = serial.Serial(serial_port, 115200)
         self.srv = self.create_service(MotorControl, 'motor_control', self.motor_control_callback)
-        self.srv = self.create_service(MotorControl, 'motor_control', self.motor_control_callback)
+        self.srv = self.create_service(MotorSpeed, 'motor_speed', self.motor_speed_callback)
         self.get_logger().info('Service is ready to send mototr control commands')
         
-    def float_to_byte(self, speed: float) -> bytes:
+    def float_to_byte(self, f: float) -> bytes:
       # Clamp and convert to int
-      value = max(-127, min(127, int(round(speed * 127))))
+      value = max(-127, min(127, int(round(f * 127 / 2))))
       
       sign_bit = 0x80 if value < 0 else 0x00  # Set the S bit (MSB)
       magnitude = abs(value) & 0x7F           # Ensure only lower 7 bits
@@ -31,6 +32,16 @@ class MotorControlService(Node):
           serial_command += self.float_to_byte(vel)
         self.serial_port.write(serial_command)
         return response
+    
+    def motor_speed_callback(self, request, response):
+      self.get_logger().info(f'Received speed request')
+      response.speeds = Velocities(
+        velocity_left_1=1.0,
+        velocity_left_2=2.0,
+        velocity_right_1=3.0,
+        velocity_right_2=4.0
+      )
+      return response
 
 def main(args=None):
     rclpy.init(args=args)
