@@ -1,71 +1,76 @@
 import rclpy
 from rclpy.node import Node
 from gptpet_common.msg import Velocities
-from gptpet_common.srv import MotorControl, MotorSpeed
+from gptpet_common.srv import MotorControl
 import serial
-import time
 
-class MotorControlService(Node):
+class MotorControl(Node):
     def __init__(self):
-        super().__init__('motor_control_service')
+        super().__init__('motor_control')
+
+        # Get serial port parameter
         self.declare_parameter('serial_port', '/dev/ttyACM0')
         serial_port = self.get_parameter('serial_port').get_parameter_value().string_value
-        self.serial_port = serial.Serial(serial_port, 115200, timeout=1)
-        self.srv = self.create_service(MotorControl, 'motor_control', self.motor_control_callback)
-        self.srv = self.create_service(MotorSpeed, 'motor_speed', self.motor_speed_callback)
-        self.get_logger().info('Service is ready to send mototr control commands')
-        
+
+        # Setup serial
+        self.serial_port = serial.Serial(serial_port, 115200, timeout=0.1)
+
+        # Velocities publisher
+        self.vel_pub = self.create_publisher(Velocities, 'motor_speeds', 10)
+        self.timer = self.create_timer(0.01, self.read_serial_data)  # 10ms
+
+        # Motor control service
+        self.create_service(MotorControl, 'motor_control', self.motor_control_callback)
+
+        self.get_logger().info('Arduino motor interface running.')
+
     def float_to_byte(self, f: float) -> bytes:
-      # Clamp and convert to int
-      value = max(-127, min(127, int(round(f * 127 / 2))))
-      
-      sign_bit = 0x80 if value < 0 else 0x00  # Set the S bit (MSB)
-      magnitude = abs(value) & 0x7F           # Ensure only lower 7 bits
-      encoded_byte = sign_bit | magnitude     # Combine S and XXXXXXX
-      
-      return bytes([encoded_byte])
-    
-    def byte_to_float(self, b: int) -> bytes:
-      val = 2.0 * float(b & 0x7F) / 127.0
-      if b & 0x80:
-        val = -val
-      return val
+        value = max(-127, min(127, int(round(f * 127 / 2))))
+        sign_bit = 0x80 if value < 0 else 0x00
+        magnitude = abs(value) & 0x7F
+        return bytes([sign_bit | magnitude])
+
+    def byte_to_float(self, b: int) -> float:
+        val = 2.0 * float(b & 0x7F) / 127.0
+        if b & 0x80:
+            val = -val
+        return val
+
+    def read_serial_data(self):
+        if self.serial_port.in_waiting > 0:
+            line = self.serial_port.readline()
+            if line.startswith(b'M') and len(line) >= 5:
+                try:
+                    vel_msg = Velocities(
+                        velocity_left_1=self.byte_to_float(line[1]),
+                        velocity_left_2=self.byte_to_float(line[2]),
+                        velocity_right_1=self.byte_to_float(line[3]),
+                        velocity_right_2=self.byte_to_float(line[4])
+                    )
+                    self.vel_pub.publish(vel_msg)
+                except Exception as e:
+                    self.get_logger().error(f'Failed to parse serial data: {e}')
 
     def motor_control_callback(self, request, response):
-        self.get_logger().info(f'Received request: {request.motor_speeds}')
+        self.get_logger().info(f'Received motor control command: {request.motor_speeds}')
         speeds = request.motor_speeds
-        serial_command = b"V"
-        for vel in [speeds.velocity_left_1, speeds.velocity_left_2, speeds.velocity_right_1, speeds.velocity_right_2]:
-          serial_command += self.float_to_byte(vel)
-        self.serial_port.write(serial_command)
+        command = b'V'
+        for vel in [
+            speeds.velocity_left_1,
+            speeds.velocity_left_2,
+            speeds.velocity_right_1,
+            speeds.velocity_right_2
+        ]:
+            command += self.float_to_byte(vel)
+
+        self.serial_port.write(command)
         return response
-    
-    def motor_speed_callback(self, request, response):
-      self.get_logger().info(f'Received speed request')
-      speeds = self.serial_port.readline()
-      self.get_logger().info(f'speeds = {speeds}')
-      if speeds == b'':
-        self.get_logger().error(f'No serial data recieved!')
-        response.motor_speeds = Velocities(
-          velocity_left_1=0.0,
-          velocity_left_2=0.0,
-          velocity_right_1=0.0,
-          velocity_right_2=0.0
-        )
-      else:
-        response.motor_speeds = Velocities(
-          velocity_left_1=self.byte_to_float(speeds[1]),
-          velocity_left_2=self.byte_to_float(speeds[2]),
-          velocity_right_1=self.byte_to_float(speeds[3]),
-          velocity_right_2=self.byte_to_float(speeds[4])
-        )
-      return response
 
 def main(args=None):
     rclpy.init(args=args)
-    service = MotorControlService()
-    rclpy.spin(service)
-    service.destroy_node()
+    node = MotorControl()
+    rclpy.spin(node)
+    node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':
