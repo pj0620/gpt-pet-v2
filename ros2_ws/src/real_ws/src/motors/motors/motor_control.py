@@ -20,7 +20,7 @@ class MotorControl(Node):
         self.timer = self.create_timer(0.01, self.read_serial_data)  # 10ms
 
         # Motor control service
-        self.create_service(MotorControl, 'motor_control', self.motor_control_callback)
+        self.create_service(MotorControl, 'motor_control_service', self.motor_control_callback)
 
         self.get_logger().info('Arduino motor interface running.')
 

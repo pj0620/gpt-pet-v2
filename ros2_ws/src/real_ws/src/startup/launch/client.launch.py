@@ -19,7 +19,7 @@ def generate_launch_description():
   actions.append(
     launch_ros.actions.Node(
       package="motors",
-      executable="service",
+      executable="motor_control",
       name="motor_control_service",
       parameters=[{"serial_port": "/dev/ttyACM0"}]
     )
@@ -28,8 +28,8 @@ def generate_launch_description():
   actions.append(
      launch_ros.actions.Node(
         package='motors',
-        executable='motor_speed_publisher',
-        name='motor_speed_publisher',
+        executable='motor_control',
+        name='motor_speeds',
         parameters=[{"serial_port": "/dev/ttyACM0"}]
       )
   )
