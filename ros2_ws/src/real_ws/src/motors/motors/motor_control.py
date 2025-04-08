@@ -9,11 +9,18 @@ class MotorControlNode(Node):
         super().__init__('motor_control_node')
 
         # Get serial port parameter
-        self.declare_parameter('serial_port', '/dev/ttyACM0')
-        serial_port = self.get_parameter('serial_port').get_parameter_value().string_value
+        self.declare_parameter('serial_ports', ['/dev/ttyACM0', '/dev/ttyACM1'])
+        serial_ports = self.get_parameter('serial_ports').get_parameter_value().string_array_value
 
-        # Setup serial
-        self.serial_port = serial.Serial(serial_port, 115200, timeout=0.1)
+        self.serial_port = None
+        for port_k in serial_ports:
+          try:
+            self.serial_port = serial.Serial(port_k, 115200, timeout=0.1)
+            break
+          except:
+            self.get_logger().warn(f'unable to open serial port\'{port_k}\'')
+        if not self.serial_port:
+          raise Exception(f"All serial ports unavailable after checking {port_k}")
 
         # Velocities publisher
         self.vel_pub = self.create_publisher(Velocities, 'motor_speeds', 10)

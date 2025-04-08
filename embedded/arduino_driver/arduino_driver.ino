@@ -221,7 +221,7 @@ void writeSpeeds() {
     }
 
     if (directions[i] < 0) {
-      val = val & 0x80;
+      val = val | 0x80;
     }
 
     Serial.print(val);
