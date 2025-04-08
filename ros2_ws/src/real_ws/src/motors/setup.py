@@ -23,7 +23,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-          'service = motors.motor_control:main'
+          'motor_control = motors.motor_control:main'
         ],
     },
 )
