@@ -4,9 +4,9 @@ from gptpet_common.msg import Velocities
 from gptpet_common.srv import MotorControl
 import serial
 
-class MotorControl(Node):
+class MotorControlNode(Node):
     def __init__(self):
-        super().__init__('motor_control')
+        super().__init__('motor_control_node')
 
         # Get serial port parameter
         self.declare_parameter('serial_port', '/dev/ttyACM0')
@@ -68,7 +68,7 @@ class MotorControl(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = MotorControl()
+    node = MotorControlNode()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
