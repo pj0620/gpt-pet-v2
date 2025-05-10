@@ -33,5 +33,15 @@ def generate_launch_description():
         parameters=[{"serial_ports": ["/dev/ttyACM0", "/dev/ttyACM1"]}]
       )
   )
+  
+  actions.append(
+    launch_ros.actions.Node(
+      package='ros_icm20948',
+      executable='talker.py',
+      name='ros_icm20948',
+      respawn=True,
+      respawn_delay=2
+    ),
+  )
 
   return launch.LaunchDescription(actions)
