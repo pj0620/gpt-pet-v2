@@ -6,7 +6,7 @@
     path = ros2_ws/src/server/src/navigation2
     url = https://github.com/ros-navigation/navigation2.git
 
-[submodule "ros2_ws/src/real_ws/src/ros_icm20948"]
-    path = ros2_ws/src/real_ws/src/ros_icm20948
-    url = https://github.com/GAVLab/ros_icm20948.git
+[submodule "ros2_ws/src/real_ws/src/ros2_icm20948"]
+    path = ros2_ws/src/real_ws/src/ros2_icm20948
+    url = https://github.com/norlab-ulaval/ros2_icm20948.git
 
