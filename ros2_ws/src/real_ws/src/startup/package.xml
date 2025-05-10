@@ -15,7 +15,7 @@
   <depend>proximity-sensors</depend>
   <depend>kinect_ros2</depend>
   <depend>motors</depend>
-  <depend>ros_icm20948</depend>
+  <depend>ros2_icm20948</depend>
   <depend>launch</depend>
   <depend>launch_ros</depend>
 
