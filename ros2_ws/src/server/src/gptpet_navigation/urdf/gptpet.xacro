@@ -1,11 +1,28 @@
 <?xml version="1.0"?>
-<robot name="mecanum_bot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="gptpet" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="wheel_radius" value="0.0485" />
+  <xacro:property name="wheel_length" value="0.047" />
+  <xacro:property name="wheel_offset_side" value="0.003" />
+  <xacro:property name="wheel_offset_front" value="0.05" />
+  <xacro:property name="wheel_separation_length" value="0.12" />
+  <xacro:property name="wheel_separation_down" value="0.023" />
+
+  <xacro:property name="body_height" value="0.125" />
+  <xacro:property name="body_width" value="0.21" />
+  <xacro:property name="kinect_height" value="0.04" />
+  <xacro:property name="kinect_width" value="0.285" />
+  <xacro:property name="kinect_depth" value="0.062" />
+  <xacro:property name="kinect_offset" value="0.053" />
 
   <!-- ========= CHASSIS LINK ========= -->
+  <xacro:macro name="body_box">
+    <box size="${body_width} ${body_width} ${body_height}"/>
+  </xacro:macro>
   <link name="base_link">
     <visual>
       <geometry>
-        <box size="0.22 0.22 0.07"/>
+        <xacro:body_box />
       </geometry>
       <material name="Grey">
         <color rgba="0.5 0.5 0.5 1.0"/>
@@ -13,7 +30,7 @@
     </visual>
     <collision>
       <geometry>
-        <box size="0.6 0.4 0.1"/>
+        <xacro:body_box />
       </geometry>
     </collision>
     <inertial>
@@ -23,11 +40,11 @@
   </link>
 
   <!-- ========= WHEEL LINKS ========= -->
-  <link name="wheel_left_1_link">
+  <xacro:macro name="wheel">
     <visual>
       <origin rpy="0 1.5708 0e"/>
       <geometry>
-        <cylinder radius="0.05" length="0.047"/>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
       </geometry>
       <material name="Black">
         <color rgba="0.1 0.1 0.1 1.0"/>
@@ -36,77 +53,47 @@
     <collision>
       <origin rpy="0 1.5708 0"/>
       <geometry>
-        <cylinder radius="0.05" length="0.02"/>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
       </geometry>
     </collision>
     <inertial>
       <mass value="1.0"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
+  </xacro:macro>
+  <link name="wheel_left_1_link">
+    <xacro:wheel />
   </link>
   <link name="wheel_left_2_link">
-    <visual>
-      <origin rpy="0 1.5708 0"/>
-      <geometry><cylinder radius="0.05" length="0.047"/></geometry>
-      <material name="Black"><color rgba="0.1 0.1 0.1 1.0"/></material>
-    </visual>
-    <collision>
-      <origin rpy="0 1.5708 0"/>
-      <geometry><cylinder radius="0.05" length="0.047"/></geometry>
-    </collision>
-    <inertial>
-      <mass value="1.0"/>
-      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
-    </inertial>
+    <xacro:wheel />
   </link>
   <link name="wheel_right_1_link">
-    <visual>
-      <origin rpy="0 1.5708 0"/>
-      <geometry><cylinder radius="0.05" length="0.047"/></geometry>
-      <material name="Black"><color rgba="0.1 0.1 0.1 1.0"/></material>
-    </visual>
-    <collision>
-      <origin rpy="0 1.5708 0"/>
-      <geometry><cylinder radius="0.05" length="0.02"/></geometry>
-    </collision>
-    <inertial>
-      <mass value="1.0"/>
-      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
-    </inertial>
+    <xacro:wheel />
   </link>
   <link name="wheel_right_2_link">
-    <visual>
-      <origin rpy="0 1.5708 0"/>
-      <geometry><cylinder radius="0.05" length="0.047"/></geometry>
-      <material name="Black"><color rgba="0.1 0.1 0.1 1.0"/></material>
-    </visual>
-    <collision>
-      <origin rpy="0 1.5708 0"/>
-      <geometry><cylinder radius="0.05" length="0.02"/></geometry>
-    </collision>
-    <inertial>
-      <mass value="1.0"/>
-      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
-    </inertial>
+    <xacro:wheel />
   </link>
 
   <!-- ========= KINECT-LIKE LASER SENSOR LINK ========= -->
+  <xacro:macro name="kinect_box">
+    <box size="${kinect_width} ${kinect_depth} ${kinect_height}"/>
+  </xacro:macro>
   <link name="base_laser_link">
     <visual>
       <!-- approximate Xbox Kinect 360 housing as a rectangular box -->
-      <origin xyz="-0.35 -.08 -0.0245" rpy="0 0 0"/>
+      <!-- <origin xyz="-0.35 -.08 -0.0245" rpy="0 0 0"/> -->
+      <origin rpy="0 0 0"/>
       <geometry>
-        <box size="0.28 0.07 0.04"/>
+        <xacro:kinect_box />
       </geometry>
       <material name="SensorGrey">
         <color rgba="0.2 0.2 0.2 1.0"/>
       </material>
     </visual>
     <visual>
-      <!-- approximate Xbox Kinect 360 housing as a rectangular box -->
-      <origin xyz="-0.35 -0.07 -0.07" rpy="0 0 0"/>
+      <origin xyz="0 0 -0.04" rpy="0 0 0"/>
       <geometry>
-        <cylinder length="0.1" radius="0.02"/>
+        <cylinder length="0.1" radius="0.017"/>
       </geometry>
       <material name="SensorGrey">
         <color rgba="0.2 0.2 0.2 1.0"/>
@@ -126,34 +113,30 @@
   <joint name="laser_joint" type="fixed">
     <parent link="base_link"/>
     <child  link="base_laser_link"/>
-    <!-- Mounted at very front (x=+0.35m), slightly above chassis (z=+0.15m) -->
-    <origin xyz="0.35 0 0.15" rpy="0 0 0"/>
+    <origin xyz="0 0.08 ${body_height/2 + kinect_height/2 + kinect_offset}" rpy="0 0 0"/>
   </joint>
 
   <!-- ========= JOINTS ========= -->
-  <joint name="velocity_left_1_joint" type="continuous">
+  <xacro:macro name="wheel_origin" params="x_reflect y_reflect">
     <parent link="base_link"/>
-    <child  link="wheel_left_1_link"/>
-    <origin xyz="0.1338  0.06 0" rpy="0 0 0"/>
+    <origin xyz="${x_reflect * (body_width/2 + wheel_length/2 + wheel_offset_side)} ${y_reflect * wheel_separation_length/2} ${-body_height/2 -wheel_separation_down}" rpy="0 0 0"/>
     <axis  xyz="0 0 1"/>
+  </xacro:macro>
+  <joint name="velocity_left_1_joint" type="continuous">
+    <child link="wheel_left_1_link"/>
+    <xacro:wheel_origin x_reflect="1" y_reflect="1" />
   </joint>
   <joint name="velocity_left_2_joint" type="continuous">
-    <parent link="base_link"/>
-    <child  link="wheel_left_2_link"/>
-    <origin xyz="-0.1338  0.06 0" rpy="0 0 0"/>
-    <axis  xyz="0 0 1"/>
+    <child link="wheel_left_2_link"/>
+    <xacro:wheel_origin x_reflect="-1" y_reflect="1" />
   </joint>
   <joint name="velocity_right_1_joint" type="continuous">
-    <parent link="base_link"/>
     <child  link="wheel_right_1_link"/>
-    <origin xyz="0.1338 -0.06 0" rpy="0 0 0"/>
-    <axis  xyz="0 0 1"/>
+    <xacro:wheel_origin x_reflect="1" y_reflect="-1" />
   </joint>
   <joint name="velocity_right_2_joint" type="continuous">
-    <parent link="base_link"/>
-    <child  link="wheel_right_2_link"/>
-    <origin xyz="-0.1338 -0.06 0" rpy="0 0 0"/>
-    <axis  xyz="0 0 1"/>
+    <child link="wheel_right_2_link"/>
+    <xacro:wheel_origin x_reflect="-1" y_reflect="-1" />
   </joint>
 
   <!-- ========= TRANSMISSIONS ========= -->
