@@ -181,6 +181,36 @@
     </actuator>
   </transmission>
 
+  <!-- ========= Cameras ========= -->
+  <link name="camera_link"/>
+  <joint name="camera_link_joint" type="fixed">
+    <parent link="base_laser_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="camera_depth_frame"/>
+  <joint name="camera_depth_joint" type="fixed">
+    <parent link="camera_link"/>
+    <child link="camera_depth_frame"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="camera_rgb_frame"/>
+  <joint name="camera_rgb_joint" type="fixed">
+    <parent link="camera_link"/>
+    <child link="camera_rgb_frame"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="camera_rgb_optical_frame"/>
+  <joint name="camera_rgb_optical_joint" type="fixed">
+    <parent link="camera_rgb_frame"/>
+    <child link="camera_rgb_optical_frame"/>
+    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+  </joint>
+
+
   <!-- ========= ROS2_CONTROL PLUGIN ========= -->
   <ros2_control name="MecanumSystem" type="system">
     <hardware>

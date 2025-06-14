@@ -33,6 +33,9 @@
   <exec_depend>ros2launch</exec_depend>
   <exec_depend>depthimage_to_laserscan</exec_depend>
 
+  <!-- Localization -->
+  <exec_depend>robot_localization</exec_depend>
+
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
