@@ -42,7 +42,7 @@
   <!-- ========= WHEEL LINKS ========= -->
   <xacro:macro name="wheel">
     <visual>
-      <origin rpy="0 1.5708 0e"/>
+      <origin rpy="0 1.5708 0"/>
       <geometry>
         <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
       </geometry>
