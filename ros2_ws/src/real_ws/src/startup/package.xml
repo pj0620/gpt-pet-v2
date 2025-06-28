@@ -18,6 +18,7 @@
   <depend>ros2_icm20948</depend>
   <depend>launch</depend>
   <depend>launch_ros</depend>
+  <depend>gptpet_hardware</depend>
 
 
   <export>
