@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<library path="libgptpet_hardware.so">
+  <class name="gptpet_hardware/HardwareInterface"
+         type="gptpet_hardware::HardwareInterface"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Example hardware interface plugin for gptpet_hardware.
+    </description>
+  </class>
+</library>
