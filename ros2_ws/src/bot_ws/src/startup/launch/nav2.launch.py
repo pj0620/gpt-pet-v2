@@ -60,7 +60,7 @@ def generate_launch_description():
     # )
 
     return LaunchDescription([
-        # urdf_launch_arg,
+        urdf_launch_arg,
         robot_state_pub,
         # depth_to_scan_node,
         # slam_toolbox,
