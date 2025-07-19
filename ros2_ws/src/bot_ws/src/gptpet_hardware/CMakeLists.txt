@@ -47,5 +47,11 @@ ament_target_dependencies(
 
 pluginlib_export_plugin_description_file(hardware_interface plugin_description.xml)
 
+install(TARGETS
+  ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 
 ament_package()
