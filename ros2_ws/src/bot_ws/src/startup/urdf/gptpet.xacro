@@ -215,7 +215,7 @@
   <ros2_control name="MecanumSystem" type="system">
     <hardware>
       <!-- Reference the exported plugin name -->
-      <plugin>gptpet_hardware/GptpetHardwareInterface</plugin>
+      <plugin>gptpet_hardware/YourMecanumHardwareInterface</plugin>
     </hardware>
 
     <joint name="velocity_left_1_joint">
