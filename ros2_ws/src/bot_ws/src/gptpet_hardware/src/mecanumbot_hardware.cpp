@@ -5,9 +5,11 @@
 
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
-class YourMecanumHardwareInterface : public hardware_interface::SystemInterface {
+namespace gptpet_hardware {
+
+class GptpetHardwareInterface : public hardware_interface::SystemInterface {
 public:
-  YourMecanumHardwareInterface() = default;
+  GptpetHardwareInterface() = default;
 
   CallbackReturn on_init(const hardware_interface::HardwareInfo & info) override {
     if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS) {
@@ -59,5 +61,7 @@ private:
   std::vector<double> hw_positions_, hw_velocities_, hw_commands_;
 };
 
-PLUGINLIB_EXPORT_CLASS(YourMecanumHardwareInterface, hardware_interface::SystemInterface)
+}  // namespace gptpet_hardware
+
+PLUGINLIB_EXPORT_CLASS(gptpet_hardware::GptpetHardwareInterface, hardware_interface::SystemInterface)
 
