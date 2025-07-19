@@ -75,16 +75,16 @@ def generate_launch_description():
         ),
 
         # 2) ros2_control_node: loads hardware + controllers.yaml
-        # Node(
-        #     package='controller_manager',
-        #     executable='ros2_control_node',
-        #     name='controller_manager',
-        #     output='screen',
-        #     parameters=[
-        #         {'robot_description': robot_description},
-        #         os.path.join(pkg, 'config', 'controllers.yaml')
-        #     ]
-        # ),
+        Node(
+            package='controller_manager',
+            executable='ros2_control_node',
+            name='controller_manager',
+            output='screen',
+            parameters=[
+                {'robot_description': robot_description},
+                os.path.join(pkg, 'config', 'controllers.yaml')
+            ]
+        ),
 
         # 3) spawn joint_state_broadcaster
         # Node(
