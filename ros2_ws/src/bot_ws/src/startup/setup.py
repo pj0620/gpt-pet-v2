@@ -24,5 +24,8 @@ setup(
     entry_points={
         'console_scripts': [
         ],
+        'ament_build_hooks': [
+            'generate_urdf = generate_urdf:main'
+        ]
     },
 )

@@ -20,6 +20,9 @@
   <depend>launch_ros</depend>
   <depend>gptpet_hardware</depend>
 
+  <exec_depend>xacro</exec_depend>
+  <build_depend>xacro</build_depend>
+
 
   <export>
     <build_type>ament_python</build_type>
