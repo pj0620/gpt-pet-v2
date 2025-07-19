@@ -54,4 +54,14 @@ install(TARGETS
   RUNTIME DESTINATION bin
 )
 
+# From https://docs.ros.org/en/foxy/Tutorials/Beginner-Client-Libraries/Pluginlib.html
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+ament_export_include_directories(
+  include
+)
+
 ament_package()

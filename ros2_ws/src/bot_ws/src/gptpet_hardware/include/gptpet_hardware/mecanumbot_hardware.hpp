@@ -1,5 +1,5 @@
-#ifndef GPTPET_HARDWARE_INTERFACE_HPP_
-#define GPTPET_HARDWARE_INTERFACE_HPP_
+#ifndef GPTPET_HARDWARE_INTERFACE_HPP
+#define GPTPET_HARDWARE_INTERFACE_HPP
 
 #include "hardware_interface/system_interface.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -22,4 +22,4 @@ private:
 
 }  // namespace gptpet_hardware
 
-#endif  // GPTPET_HARDWARE_INTERFACE_HPP_
+#endif  // GPTPET_HARDWARE_INTERFACE_HPP
