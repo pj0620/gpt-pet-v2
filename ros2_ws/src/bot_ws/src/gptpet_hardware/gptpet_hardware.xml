@@ -1,8 +1,0 @@
-<library path="gptpet_hardware">
-  <class
-    name="gptpet_hardware/GptpetHardwareInterface"
-    type="gptpet_hardware::GptpetHardwareInterface"
-    base_class_type="hardware_interface::SystemInterface">
-    <description>Custom hardware interface for mecanum drive</description>
-  </class>
-</library>
