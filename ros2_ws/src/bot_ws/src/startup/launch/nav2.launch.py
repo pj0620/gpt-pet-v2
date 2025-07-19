@@ -19,13 +19,7 @@ def generate_launch_description():
 
     robot_description = Command(['xacro ', LaunchConfiguration('urdf_file')])
     
-    robot_state_pub = Node(
-      package='robot_state_publisher',
-      executable='robot_state_publisher',
-      name='robot_state_publisher',
-      parameters=[{'use_sim_time': False}],
-      arguments=[urdf_path]
-    )
+    # Only use the robot_state_publisher node with the robot_description parameter
     
     # depth_to_scan_node = Node(
     #   package='depthimage_to_laserscan',
@@ -61,7 +55,6 @@ def generate_launch_description():
 
     return LaunchDescription([
         urdf_launch_arg,
-        robot_state_pub,
         # depth_to_scan_node,
         # slam_toolbox,
 
@@ -85,6 +78,8 @@ def generate_launch_description():
                 os.path.join(pkg, 'config', 'controllers.yaml')
             ]
         ),
+        
+        # git pull && colcon build && . ./install/setup.bash && ros2 launch startup nav2.launch.py
 
         # 3) spawn joint_state_broadcaster
         # Node(
