@@ -1,8 +1,20 @@
+
 from setuptools import find_packages, setup
 import os
 from glob import glob
+import subprocess
+
 
 package_name = 'startup'
+
+# Generate URDF from XACRO before install
+xacro_path = os.path.join('urdf', 'gptpet.xacro')
+urdf_path = os.path.join('urdf', 'gptpet.urdf')
+if os.path.exists(xacro_path):
+    try:
+        subprocess.run(['xacro', xacro_path, '-o', urdf_path], check=True)
+    except Exception as e:
+        print(f"Warning: Could not generate URDF from XACRO: {e}")
 
 setup(
     name=package_name,
@@ -12,7 +24,9 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*')))
+        (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*'))),
+        (os.path.join('share', package_name, 'urdf'), ['urdf/gptpet.xacro']),
+        (os.path.join('share', package_name, 'urdf'), ['urdf/gptpet.urdf'] if os.path.exists('urdf/gptpet.urdf') else []),
     ],
     install_requires=['setuptools'],
     zip_safe=True,  
@@ -24,8 +38,5 @@ setup(
     entry_points={
         'console_scripts': [
         ],
-        'ament_build_hooks': [
-            'generate_urdf = generate_urdf:main'
-        ]
     },
 )
