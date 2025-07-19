@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <library path="gptpet_hardware.so">
-  <class name="gptpet_hardware/GptpetHardwareInterface"
-         type="gptpet_hardware::GptpetHardwareInterface"
+  <class name="gptpet_hardware/YourMecanumHardwareInterface"
+         type="YourMecanumHardwareInterface"
          base_class_type="hardware_interface::SystemInterface">
     <description>
       Hardware interface plugin for gptpet_hardware.
