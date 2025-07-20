@@ -24,7 +24,7 @@ controller_manager:
       type: joint_state_broadcaster/JointStateBroadcaster
     
     mecanum_drive_controller:
-      type: ros2_control_demo_example_17/MecanumWheelBotController
+      type: mecanum_drive_controller/MecanumDriveController
     diagnostics:
       threshold:
         controller_manager:
