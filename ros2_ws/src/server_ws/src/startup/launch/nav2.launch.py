@@ -66,25 +66,25 @@ def generate_launch_description():
         # slam_toolbox,
 
         # 1) robot_state_publisher: publishes base_link→base_laser + other static TFs
-        # Node(
-        #     package='robot_state_publisher',
-        #     executable='robot_state_publisher',
-        #     name='robot_state_publisher',
-        #     output='screen',
-        #     parameters=[{'robot_description': robot_description}]
-        # ),
+        Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            name='robot_state_publisher',
+            output='screen',
+            parameters=[{'robot_description': robot_description}]
+        ),
 
         # 2) ros2_control_node: loads hardware + controllers.yaml
-        # Node(
-        #     package='controller_manager',
-        #     executable='ros2_control_node',
-        #     name='controller_manager',
-        #     output='screen',
-        #     parameters=[
-        #         {'robot_description': robot_description},
-        #         os.path.join(pkg, 'config', 'controllers.yaml')
-        #     ]
-        # ),
+        Node(
+            package='controller_manager',
+            executable='ros2_control_node',
+            name='controller_manager',
+            output='screen',
+            parameters=[
+                {'robot_description': robot_description},
+                os.path.join(pkg, 'config', 'controllers.yaml')
+            ]
+        ),
 
         # 3) spawn joint_state_broadcaster
         # Node(
