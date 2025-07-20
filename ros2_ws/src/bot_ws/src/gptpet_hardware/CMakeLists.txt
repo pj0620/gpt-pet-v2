@@ -9,29 +9,50 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(hardware_interface REQUIRED)
-
-pluginlib_export_plugin_description_file(gptpet_hardware plugins.xml)
-
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 
 # Build the hardware interface plugin as a shared library
-add_library(gptpet_hardware SHARED src/gptpet_hardware.cpp)
-target_include_directories(gptpet_hardware PUBLIC
+add_library(
+  gptpet_hardware 
+  SHARED 
+  src/gptpet_hardware.cpp
+)
+target_include_directories(
+  gptpet_hardware 
+  PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+  $<INSTALL_INTERFACE:include>
+)
 target_compile_features(gptpet_hardware PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 ament_target_dependencies(
   gptpet_hardware
   "pluginlib"
   "hardware_interface"
+  rclcpp
 )
+
+pluginlib_export_plugin_description_file(gptpet_hardware mecanumbot_hardware.xml)
 
 install(
   DIRECTORY include/
   DESTINATION include
 )
 
-install(TARGETS gptpet_hardware
-  LIBRARY DESTINATION lib)
+# install(
+#   TARGETS gptpet_hardware
+#   LIBRARY DESTINATION lib
+# )
+
+install(
+  TARGETS gptpet_hardware
+  DESTINATION lib
+)
+install(
+  DIRECTORY include
+  DESTINATION include
+)
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -47,6 +68,14 @@ endif()
 
 ament_export_include_directories(
   include
+)
+ament_export_libraries(
+  gptpet_hardware
+)
+ament_export_dependencies(
+  hardware_interface
+  pluginlib
+  rclcpp
 )
 
 ament_package()

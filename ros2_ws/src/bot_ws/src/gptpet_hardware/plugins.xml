@@ -1,5 +1,0 @@
-<library path="gptpet_hardware">
-  <class type="gptpet_hardware::GptpetHardwareInterface" base_class_type="hardware_interface::SystemInterface">
-    <description>gptpet hardware interface</description>
-  </class>
-</library>
