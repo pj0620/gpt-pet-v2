@@ -21,20 +21,31 @@ def generate_launch_description():
     
     # Controller parameters - directly in the launch file
     controller_params = {
-        'update_rate': 100,
-        'joint_state_broadcaster': {
-            'type': 'joint_state_broadcaster/JointStateBroadcaster'
+        'controller_manager': {
+            'ros__parameters': {
+                'update_rate': 100,
+                'joint_state_broadcaster': {
+                    'type': 'joint_state_broadcaster/JointStateBroadcaster'
+                },
+                'mecanum_drive_controller': {
+                    'type': 'mecanum_drive_controller/MecanumDriveController'
+                }
+            }
         },
         'mecanum_drive_controller': {
-            'type': 'mecanum_drive_controller/MecanumDriveController',
-            'front_left_wheel_command_joint_name': 'velocity_left_1_joint',
-            'front_right_wheel_command_joint_name': 'velocity_right_1_joint',
-            'rear_left_wheel_command_joint_name': 'velocity_left_2_joint',
-            'rear_right_wheel_command_joint_name': 'velocity_right_2_joint',
-            'wheel_radius': 0.0485,
-            'base_frame_id': 'base_link',
-            'odom_frame_id': 'odom',
-            'enable_odom_tf': True
+            'ros__parameters': {
+                'front_left_wheel_command_joint_name': 'velocity_left_1_joint',
+                'front_right_wheel_command_joint_name': 'velocity_right_1_joint',
+                'rear_left_wheel_command_joint_name': 'velocity_left_2_joint',
+                'rear_right_wheel_command_joint_name': 'velocity_right_2_joint',
+                'wheel_radius': 0.0485,
+                'wheel_separation_width': 0.2676,
+                'wheel_separation_length': 0.12,
+                'publish_rate': 50.0,
+                'base_frame_id': 'base_link',
+                'odom_frame_id': 'odom',
+                'enable_odom_tf': True
+            }
         }
     }
 
@@ -58,7 +69,7 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 {'robot_description': robot_description},
-                {'controller_manager': {'ros__parameters': controller_params}}
+                controller_params
             ]
         ),
         
