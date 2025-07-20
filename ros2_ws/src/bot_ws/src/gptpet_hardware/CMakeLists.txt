@@ -32,7 +32,10 @@ ament_target_dependencies(
   rclcpp
 )
 
-pluginlib_export_plugin_description_file(gptpet_hardware mecanumbot_hardware.xml)
+pluginlib_export_plugin_description_file(
+  gptpet_hardware
+  mecanumbot_hardware.xml
+)
 
 install(
   DIRECTORY include/
@@ -54,6 +57,12 @@ install(
 )
 install(FILES plugin_description.xml
   DESTINATION share/${PROJECT_NAME}
+)
+install(
+  TARGETS gptpet_hardware
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 
