@@ -19,13 +19,14 @@ def generate_launch_description():
 
     robot_description = Command(['xacro ', LaunchConfiguration('urdf_file')])
     
-    robot_state_pub = Node(
-      package='robot_state_publisher',
-      executable='robot_state_publisher',
-      name='robot_state_publisher',
-      parameters=[{'use_sim_time': False}],
-      arguments=[urdf_path]
-    )
+    # TODO: ?
+    # robot_state_pub = Node(
+    #   package='robot_state_publisher',
+    #   executable='robot_state_publisher',
+    #   name='robot_state_publisher',
+    #   parameters=[{'use_sim_time': False}],
+    #   arguments=[urdf_path]
+    # )
     
     depth_to_scan_node = Node(
       package='depthimage_to_laserscan',
