@@ -62,7 +62,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         # urdf_launch_arg,
-        robot_state_pub,
+        # robot_state_pub,
         depth_to_scan_node,
         # slam_toolbox,
 
@@ -96,11 +96,11 @@ def generate_launch_description():
         ),
         
 
-        # # 4) spawn your mecanum drive controller
-        # Node(
-        #     package='controller_manager',
-        #     executable='spawner',
-        #     arguments=['mecanum_drive_controller', '--controller-manager', '/controller_manager'],
-        #     output='screen'
-        # ),
+        # 4) spawn your mecanum drive controller
+        Node(
+            package='controller_manager',
+            executable='spawner',
+            arguments=['mecanum_drive_controller', '--controller-manager', '/controller_manager'],
+            output='screen'
+        ),
     ])
