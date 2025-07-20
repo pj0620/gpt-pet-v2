@@ -22,4 +22,23 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+# Install launch files
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+# Create config and urdf directories if they don't exist and install them
+install(DIRECTORY
+  config
+  DESTINATION share/${PROJECT_NAME}
+  OPTIONAL
+)
+
+install(DIRECTORY
+  urdf
+  DESTINATION share/${PROJECT_NAME}
+  OPTIONAL
+)
+
 ament_package()

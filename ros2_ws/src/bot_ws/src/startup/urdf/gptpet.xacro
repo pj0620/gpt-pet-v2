@@ -212,7 +212,7 @@
 
 
   <!-- ========= ROS2_CONTROL PLUGIN ========= -->
-  <ros2_control name="MecanumSystem" type="system">
+  <ros2_control name="gptpet" type="system">
     <hardware>
       <!-- Reference the exported plugin name -->
       <plugin>gptpet_hardware/GptpetHardwareInterface</plugin>
