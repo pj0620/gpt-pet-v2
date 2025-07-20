@@ -10,6 +10,8 @@ find_package(ament_cmake REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(hardware_interface REQUIRED)
 
+pluginlib_export_plugin_description_file(gptpet_hardware plugins.xml)
+
 
 # Build the hardware interface plugin as a shared library
 add_library(gptpet_hardware SHARED src/gptpet_hardware.cpp)
