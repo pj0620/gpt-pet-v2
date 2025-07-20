@@ -52,6 +52,9 @@ install(
   DIRECTORY include
   DESTINATION include
 )
+install(FILES plugin_description.xml
+  DESTINATION share/${PROJECT_NAME}
+)
 
 
 if(BUILD_TESTING)
