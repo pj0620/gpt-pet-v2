@@ -19,44 +19,35 @@ def generate_launch_description():
 
     robot_description = Command(['xacro ', LaunchConfiguration('urdf_file')])
     
-    # Only use the robot_state_publisher node with the robot_description parameter
-    
-    # depth_to_scan_node = Node(
-    #   package='depthimage_to_laserscan',
-    #   executable='depthimage_to_laserscan_node',
-    #   name='depthimage_to_laserscan',
-    #   output='screen',
-    #   remappings=[
-    #     ('depth', '/kinect/depth/image_raw'),
-    #     ('depth_camera_info', '/kinect/depth/camera_info'),
-    #     ('scan', '/scan')
-    #   ],
-    #   parameters=[{
-    #     'scan_time': 0.033
-    #   }]
-    # )
-    
-    # slam_toolbox = Node(
-    #   package='slam_toolbox',
-    #   executable='async_slam_toolbox_node',
-    #   name='slam_toolbox',
-    #   output='screen',
-    #   parameters=[{
-    #       'use_sim_time': False,
-    #       'odom_frame': 'odom',  # SLAM needs this frame
-    #       'base_frame': 'base_link',  # Robot's main frame
-    #       'map_frame': 'map',
-    #       'scan_topic': '/scan',
-    #       'mode': 'mapping',
-    #       'transform_publish_period': 0.05,  # Ensure transforms are published regularly
-    #       'transform_timeout': 0.5  # Reduce timeout issues
-    #   }]
-    # )
+    # Controller parameters - directly in the launch file
+    controller_params = {
+        'controller_manager': {
+            'ros__parameters': {
+                'update_rate': 100,
+                'joint_state_broadcaster': {
+                    'type': 'joint_state_broadcaster/JointStateBroadcaster'
+                },
+                'mecanum_drive_controller': {
+                    'type': 'mecanum_drive_controller/MecanumDriveController'
+                }
+            }
+        },
+        'mecanum_drive_controller': {
+            'ros__parameters': {
+                'front_left_wheel_command_joint_name': 'velocity_left_1_joint',
+                'front_right_wheel_command_joint_name': 'velocity_right_1_joint',
+                'rear_left_wheel_command_joint_name': 'velocity_left_2_joint',
+                'rear_right_wheel_command_joint_name': 'velocity_right_2_joint',
+                'wheel_radius': 0.0485,
+                'base_frame_id': 'base_link',
+                'odom_frame_id': 'odom',
+                'enable_odom_tf': True
+            }
+        }
+    }
 
     return LaunchDescription([
         urdf_launch_arg,
-        # depth_to_scan_node,
-        # slam_toolbox,
 
         # 1) robot_state_publisher: publishes base_link→base_laser + other static TFs
         Node(
@@ -67,7 +58,7 @@ def generate_launch_description():
             parameters=[{'robot_description': robot_description}]
         ),
 
-        # 2) ros2_control_node: loads hardware + controllers.yaml
+        # 2) ros2_control_node: loads hardware + controllers
         Node(
             package='controller_manager',
             executable='ros2_control_node',
@@ -75,7 +66,7 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 {'robot_description': robot_description},
-                os.path.join(pkg, 'config', 'basic_controllers.yaml')
+                controller_params
             ]
         ),
         
