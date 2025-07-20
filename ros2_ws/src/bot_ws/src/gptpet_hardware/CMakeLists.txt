@@ -20,6 +20,7 @@ target_compile_features(gptpet_hardware PUBLIC c_std_99 cxx_std_17)  # Require C
 ament_target_dependencies(
   gptpet_hardware
   "pluginlib"
+  "hardware_interface"
 )
 
 install(
