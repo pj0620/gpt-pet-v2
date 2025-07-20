@@ -33,8 +33,8 @@ ament_target_dependencies(
 )
 
 pluginlib_export_plugin_description_file(
-  gptpet_hardware
-  mecanumbot_hardware.xml
+  hardware_interface
+  plugin_description.xml
 )
 
 install(
