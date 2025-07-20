@@ -26,6 +26,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name, 'urdf'), ['urdf/gptpet.xacro']),
+        (os.path.join('share', package_name, 'config'), ['config/controllers.yaml']),
         (os.path.join('share', package_name, 'urdf'), ['urdf/gptpet.urdf'] if os.path.exists('urdf/gptpet.urdf') else []),
     ],
     install_requires=['setuptools'],
