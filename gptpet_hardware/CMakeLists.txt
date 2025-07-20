@@ -7,25 +7,12 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+# uncomment the following section in order to fill in
+# further dependencies manually.
+# find_package(<dependency> REQUIRED)
 find_package(pluginlib REQUIRED)
-
-add_executable(area_node src/area_node.cpp)
-target_include_directories(area_node PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_compile_features(area_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
-ament_target_dependencies(
-  area_node
-  "pluginlib"
-)
-
-install(
-  DIRECTORY include/
-  DESTINATION include
-)
-
-install(TARGETS area_node
-  DESTINATION lib/${PROJECT_NAME})
+find_package(rclcpp REQUIRED)
+find_package(hardware_interface REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -38,6 +25,40 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+# From https://docs.ros.org/en/foxy/Tutorials/Beginner-Client-Libraries/Pluginlib.html
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+add_library(
+  ${PROJECT_NAME}
+  SHARED
+  src/mecanumbot_hardware.cpp
+  # src/mecanumbot_serial_port.cpp
+)
+target_include_directories(
+  ${PROJECT_NAME}
+  PRIVATE
+  include
+)
+ament_target_dependencies(
+  ${PROJECT_NAME}
+  hardware_interface
+  pluginlib
+  rclcpp
+  hardware_interface
+)
+
+pluginlib_export_plugin_description_file(hardware_interface plugin_description.xml)
+
+install(TARGETS
+  ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 
 ament_export_include_directories(
   include
