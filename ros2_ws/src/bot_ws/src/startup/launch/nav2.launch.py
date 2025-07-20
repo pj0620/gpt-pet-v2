@@ -79,21 +79,19 @@ def generate_launch_description():
             ]
         ),
         
-        # git pull && colcon build && . ./install/setup.bash && ros2 launch startup nav2.launch.py
-
         # 3) spawn joint_state_broadcaster
-        # Node(
-        #     package='controller_manager',
-        #     executable='spawner',
-        #     arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
-        #     output='screen'
-        # ),
+        Node(
+            package='controller_manager',
+            executable='spawner',
+            arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+            output='screen'
+        ),
 
-        # # 4) spawn your mecanum drive controller
-        # Node(
-        #     package='controller_manager',
-        #     executable='spawner',
-        #     arguments=['mecanum_drive_controller', '--controller-manager', '/controller_manager'],
-        #     output='screen'
-        # ),
+        # 4) spawn your mecanum drive controller
+        Node(
+            package='controller_manager',
+            executable='spawner',
+            arguments=['mecanum_drive_controller', '--controller-manager', '/controller_manager'],
+            output='screen'
+        ),
     ])
