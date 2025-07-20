@@ -75,7 +75,7 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 {'robot_description': robot_description},
-                os.path.join(pkg, 'config', 'basic_controllers.yaml')
+                os.path.join(pkg, 'config', 'controllers.yaml')
             ]
         ),
         

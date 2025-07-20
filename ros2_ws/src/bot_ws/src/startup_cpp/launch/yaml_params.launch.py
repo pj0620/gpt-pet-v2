@@ -9,6 +9,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     pkg = get_package_share_directory('startup_cpp')
     xacro_path = os.path.join(pkg, 'urdf', 'gptpet.xacro')
+    controller_config = os.path.join(pkg, 'config', 'controller_config.yaml')
 
     # allow overriding via CLI: `ros2 launch bringup.launch.py urdf_file:=...`
     urdf_launch_arg = DeclareLaunchArgument(
@@ -18,25 +19,6 @@ def generate_launch_description():
     )
 
     robot_description = Command(['xacro ', LaunchConfiguration('urdf_file')])
-    
-    # Controller parameters - directly in the launch file
-    controller_params = {
-        'update_rate': 100,
-        'joint_state_broadcaster': {
-            'type': 'joint_state_broadcaster/JointStateBroadcaster'
-        },
-        'mecanum_drive_controller': {
-            'type': 'mecanum_drive_controller/MecanumDriveController',
-            'front_left_wheel_command_joint_name': 'velocity_left_1_joint',
-            'front_right_wheel_command_joint_name': 'velocity_right_1_joint',
-            'rear_left_wheel_command_joint_name': 'velocity_left_2_joint',
-            'rear_right_wheel_command_joint_name': 'velocity_right_2_joint',
-            'wheel_radius': 0.0485,
-            'base_frame_id': 'base_link',
-            'odom_frame_id': 'odom',
-            'enable_odom_tf': True
-        }
-    }
 
     return LaunchDescription([
         urdf_launch_arg,
@@ -58,7 +40,7 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 {'robot_description': robot_description},
-                {'controller_manager': {'ros__parameters': controller_params}}
+                controller_config
             ]
         ),
         
