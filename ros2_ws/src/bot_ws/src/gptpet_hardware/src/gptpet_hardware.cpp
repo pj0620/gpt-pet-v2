@@ -63,7 +63,7 @@ public:
     // Only log periodically to avoid flooding the console
     read_count_++;
     if (read_count_ % 100 == 0) {  // Log every ~100 calls (assuming 100Hz control loop)
-      RCLCPP_INFO(logger_, "Read state - Time: %d.%09d", time.seconds(), time.nanoseconds());
+      RCLCPP_INFO(logger_, "Read state - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
       log_joint_states("Position", hw_positions_);
       log_joint_states("Velocity", hw_velocities_);
     }
@@ -73,7 +73,7 @@ public:
 
   hardware_interface::return_type write(const rclcpp::Time & time, const rclcpp::Duration &) override {
     // Log commands that would be sent to motor driver
-    RCLCPP_INFO(logger_, "Write command - Time: %d.%09d", time.seconds(), time.nanoseconds());
+    RCLCPP_INFO(logger_, "Write command - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
     log_joint_states("Command", hw_commands_);
     
     // In a real implementation, we would send hw_commands_ to motor driver
