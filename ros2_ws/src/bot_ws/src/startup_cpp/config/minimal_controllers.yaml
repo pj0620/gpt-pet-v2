@@ -17,6 +17,7 @@ mecanum_drive_controller:
     rear_left_wheel_command_joint_name: "velocity_left_2_joint"
     rear_right_wheel_command_joint_name: "velocity_right_2_joint"
     wheel_radius: 0.0485
+    wheels_radius: 0.0485
     base_frame_id: "base_link"
     odom_frame_id: "odom"
     enable_odom_tf: true
