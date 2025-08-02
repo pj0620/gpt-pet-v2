@@ -9,3 +9,4 @@
 [submodule "ros2_ws/src/bot_ws/src/ros2_icm20948"]
     path = ros2_ws/src/bot_ws/src/ros2_icm20948
     url = https://github.com/norlab-ulaval/ros2_icm20948.git
+    
