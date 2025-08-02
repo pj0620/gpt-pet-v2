@@ -81,13 +81,13 @@ public:
       hw_positions_[i] += hw_velocities_[i] * period.seconds();
     }
     
-    // Only log periodically to avoid flooding the console
-    read_count_++;
-    if (read_count_ % 100 == 0) {  // Log every ~100 calls (assuming 100Hz control loop)
-      RCLCPP_INFO(logger_, "Read state - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
-      log_joint_states("Position", hw_positions_);
-      log_joint_states("Velocity", hw_velocities_);
-    }
+    // // Only log periodically to avoid flooding the console
+    // read_count_++;
+    // if (read_count_ % 100 == 0) {  // Log every ~100 calls (assuming 100Hz control loop)
+    //   RCLCPP_INFO(logger_, "Read state - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
+    //   log_joint_states("Position", hw_positions_);
+    //   log_joint_states("Velocity", hw_velocities_);
+    // }
     
     return hardware_interface::return_type::OK;
   }
@@ -96,12 +96,12 @@ public:
     // Send motor commands via serial port
     write_serial_command();
     
-    // Log commands that are being sent to motor driver
-    write_count_++;
-    if (write_count_ % 100 == 0) {  // Log every ~100 calls
-      RCLCPP_INFO(logger_, "Write command - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
-      log_joint_states("Command", hw_commands_);
-    }
+    // // Log commands that are being sent to motor driver
+    // write_count_++;
+    // if (write_count_ % 100 == 0) {  // Log every ~100 calls
+    //   RCLCPP_INFO(logger_, "Write command - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
+    //   log_joint_states("Command", hw_commands_);
+    // }
     
     return hardware_interface::return_type::OK;
   }
@@ -231,25 +231,6 @@ private:
     for (size_t i = num_motors; i < 4; ++i) {
       command[i + 1] = float_to_byte(0.0);
     }
-    
-    // Log the values being written
-    std::stringstream ss;
-    ss << "Writing serial command: ";
-    for (int i = 0; i < 5; ++i) {
-      ss << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(command[i]) << " ";
-    }
-    RCLCPP_INFO(logger_, "%s", ss.str().c_str());
-
-    // Log hw_commands_ values
-    std::stringstream cmd_ss;
-    cmd_ss << "hw_commands_: ";
-    for (size_t i = 0; i < hw_commands_.size(); ++i) {
-      cmd_ss << std::fixed << std::setprecision(3) << hw_commands_[i];
-      if (i < hw_commands_.size() - 1) {
-      cmd_ss << ", ";
-      }
-    }
-    RCLCPP_INFO(logger_, "%s", cmd_ss.str().c_str());
 
     ssize_t bytes_written = ::write(serial_fd_, command, 5);
     if (bytes_written != 5) {
