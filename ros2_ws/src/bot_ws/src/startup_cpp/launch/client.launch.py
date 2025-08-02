@@ -56,7 +56,7 @@ def generate_launch_description():
   
   ## KINECT ##
   nodes.append(
-    launch_ros.actions.Node(
+    Node(
       package="kinect_ros2",
       executable="kinect_ros2_node",
       name="kinect_ros2",
@@ -65,8 +65,8 @@ def generate_launch_description():
   )
   
   ## IMU ##
-  actions.append(
-    launch_ros.actions.Node(
+  nodes.append(
+    Node(
       package="ros2_icm20948",
       executable="icm20948_node",
       name="icm20948_node",
