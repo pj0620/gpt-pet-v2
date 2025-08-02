@@ -240,6 +240,17 @@ private:
     }
     RCLCPP_INFO(logger_, "%s", ss.str().c_str());
 
+    // Log hw_commands_ values
+    std::stringstream cmd_ss;
+    cmd_ss << "hw_commands_: ";
+    for (size_t i = 0; i < hw_commands_.size(); ++i) {
+      cmd_ss << std::fixed << std::setprecision(3) << hw_commands_[i];
+      if (i < hw_commands_.size() - 1) {
+      cmd_ss << ", ";
+      }
+    }
+    RCLCPP_INFO(logger_, "%s", cmd_ss.str().c_str());
+
     ssize_t bytes_written = ::write(serial_fd_, command, 5);
     if (bytes_written != 5) {
       RCLCPP_WARN(logger_, "Failed to write complete command to serial port");
