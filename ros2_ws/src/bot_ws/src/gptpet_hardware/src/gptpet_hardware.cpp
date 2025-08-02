@@ -232,6 +232,14 @@ private:
       command[i + 1] = float_to_byte(0.0);
     }
     
+    // Log the values being written
+    std::stringstream ss;
+    ss << "Writing serial command: ";
+    for (int i = 0; i < 5; ++i) {
+      ss << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(command[i]) << " ";
+    }
+    RCLCPP_INFO(logger_, "%s", ss.str().c_str());
+
     ssize_t bytes_written = ::write(serial_fd_, command, 5);
     if (bytes_written != 5) {
       RCLCPP_WARN(logger_, "Failed to write complete command to serial port");
