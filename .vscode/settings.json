@@ -11,5 +11,10 @@
   "python.analysis.extraPaths": [
     "./ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages",
     "./ros2_ws/src/common/install/gptpet_common/lib/python3.11/site-packages"
-  ]
+  ],
+  // "files.associations": {
+  //   "*.ino": "arduino",
+  //   "istream": "cpp",
+  //   "ostream": "cpp"
+  // }
 }

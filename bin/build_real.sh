@@ -6,7 +6,7 @@ export CC=/usr/bin/$TARGET_TRIPLE-gcc
 export CXX=/usr/bin/$TARGET_TRIPLE-g++
 export CROSS_COMPILE=/usr/bin/$TARGET_TRIPLE-
 export SYSROOT=~/sysroot  # This should be the manually copied Raspberry Pi root filesystem
-export ROS2_INSTALL_PATH=/home/gptpetclient2/gpt-pet-v2/ros2_ws/src/real_ws/install
+export ROS2_INSTALL_PATH=/home/gptpetclient2/gpt-pet-v2/ros2_ws/src/bot_ws/install
 export PYTHON_SOABI=cpython-310-aarch64-linux-gnu
 
 export CMAKE_PREFIX_PATH="$SYSROOT/usr"
@@ -28,7 +28,7 @@ export TinyXML2_DIR="../../../tinyxml2-quickstart/tinyxml2"
 
 export THREADS_PTHREAD_ARG="0" 
 
-cd ros2_ws/src/real_ws
+cd ros2_ws/src/bot_ws
 colcon build \
     --cmake-force-configure \
     --cmake-args \
