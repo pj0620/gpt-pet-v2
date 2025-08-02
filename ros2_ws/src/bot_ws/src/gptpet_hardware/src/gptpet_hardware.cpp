@@ -196,7 +196,7 @@ private:
     if (serial_fd_ < 0) return;
     
     uint8_t buffer[256];
-    ssize_t bytes_read = read(serial_fd_, buffer, sizeof(buffer));
+    ssize_t bytes_read = ::read(serial_fd_, buffer, sizeof(buffer));
     
     if (bytes_read > 0) {
       // Look for motor data packets starting with 'M'
@@ -232,7 +232,7 @@ private:
       command[i + 1] = float_to_byte(0.0);
     }
     
-    ssize_t bytes_written = write(serial_fd_, command, 5);
+    ssize_t bytes_written = ::write(serial_fd_, command, 5);
     if (bytes_written != 5) {
       RCLCPP_WARN(logger_, "Failed to write complete command to serial port");
     }
