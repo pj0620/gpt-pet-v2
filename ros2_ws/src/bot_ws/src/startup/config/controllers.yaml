@@ -40,3 +40,7 @@ mecanum_drive_controller:
     base_frame_id: "base_link"
     odom_frame_id: "odom"
     enable_odom_tf: true
+    
+    # Additional parameters to fix transform timing
+    tf_frame_prefix_enable: false
+    tf_frame_prefix: ""

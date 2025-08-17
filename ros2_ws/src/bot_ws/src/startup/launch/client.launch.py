@@ -109,6 +109,18 @@ def generate_launch_description():
     )
   )
   
+  # Temporary: Add odom to base_link transform as fallback
+  # This should be removed once the mecanum controller is working properly
+  nodes.append(
+    Node(
+      package='tf2_ros',
+      executable='static_transform_publisher', 
+      name='odom_base_link_publisher',
+      arguments=['0', '0', '0', '0', '0', '0', 'odom', 'base_link'],
+      parameters=[{'use_sim_time': False}]
+    )
+  )
+  
   # ## TOPIC REMAPPING ##
   # # Remap /cmd_vel to /mecanum_drive_controller/reference
   # nodes.append(
