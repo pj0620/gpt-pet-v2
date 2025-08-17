@@ -35,6 +35,7 @@ def generate_launch_description():
     remappings=[
       ('/mecanum_drive_controller/reference', '/cmd_vel'),
       ('/mecanum_drive_controller/odometry', '/odom'),
+      ('/mecanum_drive_controller/tf_odometry', '/tf'),
     ],
   )
   robot_state_pub_node = Node(
@@ -109,8 +110,8 @@ def generate_launch_description():
     )
   )
   
-  # NOTE: odom -> base_link transform should be published by mecanum_drive_controller
-  # If you see transform errors, the controller may not be working properly
+  # NOTE: odom->base_link transform is now published by mecanum_drive_controller
+  # via the /mecanum_drive_controller/tf_odometry -> /tf remapping
   
   # ## TOPIC REMAPPING ##
   # # Remap /cmd_vel to /mecanum_drive_controller/reference
