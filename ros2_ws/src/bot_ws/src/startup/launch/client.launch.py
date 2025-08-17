@@ -96,6 +96,18 @@ def generate_launch_description():
     )
   )
   
+  ## MAGNETOMETER CONVERTER ##
+  nodes.append(
+    Node(
+      package="startup",
+      executable="magnetometer_converter",
+      name="magnetometer_converter",
+      parameters=[
+        {"use_sim_time": False},
+      ],
+    )
+  )
+  
   ## SENSOR FUSION - ROBOT LOCALIZATION ##
   # Fuse wheel odometry (x,y position) with IMU (orientation)
   nodes.append(
@@ -148,9 +160,34 @@ def generate_launch_description():
         'odom0_queue_size': 10,
         'odom0_nodelay': False,
         
-        # Magnetometer source configuration for absolute heading
-        'imu0': '/imu/mag_raw',
+        # IMU source configuration for angular velocity
+        'imu0': '/imu/data_raw',
         'imu0_config': [
+          False, # x position
+          False, # y position
+          False, # z position
+          False, # roll
+          False, # pitch
+          False, # yaw (orientation not reliable from this IMU)
+          False, # x velocity
+          False, # y velocity
+          False, # z velocity
+          False, # roll velocity
+          False, # pitch velocity
+          True,  # yaw velocity (angular velocity from gyroscope)
+          False, # x acceleration
+          False, # y acceleration
+          False  # z acceleration
+        ],
+        'imu0_differential': False,
+        'imu0_relative': True,
+        'imu0_queue_size': 10,
+        'imu0_nodelay': False,
+        'imu0_remove_gravitational_acceleration': True,
+        
+        # Magnetometer source configuration for absolute heading
+        'imu1': '/imu/mag_orientation',
+        'imu1_config': [
           False, # x position
           False, # y position
           False, # z position
@@ -167,10 +204,10 @@ def generate_launch_description():
           False, # y acceleration
           False  # z acceleration
         ],
-        'imu0_differential': False,
-        'imu0_relative': False,  # Absolute measurements from magnetometer
-        'imu0_queue_size': 10,
-        'imu0_nodelay': False,
+        'imu1_differential': False,
+        'imu1_relative': False,  # Absolute measurements from magnetometer
+        'imu1_queue_size': 10,
+        'imu1_nodelay': False,
         
         # Additional IMU parameters for better acceleration handling
         'gravitational_acceleration': 9.80665,
