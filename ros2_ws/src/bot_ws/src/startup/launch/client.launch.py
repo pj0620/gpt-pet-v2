@@ -149,34 +149,9 @@ def generate_launch_description():
         'odom0_queue_size': 10,
         'odom0_nodelay': False,
         
-        # IMU source configuration - more conservative to reduce noise
-        'imu0': '/imu/data_raw',
-        'imu0_config': [
-          False, # x position
-          False, # y position
-          False, # z position
-          False, # roll
-          False, # pitch
-          False, # yaw (will use magnetometer for absolute heading)
-          False, # x velocity
-          False, # y velocity
-          False, # z velocity
-          False, # roll velocity
-          False, # pitch velocity
-          True,  # yaw velocity (angular velocity from IMU)
-          False, # x acceleration (disable to reduce noise)
-          False, # y acceleration (disable to reduce noise)
-          False  # z acceleration (not used in 2D mode)
-        ],
-        'imu0_differential': False,
-        'imu0_relative': True,
-        'imu0_queue_size': 10,
-        'imu0_nodelay': False,
-        'imu0_remove_gravitational_acceleration': True,
-        
         # Magnetometer source configuration for absolute heading
-        'imu1': '/imu/mag_raw',
-        'imu1_config': [
+        'imu0': '/imu/mag_raw',
+        'imu0_config': [
           False, # x position
           False, # y position
           False, # z position
@@ -193,10 +168,10 @@ def generate_launch_description():
           False, # y acceleration
           False  # z acceleration
         ],
-        'imu1_differential': False,
-        'imu1_relative': False,  # Absolute measurements from magnetometer
-        'imu1_queue_size': 10,
-        'imu1_nodelay': False,
+        'imu0_differential': False,
+        'imu0_relative': False,  # Absolute measurements from magnetometer
+        'imu0_queue_size': 10,
+        'imu0_nodelay': False,
         
         # Additional IMU parameters for better acceleration handling
         'gravitational_acceleration': 9.80665,
