@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import RegisterEventHandler
+from launch.actions import RegisterEventHandler, SetEnvironmentVariable
 from launch.event_handlers import OnProcessExit
 from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -68,7 +68,13 @@ def generate_launch_description():
       package="kinect_ros2",
       executable="kinect_ros2_node",
       name="kinect_ros2",
-      namespace="kinect"
+      namespace="kinect",
+      parameters=[
+        {"use_sim_time": False},
+        {"point_cloud_reliability": "best_effort"},
+        {"image_reliability": "best_effort"},
+        {"depth_reliability": "best_effort"}
+      ]
     )
   )
   
