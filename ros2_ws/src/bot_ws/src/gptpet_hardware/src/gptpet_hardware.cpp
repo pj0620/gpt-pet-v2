@@ -96,12 +96,12 @@ public:
     // Send motor commands via serial port
     write_serial_command();
     
-    // // Log commands that are being sent to motor driver
-    // write_count_++;
-    // if (write_count_ % 100 == 0) {  // Log every ~100 calls
-    //   RCLCPP_INFO(logger_, "Write command - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
-    //   log_joint_states("Command", hw_commands_);
-    // }
+    // Log commands that are being sent to motor driver
+    write_count_++;
+    if (write_count_ % 50 == 0) {  // Log every ~50 calls (every 0.5 seconds at 100Hz)
+      RCLCPP_INFO(logger_, "Write command - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
+      log_joint_states("Command", hw_commands_);
+    }
     
     return hardware_interface::return_type::OK;
   }
@@ -235,6 +235,14 @@ private:
     ssize_t bytes_written = ::write(serial_fd_, command, 5);
     if (bytes_written != 5) {
       RCLCPP_WARN(logger_, "Failed to write complete command to serial port");
+    }
+    
+    // Add debug logging every 100 calls
+    static unsigned int serial_write_count = 0;
+    serial_write_count++;
+    if (serial_write_count % 100 == 0) {
+      RCLCPP_INFO(logger_, "Serial command sent - bytes: V %d %d %d %d", 
+                  command[1], command[2], command[3], command[4]);
     }
   }
   
