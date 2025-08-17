@@ -160,9 +160,9 @@ def generate_launch_description():
           False, # roll velocity
           False, # pitch velocity
           True,  # yaw velocity (angular velocity from IMU)
-          False, # x acceleration
-          False, # y acceleration
-          False  # z acceleration
+          True,  # x acceleration (linear acceleration from IMU)
+          True,  # y acceleration (linear acceleration from IMU)
+          False  # z acceleration (not used in 2D mode)
         ],
         'imu0_differential': False,
         'imu0_relative': True,
@@ -170,7 +170,13 @@ def generate_launch_description():
         'imu0_nodelay': False,
         'imu0_remove_gravitational_acceleration': True,
         
-        # Process noise covariance
+        # Additional IMU parameters for better acceleration handling
+        'gravitational_acceleration': 9.80665,
+        'use_control': False,
+        'stamped_control': False,
+        'control_timeout': 0.2,
+        
+        # Process noise covariance (adjusted for acceleration inputs)
         'process_noise_covariance': [
           0.05, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
           0.0,  0.05, 0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
@@ -184,9 +190,9 @@ def generate_launch_description():
           0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.01, 0.0,  0.0,  0.0,  0.0,  0.0,
           0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.01, 0.0,  0.0,  0.0,  0.0,
           0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.02, 0.0,  0.0,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.01, 0.0,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.01, 0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.015
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.1,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.1,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.02
         ],
         
         # Initial estimate covariance
