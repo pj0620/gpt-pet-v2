@@ -13,4 +13,4 @@ controller_manager:
       wheel_separation_width: 0.2676
       wheel_separation_length: 0.12
       publish_rate: 50.0
-      command_timeout: 0.5
+      command_timeout: 10.0
