@@ -23,6 +23,10 @@ def generate_launch_description():
     executable='ros2_control_node',
     parameters=[robot_description, robot_controllers],
     output='both',
+    remappings=[
+      ('/mecanum_drive_controller/reference', '/cmd_vel'),
+      ('/mecanum_drive_controller/odometry', '/odom'),
+    ],
   )
   robot_state_pub_node = Node(
     package='robot_state_publisher',
@@ -39,10 +43,6 @@ def generate_launch_description():
     package='controller_manager',
     executable='spawner',
     arguments=['mecanum_drive_controller', '--controller-manager', '/controller_manager'],
-    remappings=[
-      ('/mecanum_drive_controller/reference', '/cmd_vel'),
-      ('/mecanum_drive_controller/odometry', '/odom'),
-    ],
   )
   # Delay start of robot_controller after joint_state_broadcaster
   delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = RegisterEventHandler(
