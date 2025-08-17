@@ -39,6 +39,10 @@ def generate_launch_description():
     package='controller_manager',
     executable='spawner',
     arguments=['mecanum_drive_controller', '--controller-manager', '/controller_manager'],
+    remappings=[
+      ('/mecanum_drive_controller/reference', '/cmd_vel'),
+      ('/mecanum_drive_controller/odometry', '/odom'),
+    ],
   )
   # Delay start of robot_controller after joint_state_broadcaster
   delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = RegisterEventHandler(
@@ -78,27 +82,27 @@ def generate_launch_description():
     )
   )
   
-  ## TOPIC REMAPPING ##
-  # Remap /cmd_vel to /mecanum_drive_controller/reference
-  nodes.append(
-    Node(
-      package="topic_tools",
-      executable="relay",
-      name="cmd_vel_relay",
-      arguments=["/cmd_vel", "/mecanum_drive_controller/reference"],
-      parameters=[{"lazy": False}]
-    )
-  )
+  # ## TOPIC REMAPPING ##
+  # # Remap /cmd_vel to /mecanum_drive_controller/reference
+  # nodes.append(
+  #   Node(
+  #     package="topic_tools",
+  #     executable="relay",
+  #     name="cmd_vel_relay",
+  #     arguments=["/cmd_vel", "/mecanum_drive_controller/reference"],
+  #     parameters=[{"lazy": False}]
+  #   )
+  # )
   
-  # Remap /mecanum_drive_controller/odometry to /odom  
-  nodes.append(
-    Node(
-      package="topic_tools",
-      executable="relay",
-      name="odom_relay", 
-      arguments=["/mecanum_drive_controller/odometry", "/odom"],
-      parameters=[{"lazy": False}]
-    )
-  )
+  # # Remap /mecanum_drive_controller/odometry to /odom  
+  # nodes.append(
+  #   Node(
+  #     package="topic_tools",
+  #     executable="relay",
+  #     name="odom_relay", 
+  #     arguments=["/mecanum_drive_controller/odometry", "/odom"],
+  #     parameters=[{"lazy": False}]
+  #   )
+  # )
 
   return LaunchDescription(nodes)
