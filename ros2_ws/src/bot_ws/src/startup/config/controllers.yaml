@@ -10,7 +10,13 @@ controller_manager:
       front_right_wheel_command_joint_name: velocity_right_1_joint
       rear_right_wheel_command_joint_name: velocity_right_2_joint
       wheel_radius: 0.0485
-      wheel_separation_width: 0.2676
-      wheel_separation_length: 0.12
+      wheel_separation_width: 0.12
+      wheel_separation_length: 0.263
       publish_rate: 50.0
       command_timeout: 10.0
+      base_frame_id: base_link
+      odom_frame_id: odom
+      enable_odom_tf: true
+      cmd_vel_timeout: 0.5
+      publish_wheel_data: true
+      publish_odom_tf: true
