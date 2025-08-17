@@ -108,12 +108,16 @@ def generate_launch_description():
       parameters=[{
         'use_sim_time': False,
         'frequency': 30.0,
-        'sensor_timeout': 0.1,
+        'sensor_timeout': 0.2,  # Increased timeout to be more tolerant
         'two_d_mode': True,
         'transform_time_offset': 0.0,
         'transform_timeout': 0.0,
         'print_diagnostics': True,
         'debug': False,
+        
+        # Additional stability parameters
+        'smooth_lagged_data': True,
+        'history_length': 0.5,
         
         # Output frame configuration
         'map_frame': 'map',
@@ -121,7 +125,7 @@ def generate_launch_description():
         'base_link_frame': 'base_link',
         'world_frame': 'odom',
         
-        # Odometry source configuration (wheel odometry)
+        # Odometry source configuration (wheel odometry) - more conservative
         'odom0': '/mecanum_drive_controller/odometry',
         'odom0_config': [
           True,  # x position
@@ -130,8 +134,8 @@ def generate_launch_description():
           False, # roll
           False, # pitch
           False, # yaw (will use IMU for this)
-          True,  # x velocity
-          True,  # y velocity
+          False, # x velocity (disable to reduce drift when stationary)
+          False, # y velocity (disable to reduce drift when stationary)
           False, # z velocity
           False, # roll velocity
           False, # pitch velocity
@@ -140,12 +144,12 @@ def generate_launch_description():
           False, # y acceleration
           False  # z acceleration
         ],
-        'odom0_differential': False,
+        'odom0_differential': True,  # Use differential mode for better stability
         'odom0_relative': False,
         'odom0_queue_size': 10,
         'odom0_nodelay': False,
         
-        # IMU source configuration
+        # IMU source configuration - more conservative to reduce noise
         'imu0': '/imu/data_raw',
         'imu0_config': [
           False, # x position
@@ -160,8 +164,8 @@ def generate_launch_description():
           False, # roll velocity
           False, # pitch velocity
           True,  # yaw velocity (angular velocity from IMU)
-          True,  # x acceleration (linear acceleration from IMU)
-          True,  # y acceleration (linear acceleration from IMU)
+          False, # x acceleration (disable to reduce noise)
+          False, # y acceleration (disable to reduce noise)
           False  # z acceleration (not used in 2D mode)
         ],
         'imu0_differential': False,
