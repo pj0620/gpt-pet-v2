@@ -34,7 +34,6 @@ def generate_launch_description():
     output='both',
     remappings=[
       ('/mecanum_drive_controller/reference', '/cmd_vel'),
-      ('/mecanum_drive_controller/odometry', '/odom'),
       ('/mecanum_drive_controller/tf_odometry', '/tf'),
     ],
   )
@@ -98,6 +97,123 @@ def generate_launch_description():
     )
   )
   
+  ## SENSOR FUSION - ROBOT LOCALIZATION ##
+  # Fuse wheel odometry (x,y position) with IMU (orientation)
+  nodes.append(
+    Node(
+      package='robot_localization',
+      executable='ekf_node',
+      name='ekf_filter_node',
+      output='screen',
+      parameters=[{
+        'use_sim_time': False,
+        'frequency': 30.0,
+        'sensor_timeout': 0.1,
+        'two_d_mode': True,
+        'transform_time_offset': 0.0,
+        'transform_timeout': 0.0,
+        'print_diagnostics': True,
+        'debug': False,
+        
+        # Output frame configuration
+        'map_frame': 'map',
+        'odom_frame': 'odom',
+        'base_link_frame': 'base_link',
+        'world_frame': 'odom',
+        
+        # Odometry source configuration (wheel odometry)
+        'odom0': '/mecanum_drive_controller/odometry',
+        'odom0_config': [
+          True,  # x position
+          True,  # y position  
+          False, # z position (2D mode)
+          False, # roll
+          False, # pitch
+          False, # yaw (will use IMU for this)
+          True,  # x velocity
+          True,  # y velocity
+          False, # z velocity
+          False, # roll velocity
+          False, # pitch velocity
+          False, # yaw velocity (will use IMU for this)
+          False, # x acceleration
+          False, # y acceleration
+          False  # z acceleration
+        ],
+        'odom0_differential': False,
+        'odom0_relative': False,
+        'odom0_queue_size': 10,
+        'odom0_nodelay': False,
+        
+        # IMU source configuration
+        'imu0': '/imu/data_raw',
+        'imu0_config': [
+          False, # x position
+          False, # y position
+          False, # z position
+          False, # roll
+          False, # pitch
+          True,  # yaw (orientation from IMU)
+          False, # x velocity
+          False, # y velocity
+          False, # z velocity
+          False, # roll velocity
+          False, # pitch velocity
+          True,  # yaw velocity (angular velocity from IMU)
+          False, # x acceleration
+          False, # y acceleration
+          False  # z acceleration
+        ],
+        'imu0_differential': False,
+        'imu0_relative': True,
+        'imu0_queue_size': 10,
+        'imu0_nodelay': False,
+        'imu0_remove_gravitational_acceleration': True,
+        
+        # Process noise covariance
+        'process_noise_covariance': [
+          0.05, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.05, 0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.06, 0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.03, 0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.03, 0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.06, 0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.025, 0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.025, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.04, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.01, 0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.01, 0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.02, 0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.01, 0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.01, 0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.015
+        ],
+        
+        # Initial estimate covariance
+        'initial_estimate_covariance': [
+          1e-9, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  1e-9, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  1e-9, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  1e-9, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  1e-9, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  1e-9, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1e-9, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1e-9, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1e-9, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1e-9, 0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1e-9, 0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1e-9, 0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1e-9, 0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1e-9, 0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1e-9
+        ]
+      }],
+      remappings=[
+        ('/odometry/filtered', '/odom')
+      ]
+    )
+  )
+  
   ## STATIC TRANSFORMS ##
   # Add static transform from base_link to base_footprint if needed
   nodes.append(
@@ -106,6 +222,18 @@ def generate_launch_description():
       executable='static_transform_publisher',
       name='base_footprint_publisher',
       arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'base_footprint'],
+      parameters=[{'use_sim_time': False}]
+    )
+  )
+  
+  # Add static transform from base_link to IMU frame
+  # Adjust the position values based on where your IMU is mounted on the robot
+  nodes.append(
+    Node(
+      package='tf2_ros',
+      executable='static_transform_publisher',
+      name='imu_transform_publisher',
+      arguments=['0', '0', '0.1', '0', '0', '0', 'base_link', 'imu_icm20948'],
       parameters=[{'use_sim_time': False}]
     )
   )
