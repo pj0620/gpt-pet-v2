@@ -21,7 +21,9 @@ def generate_launch_description():
   control_node = Node(
     package='controller_manager',
     executable='ros2_control_node',
-    parameters=[robot_description, robot_controllers],
+    parameters=[robot_description, robot_controllers, {
+      'use_sim_time': False,
+    }],
     output='both',
     remappings=[
       ('/mecanum_drive_controller/reference', '/cmd_vel'),
@@ -32,7 +34,9 @@ def generate_launch_description():
     package='robot_state_publisher',
     executable='robot_state_publisher',
     output='screen',
-    parameters=[robot_description]
+    parameters=[robot_description, {
+      'use_sim_time': False,
+    }]
   )
   joint_state_broadcaster_spawner = Node(
     package='controller_manager',
@@ -78,7 +82,20 @@ def generate_launch_description():
         {"i2c_address": 0x69},
         {"frame_id": "imu_icm20948"},
         {"pub_rate": 50},
+        {"use_sim_time": False},
       ],
+    )
+  )
+  
+  ## STATIC TRANSFORMS ##
+  # Add static transform from base_link to base_footprint if needed
+  nodes.append(
+    Node(
+      package='tf2_ros',
+      executable='static_transform_publisher',
+      name='base_footprint_publisher',
+      arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'base_footprint'],
+      parameters=[{'use_sim_time': False}]
     )
   )
   

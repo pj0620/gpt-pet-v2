@@ -26,6 +26,10 @@ mecanum_drive_controller:
     reference_timeout: 10.0  # seconds
     publish_rate: 50.0   # Hz
     
+    # Time synchronization
+    use_stamped_vel: true
+    velocity_rolling_window_size: 10
+    
     kinematics:
       base_frame_offset: { x: 0.0, y: 0.0, theta: 0.0 }
       wheels_radius: 0.0485
