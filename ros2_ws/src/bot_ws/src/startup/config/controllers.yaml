@@ -30,11 +30,12 @@ mecanum_drive_controller:
     use_stamped_vel: true
     velocity_rolling_window_size: 10
     
-    # Odometry settings
+    # Odometry settings - try different parameter names
     position_feedback: true
-    enable_odom_tf: true
     odom_frame_id: "odom"
     base_frame_id: "base_link"
+    enable_odom_tf: true
+    publish_odom_tf: true  # Alternative parameter name
     
     kinematics:
       base_frame_offset: { x: 0.0, y: 0.0, theta: 0.0 }
