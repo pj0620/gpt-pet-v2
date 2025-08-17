@@ -1,41 +1,72 @@
-import launch_ros
-import launch
-import launch_ros.actions
+from launch import LaunchDescription
+from launch.actions import RegisterEventHandler
+from launch.event_handlers import OnProcessExit
+from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+import os
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
-  actions = []
+  nodes = []
 
-  # Launch the kinect node in its own process with a unique node name.
-  actions.append(
-    launch_ros.actions.Node(
+  # Get URDF via xacro
+  pkg_path = get_package_share_directory('startup_cpp')
+  xacro_file = os.path.join(pkg_path, 'urdf', 'gptpet.xacro')
+  robot_description_content = Command(['xacro ', xacro_file])
+  
+  ## ROS CONTROL ##
+  robot_description = {'robot_description': robot_description_content}
+  robot_controllers = os.path.join(pkg_path, 'config', 'controllers.yaml')
+  control_node = Node(
+    package='controller_manager',
+    executable='ros2_control_node',
+    parameters=[robot_description, robot_controllers],
+    output='both',
+  )
+  robot_state_pub_node = Node(
+    package='robot_state_publisher',
+    executable='robot_state_publisher',
+    output='screen',
+    parameters=[robot_description]
+  )
+  joint_state_broadcaster_spawner = Node(
+    package='controller_manager',
+    executable='spawner',
+    arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+  )
+  robot_controller_spawner = Node(
+    package='controller_manager',
+    executable='spawner',
+    arguments=['mecanum_drive_controller', '--controller-manager', '/controller_manager'],
+  )
+  # Delay start of robot_controller after joint_state_broadcaster
+  delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = RegisterEventHandler(
+    event_handler=OnProcessExit(
+      target_action=joint_state_broadcaster_spawner,
+      on_exit=[robot_controller_spawner],
+    )
+  )
+  nodes.extend([
+    control_node,
+    robot_state_pub_node,
+    joint_state_broadcaster_spawner,
+    delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
+  ])
+  
+  ## KINECT ##
+  nodes.append(
+    Node(
       package="kinect_ros2",
       executable="kinect_ros2_node",
       name="kinect_ros2",
       namespace="kinect"
     )
   )
-
-  # Launch motor control service node.
-  actions.append(
-    launch_ros.actions.Node(
-      package="motors",
-      executable="motor_control",
-      name="motor_control_service",
-      parameters=[{"serial_ports": ["/dev/ttyACM0", "/dev/ttyACM1"]}]
-    )
-  )
   
-  actions.append(
-     launch_ros.actions.Node(
-        package='motors',
-        executable='motor_control',
-        name='motor_speeds',
-        parameters=[{"serial_ports": ["/dev/ttyACM0", "/dev/ttyACM1"]}]
-      )
-  )
-  
-  actions.append(
-    launch_ros.actions.Node(
+  ## IMU ##
+  nodes.append(
+    Node(
       package="ros2_icm20948",
       executable="icm20948_node",
       name="icm20948_node",
@@ -46,5 +77,28 @@ def generate_launch_description():
       ],
     )
   )
+  
+  ## TOPIC REMAPPING ##
+  # Remap /cmd_vel to /mecanum_drive_controller/reference
+  nodes.append(
+    Node(
+      package="topic_tools",
+      executable="relay",
+      name="cmd_vel_relay",
+      arguments=["/cmd_vel", "/mecanum_drive_controller/reference"],
+      parameters=[{"lazy": False}]
+    )
+  )
+  
+  # Remap /mecanum_drive_controller/odometry to /odom  
+  nodes.append(
+    Node(
+      package="topic_tools",
+      executable="relay",
+      name="odom_relay", 
+      arguments=["/mecanum_drive_controller/odometry", "/odom"],
+      parameters=[{"lazy": False}]
+    )
+  )
 
-  return launch.LaunchDescription(actions)
+  return LaunchDescription(nodes)
