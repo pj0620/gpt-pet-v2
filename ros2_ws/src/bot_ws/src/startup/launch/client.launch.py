@@ -9,9 +9,16 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
   nodes = []
+  
+  # Set QoS override file for sensor data compatibility
+  pkg_path = get_package_share_directory('startup_cpp')
+  qos_override_file = os.path.join(pkg_path, 'config', 'qos_overrides.yaml')
+  qos_override = SetEnvironmentVariable(
+    'RMW_QOS_OVERRIDES_FILE',
+    qos_override_file
+  )
 
   # Get URDF via xacro
-  pkg_path = get_package_share_directory('startup_cpp')
   xacro_file = os.path.join(pkg_path, 'urdf', 'gptpet.xacro')
   robot_description_content = Command(['xacro ', xacro_file])
   
@@ -70,10 +77,7 @@ def generate_launch_description():
       name="kinect_ros2",
       namespace="kinect",
       parameters=[
-        {"use_sim_time": False},
-        {"point_cloud_reliability": "best_effort"},
-        {"image_reliability": "best_effort"},
-        {"depth_reliability": "best_effort"}
+        {"use_sim_time": False}
       ]
     )
   )
@@ -128,4 +132,4 @@ def generate_launch_description():
   #   )
   # )
 
-  return LaunchDescription(nodes)
+  return LaunchDescription([qos_override] + nodes)
