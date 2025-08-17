@@ -17,7 +17,7 @@ def generate_launch_description():
   
   ## ROS CONTROL ##
   robot_description = {'robot_description': robot_description_content}
-  robot_controllers = os.path.join(pkg_path, 'config', 'minimal_controllers.yaml')
+  robot_controllers = os.path.join(pkg_path, 'config', 'controllers.yaml')
   control_node = Node(
     package='controller_manager',
     executable='ros2_control_node',
