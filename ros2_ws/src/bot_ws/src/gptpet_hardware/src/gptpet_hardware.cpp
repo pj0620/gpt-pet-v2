@@ -14,6 +14,8 @@
 
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
+constexpr double MAX_SPEED = 0.75;
+
 namespace gptpet_hardware {
 
 class GptpetHardwareInterface : public hardware_interface::SystemInterface {
@@ -24,7 +26,10 @@ public:
   }
 
   ~GptpetHardwareInterface() {
+    // Stop all motors before closing serial port
     if (serial_fd_ >= 0) {
+      uint8_t stop_command[5] = {'V', float_to_byte(0.0), float_to_byte(0.0), float_to_byte(0.0), float_to_byte(0.0)};
+      ::write(serial_fd_, stop_command, 5);
       close(serial_fd_);
     }
   }
@@ -97,11 +102,11 @@ public:
     write_serial_command();
     
     // Log commands that are being sent to motor driver
-    write_count_++;
-    if (write_count_ % 50 == 0) {  // Log every ~50 calls (every 0.5 seconds at 100Hz)
-      RCLCPP_INFO(logger_, "Write command - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
-      log_joint_states("Command", hw_commands_);
-    }
+    // write_count_++;
+    // if (write_count_ % 50 == 0) {  // Log every ~50 calls (every 0.5 seconds at 100Hz)
+    //   RCLCPP_INFO(logger_, "Write command - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
+    //   log_joint_states("Command", hw_commands_);
+    // }
     
     return hardware_interface::return_type::OK;
   }
@@ -175,7 +180,7 @@ private:
   }
   
   uint8_t float_to_byte(double f) {
-    double value = std::max(-2.0, std::min(2.0, f));  // Clamp to [-2, 2] range
+    double value = std::max(-MAX_SPEED, std::min(MAX_SPEED, f));  // Clamp to [-2, 2] range
     int int_val = static_cast<int>(std::round(value * 127.0 / 2.0));
     int_val = std::max(-127, std::min(127, int_val));
     
@@ -237,13 +242,13 @@ private:
       RCLCPP_WARN(logger_, "Failed to write complete command to serial port");
     }
     
-    // Add debug logging every 100 calls
-    static unsigned int serial_write_count = 0;
-    serial_write_count++;
-    if (serial_write_count % 100 == 0) {
-      RCLCPP_INFO(logger_, "Serial command sent - bytes: V %d %d %d %d", 
-                  command[1], command[2], command[3], command[4]);
-    }
+    // // Add debug logging every 100 calls
+    // static unsigned int serial_write_count = 0;
+    // serial_write_count++;
+    // if (serial_write_count % 100 == 0) {
+    //   RCLCPP_INFO(logger_, "Serial command sent - bytes: V %d %d %d %d", 
+    //               command[1], command[2], command[3], command[4]);
+    // }
   }
   
   void log_joint_states(const std::string& label, const std::vector<double>& values) {
