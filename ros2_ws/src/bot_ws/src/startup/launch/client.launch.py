@@ -157,7 +157,7 @@ def generate_launch_description():
           False, # z position
           False, # roll
           False, # pitch
-          True,  # yaw (orientation from IMU)
+          False, # yaw (will use magnetometer for absolute heading)
           False, # x velocity
           False, # y velocity
           False, # z velocity
@@ -174,29 +174,53 @@ def generate_launch_description():
         'imu0_nodelay': False,
         'imu0_remove_gravitational_acceleration': True,
         
+        # Magnetometer source configuration for absolute heading
+        'imu1': '/imu/mag_raw',
+        'imu1_config': [
+          False, # x position
+          False, # y position
+          False, # z position
+          False, # roll
+          False, # pitch
+          True,  # yaw (absolute orientation from magnetometer)
+          False, # x velocity
+          False, # y velocity
+          False, # z velocity
+          False, # roll velocity
+          False, # pitch velocity
+          False, # yaw velocity
+          False, # x acceleration
+          False, # y acceleration
+          False  # z acceleration
+        ],
+        'imu1_differential': False,
+        'imu1_relative': False,  # Absolute measurements from magnetometer
+        'imu1_queue_size': 10,
+        'imu1_nodelay': False,
+        
         # Additional IMU parameters for better acceleration handling
         'gravitational_acceleration': 9.80665,
         'use_control': False,
         'stamped_control': False,
         'control_timeout': 0.2,
         
-        # Process noise covariance (adjusted for acceleration inputs)
+        # Process noise covariance (conservative values for stability)
         'process_noise_covariance': [
-          0.05, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-          0.0,  0.05, 0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-          0.0,  0.0,  0.06, 0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-          0.0,  0.0,  0.0,  0.03, 0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.03, 0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.06, 0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.025, 0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.025, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.04, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.01, 0.0,  0.0,  0.0,  0.0,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.01, 0.0,  0.0,  0.0,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.02, 0.0,  0.0,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.1,  0.0,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.1,  0.0,
-          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.02
+          0.02, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.02, 0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.03, 0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.01, 0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.01, 0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.03, 0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.01,  0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.01,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.02, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.005, 0.0, 0.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.005, 0.0, 0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.01, 0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.005, 0.0, 0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.005, 0.0,
+          0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.01
         ],
         
         # Initial estimate covariance
