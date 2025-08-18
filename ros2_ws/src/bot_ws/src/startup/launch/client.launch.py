@@ -90,7 +90,7 @@ def generate_launch_description():
       parameters=[
         {"i2c_address": 0x69},
         {"frame_id": "imu_icm20948"},
-        {"pub_rate": 50},
+        {"pub_rate": 20},
         {"use_sim_time": False},
       ],
     )
@@ -118,8 +118,8 @@ def generate_launch_description():
       output='screen',
       parameters=[{
         'use_sim_time': False,
-        'frequency': 30.0,
-        'sensor_timeout': 0.2,  # Increased timeout to be more tolerant
+        'frequency': 15.0,
+        'sensor_timeout': 0.5,  # Increased timeout to be more tolerant
         'two_d_mode': True,
         'transform_time_offset': 0.0,
         'transform_timeout': 0.0,
