@@ -80,6 +80,28 @@ def generate_launch_description():
       ]
     )
   )
+
+  # Convert depth images to a 2D scan on-robot so we only stream /scan across the network
+  nodes.append(
+    Node(
+      package='depthimage_to_laserscan',
+      executable='depthimage_to_laserscan_node',
+      name='depthimage_to_laserscan',
+      output='screen',
+      remappings=[
+        ('depth', '/kinect/depth/image_raw'),
+        ('depth_camera_info', '/kinect/depth/camera_info'),
+        ('scan', '/scan'),
+      ],
+      parameters=[{
+        'use_sim_time': False,
+        'scan_time': 0.033,
+        'output_frame': 'base_laser_link',
+        'range_min': 0.1,
+        'range_max': 5.0,
+      }],
+    )
+  )
   
   ## IMU ##
   nodes.append(
@@ -118,7 +140,7 @@ def generate_launch_description():
       output='screen',
       parameters=[{
         'use_sim_time': False,
-        'frequency': 1.0,
+        'frequency': 0.5,
         'sensor_timeout': 0.5,  # Increased timeout to be more tolerant
         'two_d_mode': True,
         'transform_time_offset': 0.0,
@@ -131,7 +153,7 @@ def generate_launch_description():
         'history_length': 0.5,
         
         # Output frame configuration
-  'map_frame': 'odom',
+        'map_frame': 'odom',
         'odom_frame': 'odom',
         'base_link_frame': 'base_link',
         'world_frame': 'odom',

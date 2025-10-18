@@ -6,7 +6,7 @@ slam_toolbox:
     odom_frame: odom
     map_frame: map
     scan_topic: /scan
-    use_map_topic: false
+    use_map_topic: true
     use_sim_time: false
     provide_odom_frame: false
     publish_tf: true
