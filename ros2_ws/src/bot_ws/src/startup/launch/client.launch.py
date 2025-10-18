@@ -118,7 +118,7 @@ def generate_launch_description():
       output='screen',
       parameters=[{
         'use_sim_time': False,
-        'frequency': 15.0,
+  'frequency': 10.0,
         'sensor_timeout': 0.5,  # Increased timeout to be more tolerant
         'two_d_mode': True,
         'transform_time_offset': 0.0,

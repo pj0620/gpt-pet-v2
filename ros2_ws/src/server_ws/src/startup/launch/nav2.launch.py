@@ -57,6 +57,11 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        DeclareLaunchArgument(
+            'log_level',
+            default_value='debug',  # Options: debug, info, warn, error, fatal
+            description='Logging level for SLAM Toolbox'
+        ),
         use_sim_time_arg,
         depth_to_scan_node,
         slam_toolbox_node,
