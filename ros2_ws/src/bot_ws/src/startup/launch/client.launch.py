@@ -131,7 +131,7 @@ def generate_launch_description():
         'history_length': 0.5,
         
         # Output frame configuration
-        'map_frame': 'map',
+  'map_frame': 'odom',
         'odom_frame': 'odom',
         'base_link_frame': 'base_link',
         'world_frame': 'odom',

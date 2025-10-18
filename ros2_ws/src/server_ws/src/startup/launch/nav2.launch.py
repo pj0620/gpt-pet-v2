@@ -30,6 +30,9 @@ def generate_launch_description():
         parameters=[{
             'use_sim_time': use_sim_time,
             'scan_time': 0.033,
+            'output_frame': 'base_laser_link',
+            'range_min': 0.1,
+            'range_max': 5.0,
         }],
     )
 
