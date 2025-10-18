@@ -41,6 +41,7 @@ def generate_launch_description():
         executable='async_slam_toolbox_node',
         name='slam_toolbox',
         output='screen',
+        # arguments=['--ros-args', '--log-level', LaunchConfiguration('log_level')],
         parameters=[
             os.path.join(pkg, 'config', 'slam_toolbox_parameters.yaml'),
             {
