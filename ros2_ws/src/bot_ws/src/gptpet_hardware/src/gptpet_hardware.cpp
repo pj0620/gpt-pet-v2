@@ -209,6 +209,9 @@ private:
       // Look for motor data packets starting with 'M'
       for (ssize_t i = 0; i < bytes_read; ++i) {
         if (buffer[i] == 'M' && i + 4 < bytes_read) {
+
+          RCLCPP_INFO(logger_, "Found motor state message");
+
           // Parse motor velocities (assuming 4 motors)
           if (hw_velocities_.size() >= 4) {
             hw_velocities_[0] = byte_to_float(buffer[i + 1]);  // left_1
