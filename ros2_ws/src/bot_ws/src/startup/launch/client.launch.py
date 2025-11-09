@@ -80,28 +80,6 @@ def generate_launch_description():
       ]
     )
   )
-
-  # Convert depth images to a 2D scan on-robot so we only stream /scan across the network
-  nodes.append(
-    Node(
-      package='depthimage_to_laserscan',
-      executable='depthimage_to_laserscan_node',
-      name='depthimage_to_laserscan',
-      output='screen',
-      remappings=[
-        ('depth', '/kinect/depth/image_raw'),
-        ('depth_camera_info', '/kinect/depth/camera_info'),
-        ('scan', '/scan'),
-      ],
-      parameters=[{
-        'use_sim_time': False,
-        'scan_time': 0.033,
-        'output_frame': 'base_laser_link',
-        'range_min': 0.1,
-        'range_max': 5.0,
-      }],
-    )
-  )
   
   ## IMU ##
   nodes.append(

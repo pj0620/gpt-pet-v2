@@ -17,6 +17,25 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration('use_sim_time')
 
+    depth_to_scan_node = Node(
+        package='depthimage_to_laserscan',
+        executable='depthimage_to_laserscan_node',
+        name='depthimage_to_laserscan',
+        output='screen',
+        remappings=[
+            ('depth', '/kinect/depth/image_raw'),
+            ('depth_camera_info', '/kinect/depth/camera_info'),
+            ('scan', '/scan'),
+        ],
+        parameters=[{
+            'use_sim_time': use_sim_time,
+            'scan_time': 0.033,
+            'output_frame': 'base_laser_link',
+            'range_min': 0.1,
+            'range_max': 5.0,
+        }],
+    )
+
     slam_toolbox_node = Node(
         package='slam_toolbox',
         executable='async_slam_toolbox_node',
@@ -34,6 +53,7 @@ def generate_launch_description():
                 'mode': 'mapping',
                 'transform_publish_period': 0.05,
                 'transform_timeout': 2.0,
+                'minimum_travel_distance': 0.01
             },
         ],
     )
@@ -45,5 +65,6 @@ def generate_launch_description():
             description='Logging level for SLAM Toolbox'
         ),
         use_sim_time_arg,
+        depth_to_scan_node,
         slam_toolbox_node,
     ])

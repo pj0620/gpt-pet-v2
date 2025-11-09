@@ -15,6 +15,8 @@
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
 constexpr double MAX_SPEED = 0.75;
+constexpr double CORRECTION_FACTOR = 1.0;
+
 
 namespace gptpet_hardware {
 
@@ -86,13 +88,13 @@ public:
       hw_positions_[i] += hw_velocities_[i] * period.seconds();
     }
     
-    // // Only log periodically to avoid flooding the console
-    // read_count_++;
-    // if (read_count_ % 100 == 0) {  // Log every ~100 calls (assuming 100Hz control loop)
-    //   RCLCPP_INFO(logger_, "Read state - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
-    //   log_joint_states("Position", hw_positions_);
-    //   log_joint_states("Velocity", hw_velocities_);
-    // }
+    // Only log periodically to avoid flooding the console
+    read_count_++;
+    if (read_count_ % 100 == 0) {  // Log every ~100 calls (assuming 100Hz control loop)
+      RCLCPP_INFO(logger_, "Read state - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
+      log_joint_states("Position", hw_positions_);
+      log_joint_states("Velocity", hw_velocities_);
+    }
     
     return hardware_interface::return_type::OK;
   }
@@ -190,7 +192,7 @@ private:
   }
   
   double byte_to_float(uint8_t b) {
-    double val = 2.0 * static_cast<double>(b & 0x7F) / 127.0;
+    double val = 2.0 * CORRECTION_FACTOR * static_cast<double>(b & 0x7F) / 127.0;
     if (b & 0x80) {
       val = -val;
     }
