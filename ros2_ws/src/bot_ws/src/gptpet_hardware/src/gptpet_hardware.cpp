@@ -89,12 +89,12 @@ public:
     }
     
     // Only log periodically to avoid flooding the console
-    read_count_++;
-    if (read_count_ % 100 == 0) {  // Log every ~100 calls (assuming 100Hz control loop)
-      RCLCPP_INFO(logger_, "Read state - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
-      log_joint_states("Position", hw_positions_);
-      log_joint_states("Velocity", hw_velocities_);
-    }
+    // read_count_++;
+    // if (read_count_ % 100 == 0) {  // Log every ~100 calls (assuming 100Hz control loop)
+    //   RCLCPP_INFO(logger_, "Read state - Time: %.3f.%09ld", time.seconds(), time.nanoseconds());
+    //   log_joint_states("Position", hw_positions_);
+    //   log_joint_states("Velocity", hw_velocities_);
+    // }
     
     return hardware_interface::return_type::OK;
   }
