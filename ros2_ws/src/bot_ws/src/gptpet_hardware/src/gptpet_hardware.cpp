@@ -210,10 +210,10 @@ private:
       for (ssize_t i = 0; i < bytes_read; ++i) {
         if (buffer[i] == 'M' && i + 4 < bytes_read) {
 
-          RCLCPP_INFO(
-            logger_, "Found motor state message %hhu%hhu%hhu%hhu%hhu",
-            buffer[i], buffer[i + 1], buffer[i + 2], buffer[i + 3], buffer[i + 4]
-          );
+          // RCLCPP_INFO(
+          //   logger_, "Found motor state message %hhu%hhu%hhu%hhu%hhu",
+          //   buffer[i], buffer[i + 1], buffer[i + 2], buffer[i + 3], buffer[i + 4]
+          // );
 
           // Parse motor velocities (assuming 4 motors)
           if (hw_velocities_.size() >= 4) {
