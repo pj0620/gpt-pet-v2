@@ -24,6 +24,23 @@ find_package(ros2_control REQUIRED
 #   install/share/launch/…
 # -----------------------------------------------------------------------------
 
+# Add executable
+add_executable(magnetometer_converter src/magnetometer_converter.cpp)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+ament_target_dependencies(magnetometer_converter 
+  rclcpp 
+  sensor_msgs 
+  tf2 
+  tf2_geometry_msgs
+)
+
+# Install executable
+install(TARGETS
+  magnetometer_converter
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 install(
   DIRECTORY config/
   DESTINATION share/${PROJECT_NAME}/config
