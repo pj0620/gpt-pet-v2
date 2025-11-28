@@ -11,7 +11,7 @@ def generate_launch_description():
   nodes = []
   
   # Set QoS override file for sensor data compatibility
-  pkg_path = get_package_share_directory('startup_cpp')
+  pkg_path = get_package_share_directory('startup')
   qos_override_file = os.path.join(pkg_path, 'config', 'qos_overrides.yaml')
   qos_override = SetEnvironmentVariable(
     'RMW_QOS_OVERRIDES_FILE',
@@ -90,7 +90,7 @@ def generate_launch_description():
       parameters=[
         {"i2c_address": 0x69},
         {"frame_id": "imu_icm20948"},
-        {"pub_rate": 20},
+        {"pub_rate": 1},
         {"use_sim_time": False},
       ],
     )

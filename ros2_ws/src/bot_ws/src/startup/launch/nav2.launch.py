@@ -7,7 +7,7 @@ from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 
 def generate_launch_description():
-    pkg = get_package_share_directory('startup_cpp')
+    pkg = get_package_share_directory('startup')
     xacro_path = os.path.join(pkg, 'urdf', 'gptpet.xacro')
 
     # allow overriding via CLI: `ros2 launch bringup.launch.py urdf_file:=...`
