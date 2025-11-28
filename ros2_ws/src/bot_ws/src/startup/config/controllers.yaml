@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 100  # Hz
+    update_rate: 2  # Hz
     
     # Declare the controllers that you want to run
     joint_state_broadcaster:
@@ -24,7 +24,7 @@ mecanum_drive_controller:
     # Command interface configuration
     cmd_vel_timeout: 0.5  # seconds
     reference_timeout: 10.0  # seconds
-    publish_rate: 50.0   # Hz
+    publish_rate: 2.0   # Hz
     
     # Time synchronization
     use_stamped_vel: true
