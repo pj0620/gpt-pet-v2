@@ -3,7 +3,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 
 
@@ -18,6 +18,19 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
 
     nodes = []
+
+    # Provide TF tree for downstream consumers
+    xacro_file = os.path.join(pkg, 'urdf', 'gptpet.xacro')
+    robot_description = {'robot_description': Command(['xacro ', xacro_file])}
+    nodes.append(
+        Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            parameters=[robot_description, {
+                'use_sim_time': use_sim_time,
+            }]
+        )
+    )
 
     ## RTAB-Map SLAM ##
     # Use rtabmap_sync to align RGB-D topics before feeding SLAM

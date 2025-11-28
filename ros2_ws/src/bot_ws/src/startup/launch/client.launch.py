@@ -12,11 +12,11 @@ def generate_launch_description():
   
   # Set QoS override file for sensor data compatibility
   pkg_path = get_package_share_directory('startup')
-  qos_override_file = os.path.join(pkg_path, 'config', 'qos_overrides.yaml')
-  qos_override = SetEnvironmentVariable(
-    'RMW_QOS_OVERRIDES_FILE',
-    qos_override_file
-  )
+  # qos_override_file = os.path.join(pkg_path, 'config', 'qos_overrides.yaml')
+  # qos_override = SetEnvironmentVariable(
+  #   'RMW_QOS_OVERRIDES_FILE',
+  #   qos_override_file
+  # )
 
   # Get URDF via xacro
   xacro_file = os.path.join(pkg_path, 'urdf', 'gptpet.xacro')
@@ -35,14 +35,6 @@ def generate_launch_description():
     remappings=[
       ('/mecanum_drive_controller/reference', '/cmd_vel'),
     ],
-  )
-  robot_state_pub_node = Node(
-    package='robot_state_publisher',
-    executable='robot_state_publisher',
-    output='screen',
-    parameters=[robot_description, {
-      'use_sim_time': False,
-    }]
   )
   joint_state_broadcaster_spawner = Node(
     package='controller_manager',
@@ -63,7 +55,6 @@ def generate_launch_description():
   )
   nodes.extend([
     control_node,
-    robot_state_pub_node,
     joint_state_broadcaster_spawner,
     delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
   ])
@@ -122,4 +113,4 @@ def generate_launch_description():
   #   )
   # )
 
-  return LaunchDescription([qos_override] + nodes)
+  return LaunchDescription(nodes)
