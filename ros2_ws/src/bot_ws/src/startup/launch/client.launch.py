@@ -72,20 +72,20 @@ def generate_launch_description():
   #   )
   # )
   
-  ## IMU ##
-  # nodes.append(
-  #   Node(
-  #     package="ros2_icm20948",
-  #     executable="icm20948_node",
-  #     name="icm20948_node",
-  #     parameters=[
-  #       {"i2c_address": 0x69},
-  #       {"frame_id": "imu_icm20948"},
-  #       {"pub_rate": 1},
-  #       {"use_sim_time": False},
-  #     ],
-  #   )
-  # )
+  # IMU ##
+  nodes.append(
+    Node(
+      package="ros2_icm20948",
+      executable="icm20948_node",
+      name="icm20948_node",
+      parameters=[
+        {"i2c_address": 0x69},
+        {"frame_id": "imu_icm20948"},
+        {"pub_rate": 1},
+        {"use_sim_time": False},
+      ],
+    )
+  )
   
   # NOTE: odom->base_link transform is now published by mecanum_drive_controller
   # via the /mecanum_drive_controller/tf_odometry -> /tf remapping
