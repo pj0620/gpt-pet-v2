@@ -83,6 +83,12 @@ install(
   FILES_MATCHING PATTERN "*.urdf"
 )
 
+install(DIRECTORY
+  urdf
+  DESTINATION share/${PROJECT_NAME}
+  OPTIONAL
+)
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
