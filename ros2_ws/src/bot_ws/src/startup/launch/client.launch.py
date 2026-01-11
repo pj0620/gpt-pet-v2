@@ -60,17 +60,17 @@ def generate_launch_description():
   ])
   
   ## KINECT ##
-  # nodes.append(
-  #   Node(
-  #     package="kinect_ros2",
-  #     executable="kinect_ros2_node",
-  #     name="kinect_ros2",
-  #     namespace="kinect",
-  #     parameters=[
-  #       {"use_sim_time": False}
-  #     ]
-  #   )
-  # )
+  nodes.append(
+    Node(
+      package="kinect_ros2",
+      executable="kinect_ros2_node",
+      name="kinect_ros2",
+      namespace="kinect",
+      parameters=[
+        {"use_sim_time": False}
+      ]
+    )
+  )
   
   # IMU ##
   nodes.append(
