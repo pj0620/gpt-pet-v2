@@ -9,6 +9,8 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(xacro REQUIRED)
 find_package(robot_state_publisher REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(ros2_control REQUIRED
   COMPONENTS
     controller_manager
@@ -24,8 +26,9 @@ find_package(ros2_control REQUIRED
 #   install/share/launch/…
 # -----------------------------------------------------------------------------
 
-# Add executable
+# Add executables
 add_executable(magnetometer_converter src/magnetometer_converter.cpp)
+add_executable(imu_fusion src/imu_fusion.cpp)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 ament_target_dependencies(magnetometer_converter 
@@ -34,10 +37,15 @@ ament_target_dependencies(magnetometer_converter
   tf2 
   tf2_geometry_msgs
 )
+ament_target_dependencies(imu_fusion
+  rclcpp
+  sensor_msgs
+)
 
-# Install executable
+# Install executables
 install(TARGETS
   magnetometer_converter
+  imu_fusion
   DESTINATION lib/${PROJECT_NAME}
 )
 

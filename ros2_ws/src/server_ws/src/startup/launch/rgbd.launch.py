@@ -32,17 +32,17 @@ def generate_launch_description():
     nodes = []
 
     # Provide TF tree for downstream consumers
-    xacro_file = os.path.join(pkg, 'urdf', 'gptpet.xacro')
-    robot_description = {'robot_description': Command(['xacro ', xacro_file])}
-    nodes.append(
-        Node(
-            package='robot_state_publisher',
-            executable='robot_state_publisher',
-            parameters=[robot_description, {
-                'use_sim_time': use_sim_time,
-            }]
-        )
-    )
+    # xacro_file = os.path.join(pkg, 'urdf', 'gptpet.xacro')
+    # robot_description = {'robot_description': Command(['xacro ', xacro_file])}
+    # nodes.append(
+    #     Node(
+    #         package='robot_state_publisher',
+    #         executable='robot_state_publisher',
+    #         parameters=[robot_description, {
+    #             'use_sim_time': use_sim_time,
+    #         }]
+    #     )
+    # )
 
     # Use rtabmap_sync to align RGB-D topics before feeding SLAM
     nodes.append(
@@ -87,7 +87,8 @@ def generate_launch_description():
                 'qos': 1,
             }],
             remappings=[
-                ('imu', '/imu/mag_orientation'),
+                ('imu', '/imu/combined'),
+                # ('imu', '/imu/mag_raw'),
                 ('rgbd_image', '/rtab_sync/rgbd_image'),
                 ('odom', '/rtabmap_odom/odom'),
             ],
@@ -131,8 +132,21 @@ def generate_launch_description():
         )
     )
 
-    # ## SENSOR FUSION - ROBOT LOCALIZATION ##
-    # # Fuse wheel odometry (x,y position) with IMU (orientation)
+    # IMU fusion: combine orientation from /imu/mag_orientation with
+    # angular velocity and linear acceleration from /imu/data_raw
+    nodes.append(
+        Node(
+            package="startup",
+            executable="imu_fusion",
+            name="imu_fusion",
+            parameters=[
+                {"use_sim_time": False},
+            ],
+        )
+    )
+
+    ## SENSOR FUSION - ROBOT LOCALIZATION ##
+    # Fuse wheel odometry (x,y position) with IMU (orientation)
     # nodes.append(
     #     Node(
     #         package='robot_localization',
