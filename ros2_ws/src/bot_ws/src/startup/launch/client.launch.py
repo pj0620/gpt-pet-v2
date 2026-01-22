@@ -87,6 +87,25 @@ def generate_launch_description():
     )
   )
   
+  # LIDAR (RPLIDAR A1) ##
+  nodes.append(
+    Node(
+      package="rplidar_ros",
+      executable="rplidar_node",
+      name="rplidar_node",
+      parameters=[
+        {"channel_type": "serial"},
+        {"serial_port": "/dev/ttyUSB0"},
+        {"serial_baudrate": 115200},
+        {"frame_id": "laser"},
+        {"inverted": False},
+        {"angle_compensate": True},
+        {"scan_mode": "Sensitivity"},
+      ],
+      output="screen",
+    )
+  )
+  
   # NOTE: odom->base_link transform is now published by mecanum_drive_controller
   # via the /mecanum_drive_controller/tf_odometry -> /tf remapping
   
