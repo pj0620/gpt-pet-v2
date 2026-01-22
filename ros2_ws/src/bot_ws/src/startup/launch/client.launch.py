@@ -106,8 +106,8 @@ def generate_launch_description():
     )
   )
   
-  # NOTE: odom->base_link transform is now published by mecanum_drive_controller
-  # via the /mecanum_drive_controller/tf_odometry -> /tf remapping
+  # NOTE: mecanum_drive_controller publishes wheel odometry on
+  # /mecanum_drive_controller/odometry only; odom TF is provided by EKF on server.
   
   # ## TOPIC REMAPPING ##
   # # Remap /cmd_vel to /mecanum_drive_controller/reference
