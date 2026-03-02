@@ -55,6 +55,21 @@ def generate_launch_description():
     )
 
     # ------------------------------------------------------------
+    # RELAY: forward mecanum_drive_controller odom TF to /tf
+    # The controller publishes odom→base_link on its own namespaced
+    # topic; relay it to /tf so the rest of the TF tree can see it.
+    # ------------------------------------------------------------
+    nodes.append(
+        Node(
+            package="topic_tools",
+            executable="relay",
+            name="odom_tf_relay",
+            arguments=["/mecanum_drive_controller/tf_odometry", "/tf"],
+            parameters=[{"use_sim_time": use_sim_time}],
+        )
+    )
+
+    # ------------------------------------------------------------
     # SLAM TOOLBOX (mapping)
     # odom→base_link TF now comes from mecanum_drive_controller
     # on the client via ros2_control.
