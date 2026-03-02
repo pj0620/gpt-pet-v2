@@ -81,7 +81,7 @@ def generate_launch_description():
       parameters=[
         {"i2c_address": 0x69},
         {"frame_id": "imu_icm20948"},
-        {"pub_rate": 1},
+        {"pub_rate": 50},
         {"use_sim_time": False},
       ],
     )

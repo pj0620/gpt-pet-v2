@@ -55,6 +55,7 @@ install(
   FILES_MATCHING
     PATTERN "*.yaml"
     PATTERN "*.yml"
+    PATTERN "*.lua"
 )
 
 install(

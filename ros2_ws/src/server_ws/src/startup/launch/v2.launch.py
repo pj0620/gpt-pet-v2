@@ -44,56 +44,31 @@ def generate_launch_description():
     #     )
     # )
 
-    # Use rtabmap_sync to align RGB-D topics before feeding SLAM
     nodes.append(
         Node(
-            package='rtabmap_sync',
-            executable='rgbd_sync',
-            name='rgbd_sync',
-            namespace='rtab_sync',
+            package='rtabmap_odom',
+            executable='rgbd_odometry',
+            name='rtabmap_odom',
+            namespace='rtabmap_odom',
             parameters=[{
+                'use_sim_time': use_sim_time,
+                'subscribe_rgbd': True,
                 'approx_sync': True,
-                'topic_queue_size': topic_queue_size,
-                'sync_queue_size': sync_queue_size,
-                # Kinect bridge publishes RELIABLE; match it to establish DDS links.
-                'qos': 1,  # 0=system default, 1=reliable, 2=best-effort
-                'qos_camera_info': 1,
+                'topic_queue_size': 50,
+                'frame_id': 'base_link',
+                'odom_frame_id': 'rtabmap_odom',
+                'publish_tf': True,
+                'wait_for_transform': 0.2,
+                'qos': 1,
             }],
             remappings=[
-                ('rgb/image', '/kinect/image_raw'),
-                ('rgb/camera_info', '/kinect/camera_info'),
-                ('depth/image', '/kinect/depth/image_raw'),
-                ('depth/camera_info', '/kinect/depth/camera_info'),
+                ('imu', '/imu/combined'),
+                # ('imu', '/imu/mag_raw'),
                 ('rgbd_image', '/rtab_sync/rgbd_image'),
+                ('odom', '/rtabmap_odom/odom'),
             ],
         )
     )
-
-    # nodes.append(
-    #     Node(
-    #         package='rtabmap_odom',
-    #         executable='rgbd_odometry',
-    #         name='rtabmap_odom',
-    #         namespace='rtabmap_odom',
-    #         parameters=[{
-    #             'use_sim_time': use_sim_time,
-    #             'subscribe_rgbd': True,
-    #             'approx_sync': True,
-    #             'topic_queue_size': 50,
-    #             'frame_id': 'base_link',
-    #             'odom_frame_id': 'rtabmap_odom',
-    #             'publish_tf': True,
-    #             'wait_for_transform': 0.2,
-    #             'qos': 1,
-    #         }],
-    #         remappings=[
-    #             ('imu', '/imu/combined'),
-    #             # ('imu', '/imu/mag_raw'),
-    #             ('rgbd_image', '/rtab_sync/rgbd_image'),
-    #             ('odom', '/rtabmap_odom/odom'),
-    #         ],
-    #     )
-    # )
 
     slam_toolbox_node = Node(
         package='slam_toolbox',
@@ -339,7 +314,8 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             name='odom_laser_transform_publisher',
-            arguments=['0', '0', '0.2', '3.14', '0',
+            # arguments=['0', '0', '0.2', '3.14', '0',
+            arguments=['0', '0', '0.2', '0', '0',
                        '0', 'odom', 'laser'],
             parameters=[{'use_sim_time': False}]
         )

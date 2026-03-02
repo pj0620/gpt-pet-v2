@@ -1,3 +1,3 @@
 #!/bin/bash
 
-fping pj-ubuntu.local gptpetclient2.local
+fping pj-ubuntu.local gptpetclient2.local gptpetclient.local
