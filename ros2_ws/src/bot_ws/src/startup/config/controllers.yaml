@@ -34,8 +34,8 @@ mecanum_drive_controller:
     position_feedback: true
     odom_frame_id: "odom"
     base_frame_id: "base_link"
-    enable_odom_tf: false
-    publish_odom_tf: false  # Disabled; EKF will own odom TF
+    enable_odom_tf: true
+    publish_odom_tf: true  # Wheel odom publishes odom→base_link TF
     
     kinematics:
       base_frame_offset: { x: 0.0, y: 0.0, theta: 0.0 }

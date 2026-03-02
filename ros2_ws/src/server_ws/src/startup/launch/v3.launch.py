@@ -64,6 +64,7 @@ def generate_launch_description():
             namespace='rtab_sync',
             parameters=[{
                 'approx_sync': True,
+                'approx_sync_max_interval': 0.2,  # reject pairs >200ms apart
                 'topic_queue_size': topic_queue_size,
                 'sync_queue_size': sync_queue_size,
                 # Kinect bridge publishes RELIABLE; match it to establish DDS links.
@@ -109,7 +110,14 @@ def generate_launch_description():
 
                     # TF
                     "publish_tf": True,
-                    "wait_for_transform": 0.2,
+                    "wait_for_transform": 1.0,  # generous for cross-machine TF
+
+                    # Visual odometry robustness
+                    "Vis/FeatureType": "6",     # GFTT/BRIEF – fast & robust
+                    "Vis/MaxFeatures": "1000",
+                    "Vis/MinInliers": "5",      # lower threshold to accept more frames
+                    "Odom/ResetCountdown": "2", # auto-reset after 2 consecutive lost frames
+                    "Odom/GuessSmoothingDelay": "0.5",
 
                     # QoS / misc
                     "qos": 1,
