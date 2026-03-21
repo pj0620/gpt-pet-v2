@@ -49,6 +49,13 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+# Install Python scripts as executables
+install(PROGRAMS
+  scripts/tf_relay.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME tf_relay
+)
+
 install(
   DIRECTORY config/
   DESTINATION share/${PROJECT_NAME}/config

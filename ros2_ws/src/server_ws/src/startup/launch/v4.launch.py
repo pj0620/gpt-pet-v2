@@ -61,11 +61,13 @@ def generate_launch_description():
     # ------------------------------------------------------------
     nodes.append(
         Node(
-            package="topic_tools",
-            executable="relay",
+            package="startup",
+            executable="tf_relay",
             name="odom_tf_relay",
-            arguments=["/mecanum_drive_controller/tf_odometry", "/tf"],
-            parameters=[{"use_sim_time": use_sim_time}],
+            parameters=[
+                {"source_topic": "/mecanum_drive_controller/tf_odometry"},
+                {"use_sim_time": use_sim_time},
+            ],
         )
     )
 
@@ -96,7 +98,7 @@ def generate_launch_description():
 
                 "transform_publish_period": 0.05,
                 "transform_timeout": 2.0,
-                "minimum_travel_distance": 0.1,
+                "minimum_travel_distance": 0.05,
             },
         ],
     )
@@ -112,7 +114,6 @@ def generate_launch_description():
                         "ros2", "service", "call",
                         "/slam_toolbox/reset",
                         "slam_toolbox/srv/Reset",
-                        "{}",
                     ],
                     output="screen",
                 )

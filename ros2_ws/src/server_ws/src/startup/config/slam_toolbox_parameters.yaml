@@ -27,8 +27,8 @@ slam_toolbox:
     covariance_scale: 0.001
     predict_duration: 0.05
     throttle_scans: 1
-    minimum_travel_distance: 0.2
-    minimum_travel_heading: 0.1745
+    minimum_travel_distance: 0.05
+    minimum_travel_heading: 0.05
     loop_search_maximum_distance: 3.0
     loop_search_maximum_angle: 0.785
     loop_match_search_radius: 0.5
