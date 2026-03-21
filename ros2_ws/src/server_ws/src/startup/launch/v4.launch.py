@@ -1,12 +1,9 @@
 """
-v4 launch – wheel-odometry variant
-====================================
-Same as v3 but uses the odom→base_link TF published by the
-mecanum_drive_controller on the client (ros2_control) instead of
-RTAB-Map RGB-D visual odometry.
-
-Removed: rgbd_odometry, rgbd_sync (not needed without visual odom)
-Kept:    IMU pipeline, slam_toolbox, static TFs
+v4 launch – wheel-odometry + EKF variant
+=========================================
+Odometry: mecanum_drive_controller wheel encoders + IMU fused by robot_localization EKF.
+SLAM:     slam_toolbox (async mapping) using fused odometry.
+Starts a fresh map on every launch — no state is loaded or saved.
 """
 
 import math
@@ -14,7 +11,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, TimerAction, ExecuteProcess
+from launch.actions import DeclareLaunchArgument, ExecuteProcess
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -32,6 +29,16 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration("use_sim_time")
 
     nodes = []
+
+    # ------------------------------------------------------------
+    # Clear any stale slam_toolbox map state from previous runs
+    # ------------------------------------------------------------
+    nodes.append(
+        ExecuteProcess(
+            cmd=["bash", "-c", "rm -f ~/.ros/*.posegraph ~/.ros/*.data /tmp/*.posegraph /tmp/*.data"],
+            output="screen",
+        )
+    )
 
     # ------------------------------------------------------------
     # IMU pipeline
@@ -55,17 +62,18 @@ def generate_launch_description():
     )
 
     # ------------------------------------------------------------
-    # RELAY: forward mecanum_drive_controller odom TF to /tf
-    # The controller publishes odom→base_link on its own namespaced
-    # topic; relay it to /tf so the rest of the TF tree can see it.
+    # EKF: fuse wheel odometry (velocities) + IMU (yaw + accel)
+    # Publishes fused /odometry/filtered and odom→base_link TF.
+    # Replaces the raw tf_relay — EKF gives SLAM much better odometry.
     # ------------------------------------------------------------
     nodes.append(
         Node(
-            package="startup",
-            executable="tf_relay",
-            name="odom_tf_relay",
+            package="robot_localization",
+            executable="ekf_node",
+            name="ekf_filter_node",
+            output="screen",
             parameters=[
-                {"source_topic": "/mecanum_drive_controller/tf_odometry"},
+                os.path.join(pkg, "config", "ekf.yaml"),
                 {"use_sim_time": use_sim_time},
             ],
         )
@@ -103,23 +111,6 @@ def generate_launch_description():
         ],
     )
     nodes.append(slam_toolbox_node)
-
-    # Reset slam_toolbox on launch
-    nodes.append(
-        TimerAction(
-            period=3.0,
-            actions=[
-                ExecuteProcess(
-                    cmd=[
-                        "ros2", "service", "call",
-                        "/slam_toolbox/reset",
-                        "slam_toolbox/srv/Reset",
-                    ],
-                    output="screen",
-                )
-            ],
-        )
-    )
 
     # ------------------------------------------------------------
     # STATIC TFs
