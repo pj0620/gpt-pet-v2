@@ -14,3 +14,6 @@
     path = ros2_ws/src/bot_ws/src/rplidar_ros
     url = https://github.com/Slamtec/rplidar_ros.git
     branch = ros2
+[submodule "ros2_ws/src/server_ws/src/ros2/common_interfaces"]
+	path = ros2_ws/src/server_ws/src/ros2/common_interfaces
+	url = https://github.com/ros2/common_interfaces.git
