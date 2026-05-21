@@ -1,41 +1,80 @@
-import launch_ros
-import launch
-import launch_ros.actions
+from launch import LaunchDescription
+from launch.actions import RegisterEventHandler, SetEnvironmentVariable
+from launch.event_handlers import OnProcessExit
+from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+import os
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
-  actions = []
+  nodes = []
+  
+  # Set QoS override file for sensor data compatibility
+  pkg_path = get_package_share_directory('startup')
+  # qos_override_file = os.path.join(pkg_path, 'config', 'qos_overrides.yaml')
+  # qos_override = SetEnvironmentVariable(
+  #   'RMW_QOS_OVERRIDES_FILE',
+  #   qos_override_file
+  # )
 
-  # Launch the kinect node in its own process with a unique node name.
-  actions.append(
-    launch_ros.actions.Node(
+  # Get URDF via xacro
+  xacro_file = os.path.join(pkg_path, 'urdf', 'gptpet.xacro')
+  robot_description_content = Command(['xacro ', xacro_file])
+  
+  ## ROS CONTROL ##
+  robot_description = {'robot_description': robot_description_content}
+  robot_controllers = os.path.join(pkg_path, 'config', 'controllers.yaml')
+  control_node = Node(
+    package='controller_manager',
+    executable='ros2_control_node',
+    parameters=[robot_description, robot_controllers, {
+      'use_sim_time': False,
+    }],
+    output='both',
+    remappings=[
+      ('/mecanum_drive_controller/reference', '/cmd_vel'),
+    ],
+  )
+  joint_state_broadcaster_spawner = Node(
+    package='controller_manager',
+    executable='spawner',
+    arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+  )
+  robot_controller_spawner = Node(
+    package='controller_manager',
+    executable='spawner',
+    arguments=['mecanum_drive_controller', '--controller-manager', '/controller_manager'],
+  )
+  # Delay start of robot_controller after joint_state_broadcaster
+  delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = RegisterEventHandler(
+    event_handler=OnProcessExit(
+      target_action=joint_state_broadcaster_spawner,
+      on_exit=[robot_controller_spawner],
+    )
+  )
+  nodes.extend([
+    control_node,
+    joint_state_broadcaster_spawner,
+    delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
+  ])
+  
+  ## KINECT ##
+  nodes.append(
+    Node(
       package="kinect_ros2",
       executable="kinect_ros2_node",
       name="kinect_ros2",
-      namespace="kinect"
-    )
-  )
-
-  # Launch motor control service node.
-  actions.append(
-    launch_ros.actions.Node(
-      package="motors",
-      executable="motor_control",
-      name="motor_control_service",
-      parameters=[{"serial_ports": ["/dev/ttyACM0", "/dev/ttyACM1"]}]
+      namespace="kinect",
+      parameters=[
+        {"use_sim_time": False}
+      ]
     )
   )
   
-  actions.append(
-     launch_ros.actions.Node(
-        package='motors',
-        executable='motor_control',
-        name='motor_speeds',
-        parameters=[{"serial_ports": ["/dev/ttyACM0", "/dev/ttyACM1"]}]
-      )
-  )
-  
-  actions.append(
-    launch_ros.actions.Node(
+  # IMU ##
+  nodes.append(
+    Node(
       package="ros2_icm20948",
       executable="icm20948_node",
       name="icm20948_node",
@@ -43,8 +82,54 @@ def generate_launch_description():
         {"i2c_address": 0x69},
         {"frame_id": "imu_icm20948"},
         {"pub_rate": 50},
+        {"use_sim_time": False},
       ],
     )
   )
+  
+  # LIDAR (RPLIDAR A1) ##
+  nodes.append(
+    Node(
+      package="rplidar_ros",
+      executable="rplidar_node",
+      name="rplidar_node",
+      parameters=[
+        {"channel_type": "serial"},
+        {"serial_port": "/dev/ttyUSB0"},
+        {"serial_baudrate": 115200},
+        {"frame_id": "laser"},
+        {"inverted": False},
+        {"angle_compensate": True},
+        {"scan_mode": "Sensitivity"},
+      ],
+      output="screen",
+    )
+  )
+  
+  # NOTE: mecanum_drive_controller publishes wheel odometry on
+  # /mecanum_drive_controller/odometry only; odom TF is provided by EKF on server.
+  
+  # ## TOPIC REMAPPING ##
+  # # Remap /cmd_vel to /mecanum_drive_controller/reference
+  # nodes.append(
+  #   Node(
+  #     package="topic_tools",
+  #     executable="relay",
+  #     name="cmd_vel_relay",
+  #     arguments=["/cmd_vel", "/mecanum_drive_controller/reference"],
+  #     parameters=[{"lazy": False}]
+  #   )
+  # )
+  
+  # # Remap /mecanum_drive_controller/odometry to /odom  
+  # nodes.append(
+  #   Node(
+  #     package="topic_tools",
+  #     executable="relay",
+  #     name="odom_relay", 
+  #     arguments=["/mecanum_drive_controller/odometry", "/odom"],
+  #     parameters=[{"lazy": False}]
+  #   )
+  # )
 
-  return launch.LaunchDescription(actions)
+  return LaunchDescription(nodes)

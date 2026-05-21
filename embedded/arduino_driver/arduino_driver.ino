@@ -28,6 +28,9 @@
 #define SPEED_PUBLISH_INTERVAL 100
 #define MAX_SPEED 2
 
+const bool sendMotorSpeedMsgs = false;
+const bool plotMotorSigals = true;
+
 // L1+, L1-, L2+, L2-, R1+, R1-, R2+, R2-
 const int motorPins[] = {15, 16, 17, 18, 4, 5, 6, 7};
 
@@ -85,6 +88,9 @@ void updateSpeedMeasurements() {
     int encPin = encPins[i];
     int sensorValue = analogRead(encPin);
 
+    Serial.print(sensorValue);
+    Serial.print(",");
+
     // update slidding windoes for rising edge detection
     envPosVals[i] += sensorValue;
     int lastEnvPosVal = envPosWindow[i][envWindowIdx];
@@ -119,6 +125,7 @@ void updateSpeedMeasurements() {
       measuredSpeeds[i] = 0;
     }
   }
+  Serial.println("");
   envWindowIdx = (envWindowIdx + 1) % ENC_WINDOW_SIZE;
 }
 
@@ -250,6 +257,7 @@ void loop() {
   handleCommand();
   updateSpeedMeasurements();
   handlePidControl();
-  writeSpeeds();
+  if (sendMotorSpeedMsgs)
+    writeSpeeds();
   delay(1);
 }

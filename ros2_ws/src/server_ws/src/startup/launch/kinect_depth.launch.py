@@ -23,30 +23,30 @@ def generate_launch_description():
       }]
     )
 
-    tf_static_publisher = Node(
-      package='tf2_ros',
-      executable='static_transform_publisher',
-      name='static_tf_pub',
-      arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'camera_depth_frame']
-    )
+    # tf_static_publisher = Node(
+    #   package='tf2_ros',
+    #   executable='static_transform_publisher',
+    #   name='static_tf_pub',
+    #   arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'camera_depth_frame']
+    # )
     
     # Run SLAM to create /odom -> base_link dynamically
-    slam_toolbox = Node(
-      package='slam_toolbox',
-      executable='async_slam_toolbox_node',
-      name='slam_toolbox',
-      output='screen',
-      parameters=[{
-          'use_sim_time': False,
-          'odom_frame': 'odom',  # SLAM needs this frame
-          'base_frame': 'base_link',  # Robot's main frame
-          'map_frame': 'map',
-          'scan_topic': '/scan',
-          'mode': 'mapping',
-          'transform_publish_period': 0.05,  # Ensure transforms are published regularly
-          'transform_timeout': 0.5  # Reduce timeout issues
-      }]
-    )
+    # slam_toolbox = Node(
+    #   package='slam_toolbox',
+    #   executable='async_slam_toolbox_node',
+    #   name='slam_toolbox',
+    #   output='screen',
+    #   parameters=[{
+    #       'use_sim_time': False,
+    #       'odom_frame': 'odom',  # SLAM needs this frame
+    #       'base_frame': 'base_link',  # Robot's main frame
+    #       'map_frame': 'map',
+    #       'scan_topic': '/scan',
+    #       'mode': 'mapping',
+    #       'transform_publish_period': 0.05,  # Ensure transforms are published regularly
+    #       'transform_timeout': 0.5  # Reduce timeout issues
+    #   }]
+    # )
     
     # navigation_launch = IncludeLaunchDescription(
     #   launch_description_source=PythonLaunchDescriptionSource(
@@ -62,7 +62,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         depth_to_scan_node,
-        tf_static_publisher,
-        slam_toolbox,
+        # tf_static_publisher,
+        # slam_toolbox,
         # navigation_launch
     ])
