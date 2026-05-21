@@ -106,7 +106,7 @@ def generate_launch_description():
 
                 "transform_publish_period": 0.05,
                 "transform_timeout": 2.0,
-                "minimum_travel_distance": 0.05,
+                "minimum_travel_distance": 0.02,
             },
         ],
     )

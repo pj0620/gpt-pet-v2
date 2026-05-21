@@ -10,8 +10,8 @@ slam_toolbox:
     use_sim_time: false
     provide_odom_frame: false
     publish_tf: true
-    map_update_interval: 1.0
-    map_publish_period: 1.0
+    map_update_interval: 0.3
+    map_publish_period: 0.3
     use_scan_matching: true
     min_laser_range: 0.15
     max_laser_range: 5.0
@@ -22,13 +22,13 @@ slam_toolbox:
     map_save_interval: 0.0
     resolution: 0.05
     chunk_processing_retries: 10
-    use_pose_correction: false
+    use_pose_correction: true
     scan_queue_size: 10
     covariance_scale: 0.001
     predict_duration: 0.05
     throttle_scans: 1
-    minimum_travel_distance: 0.05
-    minimum_travel_heading: 0.05
+    minimum_travel_distance: 0.02
+    minimum_travel_heading: 0.02
     loop_search_maximum_distance: 3.0
     loop_search_maximum_angle: 0.785
     loop_match_search_radius: 0.5
@@ -36,5 +36,5 @@ slam_toolbox:
     loop_match_minimum_chain_size: 10
     loop_match_maximum_chain_gap: 5
     loop_match_maximum_variance: 2.0
-    loop_match_minimum_response_coarse: 0.35
-    loop_match_minimum_response_fine: 0.45
+    loop_match_minimum_response_coarse: 0.25
+    loop_match_minimum_response_fine: 0.40
