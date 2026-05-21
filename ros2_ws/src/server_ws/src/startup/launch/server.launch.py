@@ -1,8 +1,10 @@
 """
-v4 launch – wheel-odometry + EKF variant
-=========================================
-Odometry: mecanum_drive_controller wheel encoders + IMU fused by robot_localization EKF.
-SLAM:     slam_toolbox (async mapping) using fused odometry.
+server launch — EKF + SLAM + Nav2
+===================================
+Odometry:  mecanum_drive_controller wheel encoders + IMU fused by robot_localization EKF.
+SLAM:      slam_toolbox (async mapping) provides /map and map→odom TF.
+Nav2:      MPPI controller (holonomic/Omni), NavFn planner, lifecycle-managed.
+           Send goals via RViz "Nav2 Goal" button or NavigateToPose action.
 Starts a fresh map on every launch — no state is loaded or saved.
 """
 
@@ -12,6 +14,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -160,6 +163,58 @@ def generate_launch_description():
         )
     )
 
+    # ------------------------------------------------------------
+    # Nav2 — autonomous point-to-point navigation
+    # Goals can be sent via RViz "Nav2 Goal" or NavigateToPose action.
+    # SLAM toolbox provides /map and map→odom TF; EKF provides odom→base_link.
+    # ------------------------------------------------------------
+    use_nav2_arg = DeclareLaunchArgument(
+        "use_nav2",
+        default_value="True",
+        description="Launch Nav2 navigation stack.",
+    )
+    use_nav2 = LaunchConfiguration("use_nav2")
+
+    nav2_params = os.path.join(pkg, "config", "nav2_params.yaml")
+
+    for name, package, executable in [
+        ("controller_server", "nav2_controller", "controller_server"),
+        ("planner_server",    "nav2_planner",    "planner_server"),
+        ("behavior_server",   "nav2_behaviors",  "behavior_server"),
+        ("bt_navigator",      "nav2_bt_navigator", "bt_navigator"),
+    ]:
+        nodes.append(
+            Node(
+                package=package,
+                executable=executable,
+                name=name,
+                output="screen",
+                parameters=[nav2_params, {"use_sim_time": use_sim_time}],
+                condition=IfCondition(use_nav2),
+            )
+        )
+
+    nodes.append(
+        Node(
+            package="nav2_lifecycle_manager",
+            executable="lifecycle_manager",
+            name="lifecycle_manager_navigation",
+            output="screen",
+            parameters=[
+                {"use_sim_time": use_sim_time},
+                {"autostart": True},
+                {"bond_timeout": 4.0},
+                {"node_names": [
+                    "controller_server",
+                    "planner_server",
+                    "behavior_server",
+                    "bt_navigator",
+                ]},
+            ],
+            condition=IfCondition(use_nav2),
+        )
+    )
+
     return LaunchDescription(
         [
             DeclareLaunchArgument(
@@ -168,6 +223,7 @@ def generate_launch_description():
                 description="Logging level for SLAM Toolbox",
             ),
             use_sim_time_arg,
+            use_nav2_arg,
             *nodes,
         ]
     )

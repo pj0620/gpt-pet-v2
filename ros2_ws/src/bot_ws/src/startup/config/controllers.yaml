@@ -27,7 +27,7 @@ mecanum_drive_controller:
     publish_rate: 50.0   # Hz
     
     # Time synchronization
-    use_stamped_vel: true
+    use_stamped_vel: false  # Nav2 Humble publishes geometry_msgs/Twist, not TwistStamped
     velocity_rolling_window_size: 10
     
     # Odometry settings - try different parameter names
