@@ -1,13 +1,41 @@
 This repo contains two ROS2 Humble workspaces: one for the server and one for the robot.
 
+**Both workspaces must be running simultaneously.** Use Foxglove to debug the robot.
+
 ## Shell Setup
 
-Always keep **three shells open**:
+Always keep **two shells open**:
 
 | Shell | Location | How to open |
 |-------|----------|-------------|
 | **Server shell** | This machine (VS Code terminal) | Already open |
 | **Robot shell** | Jetson Nano on the robot | `./bin/ssh/gptpetclient.sh` (user: `gptpetclient`, password: `gptpetclient`) |
+
+## Launching the Full System
+
+### 1. Start server nodes (server shell)
+
+```bash
+cd ~/gpt-pet-v2/ros2_ws/src/server_ws
+colcon build
+. ./install/setup.bash
+ros2 launch startup server.launch.py
+```
+
+### 2. Start robot nodes (robot shell)
+
+```bash
+# SSH into the robot first
+./bin/ssh/gptpetclient.sh
+
+# Then on the robot:
+cd ~/gpt-pet-v2/ros2_ws/src/bot_ws
+colcon build
+. ./install/setup.bash
+ros2 launch startup client.launch.py
+```
+
+Both launches must be running before using Foxglove to debug.
 
 ## Server Workspace
 
@@ -20,10 +48,11 @@ Runs on the server. Handles compute-intensive tasks (SLAM, etc.). Launch files a
 Run these commands in the **server shell**:
 
 ```bash
-# 1. Edit files in ros2_ws/src/server_ws
+cd ~/gpt-pet-v2/ros2_ws/src/server_ws
+# 1. Edit files
 colcon build
 . ./install/setup.bash
-# 2. Launch or test
+ros2 launch startup server.launch.py
 ```
 
 ## Bot Workspace
@@ -42,12 +71,12 @@ Changes are deployed to the robot via **git** — edit locally, commit and push,
 git add --all && git commit -m "<message>" && git push
 ```
 
-**Robot shell** (pull and build):
+**Robot shell** (pull, build, and launch):
 ```bash
-cd /home/gptpetclient/gpt-pet-v2/ros2_ws/src/bot_ws
+cd ~/gpt-pet-v2/ros2_ws/src/bot_ws
 git pull
 colcon build && . ./install/setup.bash
-# Launch or test
+ros2 launch startup client.launch.py
 ```
 
 ## About the Robot

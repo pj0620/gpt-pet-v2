@@ -23,13 +23,12 @@ ekf_filter_node:
     odom0_queue_size: 10
     odom0_rejection_threshold: 5.0
 
-    # IMU: gyro yaw-rate only — magnetometer disabled (motor interference corrupts absolute yaw)
-    # Wheel odom vyaw anchors heading when stationary, gyro smooths it during turns.
+    # IMU disabled — gyro bias causes map rotation at rest (wheel odom vyaw is sufficient)
     imu0: /imu/combined
     imu0_config: [false, false, false,
                   false, false, false,
                   false, false, false,
-                  false, false, true,
+                  false, false, false,
                   false, false, false]
     imu0_differential: false
     imu0_relative: false

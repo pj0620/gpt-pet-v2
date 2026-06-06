@@ -33,7 +33,7 @@ def generate_launch_description():
     }],
     output='both',
     remappings=[
-      ('/mecanum_drive_controller/reference', '/cmd_vel'),
+      ('/mecanum_drive_controller/reference_unstamped', '/cmd_vel'),
     ],
   )
   joint_state_broadcaster_spawner = Node(

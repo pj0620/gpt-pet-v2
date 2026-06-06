@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(scp /home/pj/gpt-pet-v2/ros2_ws/src/bot_ws/src/ros2_icm20948/ros2_icm20948/icm20948_node.py gptpetclient@gptpetclient.local:/home/gptpetclient/gpt-pet-v2/ros2_ws/src/bot_ws/src/ros2_icm20948/ros2_icm20948/icm20948_node.py)"
+      "Bash(scp /home/pj/gpt-pet-v2/ros2_ws/src/bot_ws/src/ros2_icm20948/ros2_icm20948/icm20948_node.py gptpetclient@gptpetclient.local:/home/gptpetclient/gpt-pet-v2/ros2_ws/src/bot_ws/src/ros2_icm20948/ros2_icm20948/icm20948_node.py)",
+      "Bash(ros2 node *)"
     ]
   }
 }
