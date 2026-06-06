@@ -6,6 +6,7 @@ bt_navigator:
     odom_topic: /odometry/filtered
     bt_loop_duration: 10
     default_server_timeout: 20
+    transform_tolerance: 1.0
     navigators: ['navigate_to_pose', 'navigate_through_poses']
     navigate_to_pose:
       plugin: "nav2_bt_navigator/NavigateToPoseNavigator"
@@ -157,6 +158,7 @@ planner_server:
   ros__parameters:
     use_sim_time: False
     expected_planner_frequency: 20.0
+    transform_tolerance: 1.0
     planner_plugins: ["GridBased"]
     GridBased:
       plugin: "nav2_navfn_planner/NavfnPlanner"
@@ -265,7 +267,7 @@ lifecycle_manager_navigation:
   ros__parameters:
     use_sim_time: False
     autostart: True
-    bond_timeout: 4.0
+    bond_timeout: 30.0
     attempt_reconnect_limit: 3
     node_names:
       - controller_server

@@ -222,7 +222,7 @@ def generate_launch_description():
             parameters=[
                 {"use_sim_time": use_sim_time},
                 {"autostart": True},
-                {"bond_timeout": 4.0},
+                {"bond_timeout": 30.0},
                 {"node_names": [
                     "controller_server",
                     "planner_server",

@@ -73,7 +73,7 @@ def main():
     qx, qy, qz_g, qw_g = quaternion_from_yaw(goal_yaw)
 
     msg = PoseStamped()
-    msg.header.stamp = node.get_clock().now().to_msg()
+    msg.header.stamp = rclpy.time.Time().to_msg()  # time=0 → use latest TF
     msg.header.frame_id = "map"
     msg.pose.position.x = goal_x
     msg.pose.position.y = goal_y
@@ -83,10 +83,8 @@ def main():
     msg.pose.orientation.z = qz_g
     msg.pose.orientation.w = qw_g
 
-    # Publish a few times to make sure bt_navigator receives it
-    for _ in range(3):
-        pub.publish(msg)
-        rclpy.spin_once(node, timeout_sec=0.05)
+    pub.publish(msg)
+    rclpy.spin_once(node, timeout_sec=0.1)
 
     node.get_logger().info(
         f"Goal sent: ({goal_x:.2f}, {goal_y:.2f}) yaw={math.degrees(goal_yaw):.1f}°  "
