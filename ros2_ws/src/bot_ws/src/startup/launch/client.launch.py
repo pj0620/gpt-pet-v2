@@ -44,8 +44,9 @@ def generate_launch_description():
 
   # Custom spawner with 120s per-call timeout — the standard ros2_control
   # spawner hardcodes 10s which is too short for DDS on the non-RT Jetson Nano.
-  # joint_state_broadcaster must be active before mecanum_drive_controller,
-  # so spawn them sequentially: first at 15s, second at 90s after launch.
+  # joint_state_broadcaster must be active before mecanum_drive_controller.
+  # JSB spawned at 15s; mecanum at 30s (gives JSB ~15s to complete its 3 calls).
+  # Server Nav2 is delayed 45s so mecanum is active before Nav2 starts.
   spawn_joint_state = TimerAction(
     period=15.0,
     actions=[ExecuteProcess(
@@ -54,7 +55,7 @@ def generate_launch_description():
     )],
   )
   spawn_mecanum = TimerAction(
-    period=90.0,
+    period=30.0,
     actions=[ExecuteProcess(
       cmd=['python3', spawner_script, 'mecanum_drive_controller'],
       output='screen',
