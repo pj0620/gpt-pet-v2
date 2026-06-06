@@ -34,18 +34,59 @@ def generate_launch_description():
     nodes = []
 
     # ------------------------------------------------------------
-    # Clear stale slam_toolbox map state and reset controller odometry
-    # so odom frame always starts at (0,0) on each server launch.
-    # The mecanum_drive_controller accumulates odometry across sessions;
-    # without this reset the EKF and controller TF sources conflict.
+    # On every server launch:
+    #   1. Delete stale slam_toolbox posegraph so mapping starts fresh.
+    #   2. Reset the robot's wheel-odometry accumulation so the controller
+    #      and EKF agree on (0,0,0) as the starting odom position.
+    #   3. Explicitly set the EKF's internal state to the map/odom origin
+    #      so odom→base_link is identity regardless of any residual data.
     # ------------------------------------------------------------
     nodes.append(
         ExecuteProcess(
             cmd=["bash", "-c",
-                 "rm -f ~/.ros/*.posegraph ~/.ros/*.data /tmp/*.posegraph /tmp/*.data && "
+                 "rm -f ~/.ros/*.posegraph ~/.ros/*.data /tmp/*.posegraph /tmp/*.data"],
+            output="screen",
+        )
+    )
+
+    # Reset wheel odometry on the robot (silently skipped if service absent).
+    nodes.append(
+        ExecuteProcess(
+            cmd=["bash", "-c",
                  "sleep 3 && "
                  "ros2 service call /mecanum_drive_controller/reset_odometry "
                  "std_srvs/srv/Empty '{}' 2>/dev/null || true"],
+            output="screen",
+        )
+    )
+
+    # Explicitly zero the EKF pose so odom→base_link starts at identity.
+    # Runs 6 s after launch to give the EKF time to start up.
+    nodes.append(
+        ExecuteProcess(
+            cmd=["bash", "-c",
+                 "sleep 6 && "
+                 "ros2 service call /ekf_filter_node/set_pose "
+                 "robot_localization/srv/SetPose "
+                 "\"{"
+                 "pose: {"
+                 "header: {frame_id: 'odom'}, "
+                 "pose: {"
+                 "pose: {"
+                 "position: {x: 0.0, y: 0.0, z: 0.0}, "
+                 "orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}"
+                 "}, "
+                 "covariance: ["
+                 "0.1,0,0,0,0,0,"
+                 "0,0.1,0,0,0,0,"
+                 "0,0,0,0,0,0,"
+                 "0,0,0,0,0,0,"
+                 "0,0,0,0,0,0,"
+                 "0,0,0,0,0,0.1"
+                 "]"
+                 "}"
+                 "}"
+                 "}\" 2>/dev/null || true"],
             output="screen",
         )
     )
