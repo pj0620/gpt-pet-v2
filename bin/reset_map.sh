@@ -26,8 +26,6 @@ ros2 run slam_toolbox async_slam_toolbox_node \
   -p map_frame:=map \
   -p scan_topic:=/scan \
   -p mode:=mapping \
-  -p load_state_filename:="" \
-  -p save_state_filename:="" \
   -p use_map_saver:=false \
   -p transform_publish_period:=0.05 \
   -p transform_timeout:=2.0 \
