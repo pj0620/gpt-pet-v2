@@ -1,17 +1,20 @@
 from launch import LaunchDescription
 from launch.actions import RegisterEventHandler, SetEnvironmentVariable, TimerAction
 from launch.event_handlers import OnProcessExit
-from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
+from launch.substitutions import Command
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
 import os
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
   nodes = []
-  
-  # Set QoS override file for sensor data compatibility
+
   pkg_path = get_package_share_directory('startup')
+
+  # Increase CycloneDDS MaxBlockedTime so service responses from the
+  # controller_manager aren't dropped when the 50 Hz control loop is busy.
+  cyclone_cfg = os.path.join(pkg_path, 'config', 'cyclonedds.xml')
+  nodes.append(SetEnvironmentVariable('CYCLONEDDS_URI', cyclone_cfg))
   # qos_override_file = os.path.join(pkg_path, 'config', 'qos_overrides.yaml')
   # qos_override = SetEnvironmentVariable(
   #   'RMW_QOS_OVERRIDES_FILE',
