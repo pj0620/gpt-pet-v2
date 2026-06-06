@@ -1,10 +1,9 @@
 from launch import LaunchDescription
-from launch.actions import RegisterEventHandler, SetEnvironmentVariable, TimerAction
-from launch.event_handlers import OnProcessExit
+from launch.actions import ExecuteProcess, SetEnvironmentVariable, TimerAction
 from launch.substitutions import Command
 from launch_ros.actions import Node
 import os
-from ament_index_python.packages import get_package_share_directory
+from ament_index_python.packages import get_package_prefix, get_package_share_directory
 
 def generate_launch_description():
   nodes = []
@@ -39,42 +38,32 @@ def generate_launch_description():
       ('/mecanum_drive_controller/reference_unstamped', '/cmd_vel'),
     ],
   )
-  joint_state_broadcaster_spawner = Node(
-    package='controller_manager',
-    executable='spawner',
-    arguments=[
-      'joint_state_broadcaster',
-      '--controller-manager', '/controller_manager',
-      '--controller-manager-timeout', '60',
-    ],
+  spawner_script = os.path.join(
+    get_package_prefix('startup'), 'lib', 'startup', 'spawn_controllers.py',
   )
-  robot_controller_spawner = Node(
-    package='controller_manager',
-    executable='spawner',
-    arguments=[
-      'mecanum_drive_controller',
-      '--controller-manager', '/controller_manager',
-      '--controller-manager-timeout', '60',
-    ],
+
+  # Custom spawner with 120s per-call timeout — the standard ros2_control
+  # spawner hardcodes 10s which is too short for DDS on the non-RT Jetson Nano.
+  # joint_state_broadcaster must be active before mecanum_drive_controller,
+  # so spawn them sequentially: first at 15s, second at 90s after launch.
+  spawn_joint_state = TimerAction(
+    period=15.0,
+    actions=[ExecuteProcess(
+      cmd=['python3', spawner_script, 'joint_state_broadcaster'],
+      output='screen',
+    )],
   )
-  # Wait 10 s for controller_manager services to be ready before spawning.
-  # Without this delay the spawner finds the service but the load_controller
-  # response times out (DDS on Jetson routes intra-robot calls over WiFi).
-  delayed_joint_state_broadcaster_spawner = TimerAction(
-    period=10.0,
-    actions=[joint_state_broadcaster_spawner],
-  )
-  # Delay start of robot_controller after joint_state_broadcaster
-  delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = RegisterEventHandler(
-    event_handler=OnProcessExit(
-      target_action=joint_state_broadcaster_spawner,
-      on_exit=[robot_controller_spawner],
-    )
+  spawn_mecanum = TimerAction(
+    period=90.0,
+    actions=[ExecuteProcess(
+      cmd=['python3', spawner_script, 'mecanum_drive_controller'],
+      output='screen',
+    )],
   )
   nodes.extend([
     control_node,
-    delayed_joint_state_broadcaster_spawner,
-    delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
+    spawn_joint_state,
+    spawn_mecanum,
   ])
   
   ## KINECT ##

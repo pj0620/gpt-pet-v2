@@ -46,6 +46,11 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}
 )
 
+install(PROGRAMS
+  scripts/spawn_controllers.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 # Create config and urdf directories if they don't exist and install them
 install(DIRECTORY
   config
