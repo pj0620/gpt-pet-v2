@@ -13,7 +13,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, TimerAction
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -34,11 +34,18 @@ def generate_launch_description():
     nodes = []
 
     # ------------------------------------------------------------
-    # Clear any stale slam_toolbox map state from previous runs
+    # Clear stale slam_toolbox map state and reset controller odometry
+    # so odom frame always starts at (0,0) on each server launch.
+    # The mecanum_drive_controller accumulates odometry across sessions;
+    # without this reset the EKF and controller TF sources conflict.
     # ------------------------------------------------------------
     nodes.append(
         ExecuteProcess(
-            cmd=["bash", "-c", "rm -f ~/.ros/*.posegraph ~/.ros/*.data /tmp/*.posegraph /tmp/*.data"],
+            cmd=["bash", "-c",
+                 "rm -f ~/.ros/*.posegraph ~/.ros/*.data /tmp/*.posegraph /tmp/*.data && "
+                 "sleep 3 && "
+                 "ros2 service call /mecanum_drive_controller/reset_odometry "
+                 "std_srvs/srv/Empty '{}' 2>/dev/null || true"],
             output="screen",
         )
     )
@@ -177,13 +184,14 @@ def generate_launch_description():
 
     nav2_params = os.path.join(pkg, "config", "nav2_params.yaml")
 
+    nav2_nodes = []
     for name, package, executable in [
         ("controller_server", "nav2_controller", "controller_server"),
         ("planner_server",    "nav2_planner",    "planner_server"),
         ("behavior_server",   "nav2_behaviors",  "behavior_server"),
         ("bt_navigator",      "nav2_bt_navigator", "bt_navigator"),
     ]:
-        nodes.append(
+        nav2_nodes.append(
             Node(
                 package=package,
                 executable=executable,
@@ -194,7 +202,7 @@ def generate_launch_description():
             )
         )
 
-    nodes.append(
+    nav2_nodes.append(
         Node(
             package="nav2_lifecycle_manager",
             executable="lifecycle_manager",
@@ -214,6 +222,12 @@ def generate_launch_description():
             condition=IfCondition(use_nav2),
         )
     )
+
+    # Delay Nav2 startup so the EKF fills the TF buffer with fresh odom→base_link
+    # transforms before Nav2 starts looking up sensor origins. Without this delay,
+    # stale TF entries from the previous server session cause the costmap to report
+    # the sensor (LIDAR) as being dozens of meters outside costmap bounds.
+    nodes.append(TimerAction(period=5.0, actions=nav2_nodes))
 
     return LaunchDescription(
         [
