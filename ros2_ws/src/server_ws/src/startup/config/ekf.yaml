@@ -1,10 +1,11 @@
 ekf_filter_node:
   ros__parameters:
-    frequency: 50.0
-    sensor_timeout: 0.1
+    frequency: 20.0
+    sensor_timeout: 0.3
     two_d_mode: true
     publish_tf: true
-    permit_correctionless_estimation: true
+    predict_to_current_time: true
+    permit_corrected_publication: true
 
     map_frame: map
     odom_frame: odom
@@ -24,15 +25,17 @@ ekf_filter_node:
     odom0_queue_size: 10
     odom0_rejection_threshold: 5.0
 
-    # IMU disabled — gyro bias causes map rotation at rest (wheel odom vyaw is sufficient)
+    # IMU: yaw rate only — gives EKF real data at startup before mecanum activates.
+    # Position/orientation disabled to avoid gyro position drift.
+    # Once mecanum comes up, EKF has both wheel vyaw and IMU vyaw; they cross-check.
     imu0: /imu/combined
     imu0_config: [false, false, false,
                   false, false, false,
                   false, false, false,
-                  false, false, false,
+                  false, false, true,
                   false, false, false]
     imu0_differential: false
     imu0_relative: false
     imu0_remove_gravitational_acceleration: true
-    imu0_queue_size: 10
+    imu0_queue_size: 5
     imu0_rejection_threshold: 3.0

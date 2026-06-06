@@ -60,36 +60,6 @@ def generate_launch_description():
         )
     )
 
-    # Explicitly zero the EKF pose so odom→base_link starts at identity.
-    # Runs 6 s after launch to give the EKF time to start up.
-    nodes.append(
-        ExecuteProcess(
-            cmd=["bash", "-c",
-                 "sleep 6 && "
-                 "ros2 service call /ekf_filter_node/set_pose "
-                 "robot_localization/srv/SetPose "
-                 "\"{"
-                 "pose: {"
-                 "header: {frame_id: 'odom'}, "
-                 "pose: {"
-                 "pose: {"
-                 "position: {x: 0.0, y: 0.0, z: 0.0}, "
-                 "orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}"
-                 "}, "
-                 "covariance: ["
-                 "0.1,0,0,0,0,0,"
-                 "0,0.1,0,0,0,0,"
-                 "0,0,0,0,0,0,"
-                 "0,0,0,0,0,0,"
-                 "0,0,0,0,0,0,"
-                 "0,0,0,0,0,0.1"
-                 "]"
-                 "}"
-                 "}"
-                 "}\" 2>/dev/null || true"],
-            output="screen",
-        )
-    )
 
     # ------------------------------------------------------------
     # IMU pipeline
@@ -268,7 +238,10 @@ def generate_launch_description():
     # transforms before Nav2 starts looking up sensor origins. Without this delay,
     # stale TF entries from the previous server session cause the costmap to report
     # the sensor (LIDAR) as being dozens of meters outside costmap bounds.
-    nodes.append(TimerAction(period=5.0, actions=nav2_nodes))
+    # 45 s delay so mecanum_drive_controller (spawned at 30 s on the bot) has
+    # time to activate and feed real odometry to the EKF before Nav2 starts
+    # querying the costmap sensor origins.
+    nodes.append(TimerAction(period=45.0, actions=nav2_nodes))
 
     return LaunchDescription(
         [
