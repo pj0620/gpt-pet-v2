@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(scp /home/pj/gpt-pet-v2/ros2_ws/src/bot_ws/src/ros2_icm20948/ros2_icm20948/icm20948_node.py gptpetclient@gptpetclient.local:/home/gptpetclient/gpt-pet-v2/ros2_ws/src/bot_ws/src/ros2_icm20948/ros2_icm20948/icm20948_node.py)",
-      "Bash(ros2 node *)"
+      "Bash(ros2 node *)",
+      "Bash(./bin/ssh/gptpetclient.sh)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(nmap -T4 -p 22 --open 192.168.1.0/24)",
+      "Bash(find /opt/ros/humble -path \"*/mecanum_drive_controller*\" -name \"*.py\" -o -path \"*/mecanum_drive_controller*\" -name \"*.hpp\" 2>/dev/null | head -20)",
+      "Read(//opt/ros/humble/**)",
+      "Bash(dpkg -l)"
     ]
   }
 }

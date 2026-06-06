@@ -4,6 +4,7 @@ ekf_filter_node:
     sensor_timeout: 0.1
     two_d_mode: true
     publish_tf: true
+    permit_correctionless_estimation: true
 
     map_frame: map
     odom_frame: odom
