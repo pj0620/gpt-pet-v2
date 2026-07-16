@@ -21,9 +21,14 @@ mecanum_drive_controller:
     rear_left_wheel_state_joint_name: "velocity_left_2_joint"
     rear_right_wheel_state_joint_name: "velocity_right_2_joint"
     
-    # Command interface configuration
-    cmd_vel_timeout: 0.5  # seconds
-    reference_timeout: 10.0  # seconds
+    # Command interface configuration.
+    # reference_timeout is the EFFECTIVE command-hold for MecanumDriveController:
+    # it keeps applying the last /cmd_vel for this many seconds after the last
+    # message. cmd_vel_timeout does NOT halt this controller, so keep this short —
+    # at 10.0 s a single missed stop ran the robot into a wall. 0.5 s is safe for
+    # Nav2 (it commands at >=10 Hz) and auto-halts within 0.5 s if commands stop.
+    cmd_vel_timeout: 0.5  # seconds (not enforced by this controller; kept for clarity)
+    reference_timeout: 0.5  # seconds — failsafe: auto-stop if commands stop arriving
     publish_rate: 50.0   # Hz
     
     # Time synchronization
