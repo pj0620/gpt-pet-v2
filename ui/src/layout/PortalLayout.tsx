@@ -4,12 +4,13 @@ import { CameraView } from "@/features/camera/CameraView";
 import { EventsLog } from "@/features/events/EventsLog";
 import { GoalsQueue } from "@/features/goals/GoalsQueue";
 import { TopView } from "@/features/map/TopView";
+import { StatsPanel } from "@/features/stats/StatsPanel";
 import { Header } from "@/layout/Header";
 
 const separatorClass =
   "bg-transparent transition-colors hover:bg-ring/40 data-[orientation=horizontal]:h-2 data-[orientation=vertical]:w-2";
 
-/** The mockup's arrangement: goals on the left; camera and map on top right; events below. */
+/** The mockup's arrangement: goals and stats on the left; camera and map on top right; events below. */
 export function PortalLayout() {
   return (
     <div className="flex h-full flex-col bg-background text-foreground">
@@ -17,7 +18,15 @@ export function PortalLayout() {
       <main className="min-h-0 flex-1 px-3 pb-3">
         <Group orientation="horizontal" className="h-full">
           <Panel defaultSize={30} minSize={18}>
-            <GoalsQueue />
+            <Group orientation="vertical" className="h-full">
+              <Panel defaultSize={50} minSize={25}>
+                <GoalsQueue />
+              </Panel>
+              <Separator className={separatorClass} />
+              <Panel defaultSize={50} minSize={20}>
+                <StatsPanel />
+              </Panel>
+            </Group>
           </Panel>
           <Separator className={separatorClass} />
           <Panel defaultSize={70} minSize={40}>

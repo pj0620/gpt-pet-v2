@@ -7,6 +7,7 @@ import type {
   PetState,
   PetStatus,
   ProfileName,
+  RunStats,
   Settings,
   SubmitGoalBody,
 } from "@/types/api";
@@ -44,6 +45,9 @@ function postJson<T>(input: string, body?: unknown): Promise<T> {
 export const api = {
   getState: () => fetchJson<PetState>("/api/state"),
   getStatus: () => fetchJson<PetStatus>("/api/status"),
+  /** `{}` while no pet is running; see `isRunStats`. */
+  getStats: () => fetchJson<RunStats | Record<string, never>>("/api/stats"),
+  resetStats: () => postJson<RunStats>("/api/stats/reset"),
   getSettings: () => fetchJson<Settings>("/api/settings"),
   postGoal: (body: SubmitGoalBody) => postJson<PetState>("/api/goals", body),
   control: (action: ControlAction) => postJson<PetStatus>(`/api/control/${action}`),

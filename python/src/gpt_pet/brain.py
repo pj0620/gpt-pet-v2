@@ -18,7 +18,9 @@ from gpt_pet.agents.goal_setter import build_goal_setter
 from gpt_pet.frames import FrameStore
 from gpt_pet.goals import make_update_goal_memory
 from gpt_pet.mcp import build_toolset
+from gpt_pet.s1 import SystemOne
 from gpt_pet.settings import Settings
+from gpt_pet.stats import RunStats
 
 BRAIN_NAME = "gpt_pet"
 MEMORY_NODE_NAME = "update_goal_memory"
@@ -32,17 +34,24 @@ class Brain:
     settings: Settings
     frames: FrameStore
     """Latest camera/map frames captured from tool results (used by `gpt-pet serve`)."""
+    stats: RunStats
+    """This run's live statistics; `PetRuntime` attaches the plugin that feeds it."""
+    s1: SystemOne | None = None
+    """System 1 in front of Gemini, when `[s1] enabled`."""
 
 
-def build_brain(settings: Settings, frames: FrameStore | None = None) -> Brain:
+def build_brain(settings: Settings, frames: FrameStore | None = None, stats: RunStats | None = None) -> Brain:
     frames = frames or FrameStore()
+    stats = stats or RunStats()
+    s1 = SystemOne(settings, stats) if settings.s1.enabled else None
+    stats.s1_model = settings.s1.model if s1 else None
     toolset = build_toolset(settings.mcp)
-    goal_setter = build_goal_setter(settings)
+    goal_setter = build_goal_setter(settings, s1.goal_setter_turn if s1 else None)
     memory = FunctionNode(func=make_update_goal_memory(settings.brain), name=MEMORY_NODE_NAME)
-    executor = build_executor(settings, toolset, frames)
+    executor = build_executor(settings, toolset, frames, stats, s1.executor_turn if s1 else None)
     workflow = Workflow(
         name=BRAIN_NAME,
         description="One tick of GPTPet's life: decide a goal, store it, execute it.",
         edges=[(START, goal_setter, memory, executor)],
     )
-    return Brain(workflow=workflow, toolset=toolset, settings=settings, frames=frames)
+    return Brain(workflow=workflow, toolset=toolset, settings=settings, frames=frames, stats=stats, s1=s1)

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { emptyEvents, ingestEvent, isErrorResponse } from "@/stores/eventsReducer";
-import type { AdkEvent, TickEvent } from "@/types/api";
+import type { AdkEvent, NoticeEvent, TickEvent } from "@/types/api";
 
 const call: AdkEvent = {
   type: "adk",
@@ -69,6 +69,47 @@ describe("ingestEvent", () => {
     state = ingestEvent(state, tick);
     expect(state.rows.map((row) => row.kind)).toEqual(["text", "tick"]);
     expect(state.rows[1]).toMatchObject({ name: "tick 1", response: { refusals: 1, llm_calls: 17 } });
+  });
+
+  it("marks calls and text that System 1 made instead of Gemini", () => {
+    const s1 = { by: "nimble", action: "set_nav_goal", model: "nimble", certainty: 0.91 };
+    const state = ingestEvent(emptyEvents(), { ...call, s1 });
+    expect(state.rows[0]?.s1).toEqual(s1);
+    const report: AdkEvent = {
+      type: "adk",
+      id: "40",
+      tick: 1,
+      author: "executor",
+      timestamp: 1003,
+      text: "Saw: Sofa.",
+      s1,
+    };
+    expect(ingestEvent(state, report).rows[1]?.s1).toEqual(s1);
+    expect(ingestEvent(emptyEvents(), call).rows[0]?.s1).toBeUndefined();
+  });
+
+  it("records runtime notices, such as the rest between ticks, as their own rows", () => {
+    const rest: NoticeEvent = {
+      type: "notice",
+      id: "30",
+      kind: "rest",
+      tick: 2,
+      text: "Resting 60 s before the next tick: pacing after goal #2 started (goal_delay_s).",
+      timestamp: 1002.5,
+      seconds: 60,
+    };
+    const state = ingestEvent(ingestEvent(emptyEvents(), call), rest);
+    expect(state.rows).toHaveLength(2);
+    expect(state.rows[1]).toMatchObject({
+      key: "notice:30",
+      kind: "notice",
+      name: "rest",
+      tick: 2,
+      timestamp: 1002.5,
+      text: rest.text,
+      callId: null,
+    });
+    expect(state.indexByCallId).toEqual({ "fc-1": 0 });
   });
 
   it("does not mutate its input and enforces the cap with a valid index", () => {

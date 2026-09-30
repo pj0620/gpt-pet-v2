@@ -14,6 +14,7 @@ from typing import Any
 
 from google.adk.agents.invocation_context import LlmCallsLimitExceededError
 from google.adk.agents.run_config import RunConfig
+from google.adk.apps.app import App
 from google.adk.events.event import Event
 from google.adk.events.event_actions import EventActions
 from google.adk.runners import Runner
@@ -38,6 +39,7 @@ from gpt_pet.goals import (
     pending_goal_record,
 )
 from gpt_pet.settings import BrainSettings
+from gpt_pet.stats import RunStats, StatsPlugin
 
 APP_NAME = "gpt_pet"
 RUNTIME_AUTHOR = "gpt_pet_runtime"
@@ -60,8 +62,22 @@ def function_responses(events: Iterable[Event]) -> list[types.FunctionResponse]:
     return [fr for event in events for fr in event.get_function_responses()]
 
 
+def is_s1_event(event: Event) -> bool:
+    """A model turn System 1 answered instead of Gemini (`gpt_pet.s1` tags them)."""
+    return bool((event.custom_metadata or {}).get("s1"))
+
+
 def model_call_count(events: Iterable[Event]) -> int:
-    return sum(1 for e in events if e.content is not None and e.content.role == "model" and not e.partial)
+    """Gemini calls: model turns that System 1 did not answer."""
+    return sum(
+        1
+        for e in events
+        if e.content is not None and e.content.role == "model" and not e.partial and not is_s1_event(e)
+    )
+
+
+def s1_turn_count(events: Iterable[Event]) -> int:
+    return sum(1 for e in events if is_s1_event(e) and not e.partial)
 
 
 def response_is_error(response: types.FunctionResponse) -> bool:
@@ -135,6 +151,7 @@ class TickResult:
             "errors": len(self.tool_errors),
             "refusals": len(self.refusals),
             "llm_calls": model_call_count(self.events),
+            "s1_turns": s1_turn_count(self.events),
             "truncated": self.truncated,
             "goal_id": (self.goal or {}).get("id"),
             "status": self.decision_status,
@@ -147,14 +164,16 @@ class TickResult:
         return (
             f"tick={self.number} goal_id={goal.get('id')} status={self.decision_status} "
             f"tools={','.join(self.tool_calls) or '-'} errors={len(self.tool_errors)} refusals={len(self.refusals)} "
-            f"llm_calls={model_call_count(self.events)} truncated={int(self.truncated)} "
-            f"seconds={self.seconds:.1f}"
+            f"llm_calls={model_call_count(self.events)} s1_turns={s1_turn_count(self.events)} "
+            f"truncated={int(self.truncated)} seconds={self.seconds:.1f}"
         )
 
 
 EventHook = Callable[[Event, int], None]
 TickHook = Callable[[TickResult], None]
 StatusHook = Callable[[], None]
+NoticeHook = Callable[[dict[str, Any]], None]
+"""Receives runtime notices for the portal's Events Log: `{kind, tick, text, timestamp, ...}`."""
 
 
 def next_delay(result: TickResult, brain: BrainSettings) -> float:
@@ -162,6 +181,32 @@ def next_delay(result: TickResult, brain: BrainSettings) -> float:
     if result.limit_reached:
         return 0.0
     return brain.goal_delay_s if result.started_new_goal else brain.tick_delay_s
+
+
+def rest_notice(result: TickResult, seconds: float) -> dict[str, Any]:
+    """Pure: the notice announcing the rest after `result`, and why it happens."""
+    if result.started_new_goal:
+        goal_id = (result.goal or {}).get("id")
+        why = f"pacing after goal #{goal_id} started (goal_delay_s)"
+    else:
+        why = "pacing between ticks (tick_delay_s)"
+    return {
+        "kind": "rest",
+        "tick": result.number,
+        "seconds": seconds,
+        "text": f"Resting {seconds:g} s before the next tick: {why}.",
+        "timestamp": time.time(),
+    }
+
+
+def limit_notice(result: TickResult, limit: int | None) -> dict[str, Any]:
+    """Pure: the notice announcing that the loop paused itself on the run's goal limit."""
+    return {
+        "kind": "limit",
+        "tick": result.number,
+        "text": f"Paused: this run's goal limit ({limit}) is reached. Allow more goals to continue.",
+        "timestamp": time.time(),
+    }
 
 
 class PetRuntime:
@@ -179,16 +224,19 @@ class PetRuntime:
         on_event: EventHook | None = None,
         on_tick: TickHook | None = None,
         on_status: StatusHook | None = None,
+        on_notice: NoticeHook | None = None,
     ) -> None:
         self.brain = brain
         self.user_id = user_id
         self.app_name = app_name
         self.session_id = session_id or datetime.now(timezone.utc).strftime("run-%Y%m%dT%H%M%SZ")
         self.session_service = session_service or InMemorySessionService()
-        self.runner = Runner(node=brain.workflow, app_name=app_name, session_service=self.session_service)
+        app = App(name=app_name, root_agent=brain.workflow, plugins=[StatsPlugin(brain.stats)])
+        self.runner = Runner(app=app, session_service=self.session_service)
         self.on_event = on_event
         self.on_tick = on_tick
         self.on_status = on_status
+        self.on_notice = on_notice
         self.ticks = 0
         self.last_tick: TickResult | None = None
         self.running_tick = False
@@ -200,6 +248,7 @@ class PetRuntime:
         self._goal_limit: int | None = brain.settings.brain.max_goals_per_run or None
         self.limit_reached = False
         self.waiting_until: float | None = None
+        self._warm_up: asyncio.Task[None] | None = None
 
     # --- lifecycle -------------------------------------------------------------------------
 
@@ -210,11 +259,15 @@ class PetRuntime:
             session_id=self.session_id,
             state=initial_state(),
         )
+        if self.brain.s1 is not None:
+            self._warm_up = asyncio.create_task(self.brain.s1.warm_up(), name="s1-warm-up")
         return self
 
     async def close(self) -> None:
         self._stopping = True
         self._wake.set()
+        if self._warm_up is not None and not self._warm_up.done():
+            self._warm_up.cancel()
         try:
             await self.runner.close()
         finally:
@@ -227,6 +280,10 @@ class PetRuntime:
         await self.close()
 
     # --- controls --------------------------------------------------------------------------
+
+    @property
+    def stats(self) -> RunStats:
+        return self.brain.stats
 
     @property
     def paused(self) -> bool:
@@ -300,9 +357,13 @@ class PetRuntime:
             if result.limit_reached:
                 self.limit_reached = True
                 log.info("goal limit of %d reached; pausing the loop", brain.max_goals_per_run)
+                self._notice(limit_notice(result, self._goal_limit))
                 self.pause()
                 continue
-            await self._rest(next_delay(result, brain))
+            delay = next_delay(result, brain)
+            if delay > 0:
+                self._notice(rest_notice(result, delay))
+            await self._rest(delay)
         return self.ticks
 
     async def _rest(self, seconds: float) -> None:
@@ -412,6 +473,7 @@ class PetRuntime:
             truncated=truncated,
         )
         self.last_tick = result
+        self.stats.record_tick(result)
         if self.on_tick is not None:
             self.on_tick(result)
         self._notify_status()
@@ -432,6 +494,15 @@ class PetRuntime:
             self.on_status()
         except Exception:  # noqa: BLE001
             log.exception("status hook failed")
+
+    def _notice(self, notice: dict[str, Any]) -> None:
+        log.info("%s", notice["text"])
+        if self.on_notice is None:
+            return
+        try:
+            self.on_notice(notice)
+        except Exception:  # noqa: BLE001
+            log.exception("notice hook failed")
 
     async def _note_truncation(self, number: int) -> None:
         """Tell the next goal-setter turn that the executor never reported."""

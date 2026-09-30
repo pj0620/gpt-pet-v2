@@ -82,6 +82,20 @@ def gemini_key() -> str:
 
 
 @pytest.fixture(scope="session")
+def nimble(sim_settings: Settings) -> str:
+    """The real System 1 decision model: Ollama >= 0.35 serving `[s1] model`."""
+    url = str(sim_settings.s1.base_url).rstrip("/")
+    try:
+        with urllib.request.urlopen(f"{url}/api/tags", timeout=5) as response:
+            names = [model.get("name", "") for model in json.load(response).get("models", [])]
+    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        pytest.fail(f"no Ollama at {url} ({exc}); System 1 needs Ollama >= 0.35 running")
+    if not any(name.split(":")[0] == sim_settings.s1.model for name in names):
+        pytest.fail(f"Ollama at {url} does not have {sim_settings.s1.model!r}; run `ollama pull {sim_settings.s1.model}`")
+    return url
+
+
+@pytest.fixture(scope="session")
 def mcp_server(sim_settings: Settings, tmp_path_factory: pytest.TempPathFactory):
     """The real ai2thor-mcp server URL: attach to a running one, else launch it from the checkout."""
     url = str(sim_settings.mcp.url)

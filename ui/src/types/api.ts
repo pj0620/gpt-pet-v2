@@ -107,6 +107,15 @@ export interface FunctionResponse {
   response: unknown;
 }
 
+/** Present when System 1 took the turn instead of Gemini (python/src/gpt_pet/s1.py). */
+export interface S1Tag {
+  /** "rules" (no model at all) or "nimble" (the local decision model). */
+  by: string;
+  action: string;
+  model?: string;
+  certainty?: number;
+}
+
 /** One ADK event, image bytes stripped by the server. */
 export interface AdkEvent {
   type: "adk";
@@ -117,6 +126,7 @@ export interface AdkEvent {
   functionCall?: FunctionCall;
   functionResponse?: FunctionResponse;
   text?: string;
+  s1?: S1Tag;
 }
 
 export interface StateEvent {
@@ -151,4 +161,80 @@ export interface ImageEvent {
   version: number;
 }
 
-export type PortalEvent = AdkEvent | StateEvent | StatusEvent | TickEvent | ImageEvent;
+/** Latency summary; percentiles cover the most recent 200 samples. Null before the first one. */
+export interface LatencySummary {
+  count: number;
+  avg_ms: number | null;
+  p50_ms: number | null;
+  p95_ms: number | null;
+  last_ms: number | null;
+}
+
+/** `RunStats.snapshot()` in python/src/gpt_pet/stats.py; rates are per minute of uptime. */
+export interface RunStats {
+  /** Unix seconds when the counters started (server start, or the last reset). */
+  started_at: number;
+  uptime_s: number;
+  llm: {
+    calls: number;
+    errors: number;
+    per_min: number;
+    latency: LatencySummary;
+    by_agent: Record<string, { calls: number; tokens: number; avg_ms: number }>;
+  };
+  tokens: {
+    input: number;
+    output: number;
+    thinking: number;
+    cached: number;
+    total: number;
+    per_min: number;
+    last_call: number;
+  };
+  /** Every tool call the model made; refused calls (tool budget) never ran, so have no latency. */
+  tools: { calls: number; errors: number; refusals: number; latency: LatencySummary };
+  ticks: { count: number; truncated: number; latency: LatencySummary };
+  goals: { started: number; done: number; abandoned: number; started_per_min: number; done_per_min: number };
+  /** Drives waited out by the brain itself (`checks` = get_nav_status calls, no LLM involved). */
+  drives: {
+    count: number;
+    outcomes: Record<string, number>;
+    driving_s: number;
+    driving_pct: number;
+    checks: number;
+    latency: LatencySummary;
+  };
+  /** System 1: turns it took instead of Gemini, hand-offs to Gemini (by reason), model calls. */
+  s1: {
+    enabled: boolean;
+    model: string | null;
+    turns: number;
+    /** S1 turns as a share of all model turns (S1 + Gemini). */
+    share_pct: number;
+    by: Record<string, number>;
+    by_agent: Record<string, number>;
+    /** "agent: reason" -> count, most frequent first. */
+    escalations: Record<string, number>;
+    decider: { calls: number; latency: LatencySummary };
+  };
+  first_action_s: number | null;
+}
+
+export interface StatsEvent {
+  type: "stats";
+  id: string;
+  stats: RunStats;
+}
+
+/** A runtime notice for the Events Log, such as the rest between ticks or the goal-limit pause. */
+export interface NoticeEvent {
+  type: "notice";
+  id: string;
+  kind: string;
+  tick: number;
+  text: string;
+  timestamp: number;
+  seconds?: number;
+}
+
+export type PortalEvent = AdkEvent | StateEvent | StatusEvent | TickEvent | ImageEvent | StatsEvent | NoticeEvent;

@@ -1,8 +1,8 @@
 """`gpt-pet serve`: the pet's tick loop plus the portal's HTTP API in one process.
 
-Endpoints (all under /api): `events` (SSE), `state`, `status`, `settings`, `goals`,
-`control/{pause|resume|tick}`, `profile`, `frame.jpg`, `map.png`, `depth.png`. The built portal
-(`ui/dist`) is served at `/` when present.
+Endpoints (all under /api): `events` (SSE), `state`, `status`, `stats`, `stats/reset`,
+`settings`, `goals`, `control/{pause|resume|tick}`, `profile`, `frame.jpg`, `map.png`,
+`depth.png`. The built portal (`ui/dist`) is served at `/` when present.
 """
 from __future__ import annotations
 
@@ -41,6 +41,10 @@ MAP_REFRESH_IDLE_S = 2.0
 renders from the simulator's last event without stepping it, so this stays cheap."""
 CAMERA_PRESETS = ("chase", "front", "top")
 HISTORY_SIZE = 500
+STATS_THROTTLE_S = 1.0
+"""At most one `stats` frame per second while counters change."""
+STATS_HEARTBEAT_S = 5.0
+"""A `stats` frame at least this often, so uptime and per-minute rates keep moving when idle."""
 DEV_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 
@@ -58,6 +62,9 @@ def event_payloads(event: Event, tick: int) -> list[dict[str, Any]]:
     if event.partial or event.content is None:
         return []
     base = {"tick": tick, "author": event.author, "timestamp": event.timestamp, "invocation_id": event.invocation_id}
+    s1 = (event.custom_metadata or {}).get("s1")
+    if s1:
+        base["s1"] = s1  # System 1 took this turn instead of Gemini
     payloads: list[dict[str, Any]] = []
     for call in event.get_function_calls():
         payloads.append({**base, "functionCall": {"id": call.id or "", "name": call.name or "", "args": _jsonable(dict(call.args or {}))}})
@@ -93,10 +100,13 @@ class Broadcaster:
     def last_id(self) -> int:
         return self._next_id - 1
 
-    def publish(self, event: str, data: Any) -> SseFrame:
+    def publish(self, event: str, data: Any, *, keep: bool = True) -> SseFrame:
+        """Send a frame to every subscriber. `keep=False` skips the replay buffer, for frequent
+        snapshots that would otherwise push the event log out of it."""
         frame = SseFrame(id=self._next_id, event=event, data=json.dumps(data, default=str))
         self._next_id += 1
-        self._history.append(frame)
+        if keep:
+            self._history.append(frame)
         for queue in list(self._subscribers):
             queue.put_nowait(frame)
         return frame
@@ -131,6 +141,8 @@ class PetService:
         self.proxy: McpProxy | None = None
         self.camera_pose: dict[str, Any] | None = None
         self._map_task: asyncio.Task[None] | None = None
+        self._stats_task: asyncio.Task[None] | None = None
+        self._stats_handle: asyncio.TimerHandle | None = None
         self.frames.subscribe(self._on_frame)
 
     # --- lifecycle -------------------------------------------------------------------------
@@ -149,7 +161,15 @@ class PetService:
         self.proxy = McpProxy(str(url)) if url is not None else None
         self.camera_pose = None
         brain = build_brain(self.settings, frames=self.frames)
-        runtime = PetRuntime(brain, user_id="portal", on_event=self._on_event, on_tick=self._on_tick, on_status=self.publish_status)
+        brain.stats.on_change = self._stats_changed
+        runtime = PetRuntime(
+            brain,
+            user_id="portal",
+            on_event=self._on_event,
+            on_tick=self._on_tick,
+            on_status=self.publish_status,
+            on_notice=self._on_notice,
+        )
         await runtime.start()
         if self._start_paused:
             runtime.pause()
@@ -157,19 +177,25 @@ class PetService:
         self._task = asyncio.create_task(runtime.run_loop(), name="gpt-pet-loop")
         if self._refresh_map and self.proxy is not None:
             self._map_task = asyncio.create_task(self._map_loop(), name="map-refresh")
+        self._stats_task = asyncio.create_task(self._stats_loop(), name="stats-heartbeat")
         log.info("pet loop started (profile=%s, paused=%s)", self.settings.profile.name, runtime.paused)
         self.publish_status()
 
     async def _stop_runtime(self) -> None:
         runtime, task = self.runtime, self._task
         self.runtime, self._task = None, None
-        map_task, self._map_task = self._map_task, None
-        if map_task is not None:
-            map_task.cancel()
+        if self._stats_handle is not None:
+            self._stats_handle.cancel()
+            self._stats_handle = None
+        for background in (self._map_task, self._stats_task):
+            if background is None:
+                continue
+            background.cancel()
             try:
-                await map_task
+                await background
             except (asyncio.CancelledError, Exception):  # noqa: BLE001
                 pass
+        self._map_task, self._stats_task = None, None
         if runtime is None:
             return
         runtime.stop()
@@ -238,6 +264,9 @@ class PetService:
     async def state(self) -> dict[str, Any]:
         return await self.runtime.state() if self.runtime else {}
 
+    def stats(self) -> dict[str, Any]:
+        return self.runtime.stats.snapshot() if self.runtime else {}
+
     def require_runtime(self) -> PetRuntime:
         if self.runtime is None:
             raise HTTPException(status_code=503, detail="the pet is not running")
@@ -254,6 +283,25 @@ class PetService:
     def _on_event(self, event: Event, tick: int) -> None:
         for payload in event_payloads(event, tick):
             self.broadcaster.publish("adk", payload)
+
+    def _on_notice(self, notice: dict[str, Any]) -> None:
+        self.broadcaster.publish("notice", notice)
+
+    def publish_stats(self) -> None:
+        self._stats_handle = None
+        if self.runtime is not None:
+            self.broadcaster.publish("stats", self.stats(), keep=False)
+
+    def _stats_changed(self) -> None:
+        """Counters moved: publish soon, coalescing bursts (a tick records dozens of calls)."""
+        loop = self._loop
+        if self._stats_handle is None and loop is not None and not loop.is_closed():
+            self._stats_handle = loop.call_later(STATS_THROTTLE_S, self.publish_stats)
+
+    async def _stats_loop(self) -> None:
+        while True:
+            await asyncio.sleep(STATS_HEARTBEAT_S)
+            self.publish_stats()
 
     def _on_tick(self, result: TickResult) -> None:
         self.broadcaster.publish("tick", result.summary_dict())
@@ -342,6 +390,16 @@ def create_app(settings: Settings, *, ui_dist: Path | None = None, start_paused:
     @app.get("/api/state")
     async def get_state() -> dict[str, Any]:
         return await service.state()
+
+    @app.get("/api/stats")
+    async def get_stats() -> dict[str, Any]:
+        return service.stats()
+
+    @app.post("/api/stats/reset")
+    async def post_stats_reset() -> dict[str, Any]:
+        """Start the counters over, e.g. to measure one stretch of the run."""
+        service.require_runtime().stats.reset()
+        return service.stats()
 
     @app.get("/api/settings")
     async def get_settings() -> dict[str, Any]:
@@ -435,6 +493,7 @@ def create_app(settings: Settings, *, ui_dist: Path | None = None, start_paused:
                 snapshot_id = str(broadcaster.last_id)
                 yield {"id": snapshot_id, "event": "status", "data": json.dumps(service.status(), default=str)}
                 yield {"id": snapshot_id, "event": "state", "data": json.dumps(await service.state(), default=str)}
+                yield {"id": snapshot_id, "event": "stats", "data": json.dumps(service.stats(), default=str)}
                 while True:
                     if await request.is_disconnected():
                         break

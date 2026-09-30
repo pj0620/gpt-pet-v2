@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-const PANELS = ["Goals Queue", "Camera View", "Top View", "Events Log"];
+const PANELS = ["Goals Queue", "Stats", "Camera View", "Top View", "Events Log"];
 
 test.describe("portal shell @smoke", () => {
-  test("renders the four panels in dark mode", async ({ page }) => {
+  test("renders the five panels in dark mode", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/GPTPet Management Portal/);
     await expect(page.getByRole("heading", { name: "GPTPet Management Portal" })).toBeVisible();
@@ -62,10 +62,36 @@ test.describe("portal live @live", () => {
     await expect(budget).toHaveText(new RegExp(`/${before + 2}$`));
   });
 
+  test("shows live stats and explains the rest between ticks", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByTestId("connection-state")).toHaveText(/live/i, { timeout: 60_000 });
+    const value = (tile: string) => page.getByTestId(tile).getByTestId("stat-value");
+    await expect
+      .poll(async () => Number(await value("stat-llm-calls").textContent()), { timeout: 150_000 })
+      .toBeGreaterThan(0);
+    await expect(value("stat-tokens")).not.toHaveText("0");
+
+    // With [s1] enabled (the sim profile), System 1 takes each tick's first look by rule.
+    const share = value("stat-s1-share");
+    await expect(share).toHaveText(/^(off|\d+(\.\d)?%)$/);
+    if ((await share.textContent()) !== "off") {
+      await page.getByLabel("Filter by tool").selectOption("get_current_view");
+      await expect(page.getByTestId("s1-badge").first()).toBeVisible({ timeout: 150_000 });
+      await page.getByLabel("Filter by tool").selectOption("");
+    }
+
+    const rest = page.locator('[data-kind="notice"][data-notice="rest"]').first();
+    await expect(rest).toContainText(/Resting \d+ s before the next tick/, { timeout: 240_000 });
+
+    await page.getByRole("button", { name: "Reset stats" }).click();
+    await expect(page.getByTestId("stats-uptime")).toHaveText(/^up \d+(\.\d)? s$/);
+  });
+
   test("flies the simulator's free camera", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("connection-state")).toHaveText(/live/i, { timeout: 60_000 });
-    await page.getByRole("button", { name: "Free" }).click();
+    // Exact names: Events Log rows are buttons too, and the pet's own text can say "robot" or "top".
+    await page.getByRole("button", { name: "Free", exact: true }).click();
     const image = page.getByTestId("free-camera-image");
     await expect
       .poll(async () => image.evaluate((img: HTMLImageElement) => img.naturalWidth).catch(() => 0), {
@@ -74,13 +100,13 @@ test.describe("portal live @live", () => {
       .toBeGreaterThan(0);
     const view = page.getByTestId("free-camera");
     const before = Number(await view.getAttribute("data-version"));
-    await page.getByRole("button", { name: "Look left" }).click();
+    await page.getByRole("button", { name: "Look left", exact: true }).click();
     await expect
       .poll(async () => Number(await view.getAttribute("data-version")), { timeout: 30_000 })
       .toBeGreaterThan(before);
-    await page.getByRole("button", { name: "top" }).click();
+    await page.getByRole("button", { name: "top", exact: true }).click();
     await expect(view).toContainText(/pitch 89°/);
-    await page.getByRole("button", { name: "Robot" }).click();
+    await page.getByRole("button", { name: "Robot", exact: true }).click();
     await expect(page.getByTestId("camera-image")).toBeVisible();
   });
 });

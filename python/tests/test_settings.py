@@ -41,9 +41,14 @@ def test_sim_profile_loads() -> None:
     assert settings.brain.goal_delay_s == 60
     assert settings.brain.tick_delay_s == 0
     assert settings.brain.max_goals_per_run == 10
-    assert settings.tool_limits["get_nav_status"] == 6
+    assert settings.tool_limits["get_nav_status"] == 1  # the brain waits out drives, not the model
     assert settings.tool_limits["do_rotate"] == 2
     assert set(settings.tool_limits) <= set(EXPECTED_TOOLS)
+    assert settings.nav.poll_interval_s == 0.5
+    assert settings.nav.max_wait_s == 120
+    assert settings.s1.enabled is True and settings.s1.model == "nimble"
+    assert str(settings.s1.base_url) == "http://127.0.0.1:11434/"
+    assert settings.s1.min_confidence == 0.75 and settings.s1.timeout_s == 30
     assert settings.features.free_camera is True
 
 
@@ -53,6 +58,8 @@ def test_real_profile_defines_the_same_tool_contract() -> None:
     assert isinstance(settings.mcp, StreamableHttpMcpSettings)
     assert settings.mcp.url.host == "pj-ubuntu.local"
     assert settings.mcp.tool_filter == load_settings("sim").mcp.tool_filter
+    assert settings.nav == load_settings("sim").nav
+    assert settings.s1.enabled is False  # System 1 stays off until tried on the robot
     assert settings.features.free_camera is False  # no free camera on the real robot
 
 
@@ -107,6 +114,16 @@ def test_profile_and_config_dir_come_from_the_environment(tmp_path: Path, monkey
 def test_missing_profile_file_names_the_path(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError, match=str(tmp_path / "real.ini")):
         load_settings("real", config_dir=tmp_path)
+
+
+def test_drives_need_get_nav_status_to_be_waited_out(tmp_path: Path) -> None:
+    base = "[profile]\nname = sim\n[mcp]\ntransport = streamable_http\nurl = http://localhost:8000/mcp\n"
+    (tmp_path / "sim.ini").write_text(base + "tool_filter = get_current_view, set_nav_goal\n", encoding="utf-8")
+    with pytest.raises(ValidationError, match="get_nav_status"):
+        load_settings("sim", config_dir=tmp_path)
+    (tmp_path / "sim.ini").write_text(base + "[nav]\nmax_wait_s = 0\n", encoding="utf-8")
+    with pytest.raises(ValidationError, match="max_wait_s"):
+        load_settings("sim", config_dir=tmp_path)
 
 
 def test_tool_limits_keep_case_and_must_be_positive(tmp_path: Path) -> None:

@@ -13,8 +13,8 @@ const RETRY_MAX_MS = 10_000;
  *
  * The browser reconnects by itself after network drops (and resends `Last-Event-ID`). When the
  * server is absent the dev proxy answers with an HTTP error, which makes EventSource give up, so
- * this hook re-creates the connection with a capped backoff. `state`/`status` events go to the
- * query cache; everything else goes to the portal store.
+ * this hook re-creates the connection with a capped backoff. `state`/`status`/`stats` snapshots go
+ * to the query cache; everything else goes to the portal store.
  */
 export function useEventStream(url = "/api/events"): ConnectionState {
   const queryClient = useQueryClient();
@@ -34,6 +34,7 @@ export function useEventStream(url = "/api/events"): ConnectionState {
       if (event === null) return;
       if (event.type === "state") queryClient.setQueryData(queryKeys.state, event.state);
       else if (event.type === "status") queryClient.setQueryData(queryKeys.status, event.status);
+      else if (event.type === "stats") queryClient.setQueryData(queryKeys.stats, event.stats);
       else ingest(event);
     };
 
@@ -48,6 +49,7 @@ export function useEventStream(url = "/api/events"): ConnectionState {
         setConnection("open");
         queryClient.invalidateQueries({ queryKey: queryKeys.state });
         queryClient.invalidateQueries({ queryKey: queryKeys.status });
+        queryClient.invalidateQueries({ queryKey: queryKeys.stats });
       };
       next.onerror = () => {
         if (next.readyState === EventSource.CLOSED) {

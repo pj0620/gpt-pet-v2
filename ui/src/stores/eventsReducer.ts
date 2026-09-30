@@ -1,6 +1,6 @@
-import type { AdkEvent, TickEvent } from "@/types/api";
+import type { AdkEvent, NoticeEvent, S1Tag, TickEvent } from "@/types/api";
 
-export type EventRowKind = "call" | "text" | "tick";
+export type EventRowKind = "call" | "text" | "tick" | "notice";
 
 /** One row of the Events Log. Calls and their responses are paired by the function call id. */
 export interface EventRow {
@@ -17,6 +17,8 @@ export interface EventRow {
   durationMs?: number;
   isError?: boolean;
   text?: string;
+  /** System 1 made this call or wrote this text instead of Gemini. */
+  s1?: S1Tag;
 }
 
 export interface EventsState {
@@ -61,7 +63,27 @@ function append(state: EventsState, row: EventRow, cap: number): EventsState {
 }
 
 /** Pure: folds one stream event into the log. Never mutates its input. */
-export function ingestEvent(state: EventsState, event: AdkEvent | TickEvent, cap = EVENT_CAP): EventsState {
+export function ingestEvent(
+  state: EventsState,
+  event: AdkEvent | TickEvent | NoticeEvent,
+  cap = EVENT_CAP,
+): EventsState {
+  if (event.type === "notice") {
+    return append(
+      state,
+      {
+        key: `notice:${event.id}`,
+        kind: "notice",
+        callId: null,
+        tick: event.tick,
+        author: "runtime",
+        timestamp: event.timestamp,
+        name: event.kind,
+        text: event.text,
+      },
+      cap,
+    );
+  }
   if (event.type === "tick") {
     return append(
       state,
@@ -100,6 +122,7 @@ export function ingestEvent(state: EventsState, event: AdkEvent | TickEvent, cap
         timestamp: event.timestamp,
         name: call.name,
         args: call.args,
+        ...(event.s1 ? { s1: event.s1 } : {}),
       },
       cap,
     );
@@ -149,6 +172,7 @@ export function ingestEvent(state: EventsState, event: AdkEvent | TickEvent, cap
         timestamp: event.timestamp,
         name: event.author,
         text: event.text,
+        ...(event.s1 ? { s1: event.s1 } : {}),
       },
       cap,
     );

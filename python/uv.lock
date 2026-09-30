@@ -686,6 +686,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "google-adk", extra = ["mcp"] },
+    { name = "httpx" },
     { name = "pydantic" },
     { name = "python-dotenv" },
 ]
@@ -700,6 +701,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "google-adk", extras = ["mcp"], specifier = ">=2.9.2,<3" },
+    { name = "httpx", specifier = ">=0.28" },
     { name = "pydantic", specifier = ">=2.12,<3" },
     { name = "python-dotenv", specifier = ">=1" },
 ]

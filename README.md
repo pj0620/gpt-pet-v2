@@ -28,6 +28,22 @@ goal_setter  ->  update_goal_memory  ->  executor
 
 `gpt-pet run` loops ticks. `adk web src` (from `python/`) runs one tick per message for debugging.
 
+**System 1** (`[s1]` in the profile, `python/src/gpt_pet/s1.py`) puts a local decision model in
+front of Gemini: nimble (Bespoke Labs) served by Ollama, asked typed questions through the
+System One API (`POST /v1/systemone`). It takes the turns it can decide with confidence and hands
+the rest to Gemini, which still writes every new goal:
+
+- goal setter: a confident "still in progress" skips Gemini; new, finished and uncertain goals go to Gemini;
+- executor: rules take the mechanical turns (look first, look again after moving); nimble picks the
+  next destination or turn from what the MCP server offers, or decides the success criteria are met
+  and writes the report. Once Gemini takes a turn, it keeps the rest of that tick.
+
+`enabled = true|false` switches it on or off (on in `sim`, off in `real`); `min_confidence` sets
+how decisive an answer must be. It needs Ollama >= 0.35 with the model pulled
+(`ollama pull nimble`); if Ollama is unreachable, Gemini simply takes every turn. The portal's
+Stats panel shows S1's share of the turns and why it handed turns to Gemini, and the Events Log
+marks S1's own calls with an **S1** badge.
+
 All actuation goes through an MCP server chosen by a profile:
 
 | profile | server                                       | ini file                              |
@@ -35,8 +51,11 @@ All actuation goes through an MCP server chosen by a profile:
 | `sim`   | ai2thor-mcp (AI2-THOR simulator)             | `python/src/gpt_pet/config/sim.ini`   |
 | `real`  | gpt-pet-mcp (robot; server not yet written)  | `python/src/gpt_pet/config/real.ini`  |
 
-Each profile also carries `[brain]` budgets (LLM calls per tick, goal attempts) and `[tool_limits]`,
-per-tick call caps per tool that bound how long the executor can keep polling or turning.
+Each profile also carries `[brain]` budgets (LLM calls per tick, goal attempts), `[tool_limits]`,
+per-tick call caps per tool that bound how many times the executor can look, turn or retry, and
+`[nav]`. `set_nav_goal` returns to the executor only once the drive has ended: the brain checks
+`get_nav_status` itself every `poll_interval_s` (giving up after `max_wait_s`), so no LLM calls
+are spent while the robot drives.
 
 Swapping the backend is an ini change. `GPTPET_PROFILE` selects the profile (the CLI flag
 `--profile` overrides it); `GPTPET_CONFIG_DIR` points at another directory of ini files.
@@ -86,9 +105,18 @@ sibling `../../ai2thor-mcp` checkout (override with `AI2THOR_MCP_DIR`, scene wit
 
 ## The portal (`ui/`)
 
-A single-page management portal (React 19, Vite 8, Tailwind 4, shadcn/ui) with four panels:
-goals queue, camera view, top view, and an events log of MCP tool calls. Bun installs packages
-and runs scripts; Vite runs on Node.
+A single-page management portal (React 19, Vite 8, Tailwind 4, shadcn/ui) with five panels:
+goals queue, live stats, camera view, top view, and an events log of MCP tool calls plus runtime
+notices (such as the rest between ticks and why it happens). Bun installs packages and runs
+scripts; Vite runs on Node.
+
+**Stats** are counted in the brain (`python/src/gpt_pet/stats.py`): an ADK plugin times every
+Gemini and tool call and reads the token usage, the drive wait reports drives, and the runtime
+reports ticks and goals. The panel shows LLM calls, tokens (input, output, thinking), LLM and
+tick latency, goals per minute, time driving, tool calls, and System 1: its share of the model
+turns (by rule or by nimble), its hand-offs to Gemini with their reasons, the decision model's
+calls and latency, and the status checks the brain makes while it waits out drives. Reset starts
+the counters over.
 
 ```bash
 cd ui
@@ -100,9 +128,11 @@ bun run test:e2e     # Playwright; the @live tier needs the real pet server and 
 ```
 
 The portal talks to `gpt-pet serve`: `GET /api/events` (SSE), `GET /api/state`, `GET /api/status`,
-`POST /api/goals`, `GET /api/frame.jpg`, `GET /api/map.png`, `GET /api/settings`,
-`POST /api/control/{pause|resume|tick|extend}`, and `POST /api/profile`. Without the server the
-portal shows an offline state. The top view re-renders every second while a tick runs.
+`GET /api/stats`, `POST /api/stats/reset`, `POST /api/goals`, `GET /api/frame.jpg`,
+`GET /api/map.png`, `GET /api/settings`, `POST /api/control/{pause|resume|tick|extend}`, and
+`POST /api/profile`. Without the server the portal shows an offline state. The top view
+re-renders every second while a tick runs; `stats` frames arrive at most once a second while
+counters change and every 5 s otherwise.
 
 **Top view = occupancy map.** ai2thor-mcp builds the map the way the real robot's SLAM stack
 will: every rendered depth frame is turned into a planar range scan at camera height and

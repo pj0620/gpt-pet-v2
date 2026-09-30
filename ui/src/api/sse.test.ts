@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { decodeEvent, isPortalEventName } from "@/api/sse";
+import { decodeEvent, isPortalEventName, isRunStats } from "@/api/sse";
+import { STATS_SNAPSHOT as SNAPSHOT } from "@/test/fixtures";
 
 describe("decodeEvent", () => {
   it("decodes each typed frame", () => {
@@ -68,6 +69,51 @@ describe("decodeEvent", () => {
       name: "camera",
       version: 12,
     });
+  });
+
+  it("keeps the System 1 tag on ADK events", () => {
+    const frame = {
+      tick: 2,
+      author: "executor",
+      timestamp: 7,
+      functionCall: { id: "b", name: "get_current_view", args: {} },
+      s1: { by: "rules", action: "get_current_view" },
+    };
+    expect(decodeEvent("adk", JSON.stringify(frame), "30")).toMatchObject({
+      s1: { by: "rules", action: "get_current_view" },
+    });
+    const noTag = decodeEvent("adk", JSON.stringify({ ...frame, s1: "yes" }), "31");
+    expect(noTag).not.toBeNull();
+    expect(noTag && "s1" in noTag).toBe(false);
+  });
+
+  it("decodes live stats snapshots and runtime notices", () => {
+    expect(decodeEvent("stats", JSON.stringify(SNAPSHOT), "20")).toEqual({ type: "stats", id: "20", stats: SNAPSHOT });
+    expect(
+      decodeEvent(
+        "notice",
+        JSON.stringify({
+          kind: "rest",
+          tick: 2,
+          text: "Resting 60 s before the next tick.",
+          timestamp: 9,
+          seconds: 60,
+        }),
+        "21",
+      ),
+    ).toEqual({
+      type: "notice",
+      id: "21",
+      kind: "rest",
+      tick: 2,
+      text: "Resting 60 s before the next tick.",
+      timestamp: 9,
+      seconds: 60,
+    });
+    expect(decodeEvent("stats", "{}", "22")).toBeNull(); // no pet running
+    expect(decodeEvent("notice", JSON.stringify({ kind: "rest" }), "23")).toBeNull();
+    expect(isRunStats(SNAPSHOT)).toBe(true);
+    expect(isRunStats({ uptime_s: 3 })).toBe(false);
   });
 
   it("rejects unknown names, malformed JSON, and wrong shapes", () => {

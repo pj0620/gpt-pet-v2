@@ -15,7 +15,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
 DEFAULT_PROFILE = "sim"
 PROFILE_ENV = "GPTPET_PROFILE"
@@ -108,6 +108,33 @@ class BrainSettings(_Strict):
     from the portal grants another window of the same size."""
 
 
+class NavSettings(_Strict):
+    """How the brain waits out a drive. `set_nav_goal` returns to the model only once the drive
+    has ended, so no LLM calls are spent while the robot drives (see `gpt_pet.navwait`)."""
+
+    poll_interval_s: float = Field(0.5, gt=0)
+    """How often the brain itself checks get_nav_status during a drive."""
+    max_wait_s: float = Field(120, gt=0)
+    """Stop waiting after this long; the drive continues and the executor reports it as ongoing."""
+
+
+class S1Settings(_Strict):
+    """System 1: a local decision model (nimble on Ollama, or any endpoint speaking TypeSafe's
+    System One API) takes the turns it can decide with confidence; Gemini takes the rest and
+    still writes every new goal (see `gpt_pet.s1`)."""
+
+    enabled: bool = False
+    base_url: HttpUrl = Field(default=HttpUrl("http://127.0.0.1:11434"))
+    """Serves `POST /v1/systemone` (Ollama >= 0.35)."""
+    model: str = "nimble"
+    min_confidence: float = Field(0.75, ge=0, le=1)
+    """Certainty an answer needs before S1 acts on it: the API's confidence for a choice (1 -
+    normalized entropy), the margin |p(yes) - p(no)| for a yes/no answer, so at 0.75 "the
+    success criteria are met" needs p >= 0.875. Tune it with the portal's stats."""
+    timeout_s: float = Field(30, gt=0)
+    """Per decision. The first call after the model unloads includes loading it (~9 s here)."""
+
+
 class FeatureSettings(_Strict):
     free_camera: bool = False
     """Simulator only: a portal-controlled camera that flies around the room. Needs the
@@ -121,6 +148,8 @@ class Settings(_Strict):
     brain: BrainSettings = Field(default_factory=BrainSettings)
     tool_limits: dict[str, int] = Field(default_factory=dict)
     """Per-tick call cap per tool name (ini section [tool_limits]). Unlisted tools are uncapped."""
+    nav: NavSettings = Field(default_factory=NavSettings)
+    s1: S1Settings = Field(default_factory=S1Settings)
     features: FeatureSettings = Field(default_factory=FeatureSettings)
 
     @field_validator("tool_limits")
@@ -130,6 +159,13 @@ class Settings(_Strict):
         if bad:
             raise ValueError(f"tool_limits must be >= 1: {bad}")
         return value
+
+    @model_validator(mode="after")
+    def _drives_can_be_waited_out(self) -> "Settings":
+        tools = self.mcp.tool_filter  # empty means every tool the server exposes
+        if tools and "set_nav_goal" in tools and "get_nav_status" not in tools:
+            raise ValueError("[mcp] tool_filter lists set_nav_goal without get_nav_status, which the brain waits out drives with")
+        return self
 
 
 def default_config_dir() -> Path:

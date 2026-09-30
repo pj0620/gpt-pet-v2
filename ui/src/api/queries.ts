@@ -1,11 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
-import type { ControlAction, PetState, PetStatus, ProfileName, SubmitGoalBody } from "@/types/api";
+import { isRunStats } from "@/api/sse";
+import type { ControlAction, PetState, PetStatus, ProfileName, RunStats, SubmitGoalBody } from "@/types/api";
 
 export const queryKeys = {
   state: ["state"] as const,
   status: ["status"] as const,
+  stats: ["stats"] as const,
   settings: ["settings"] as const,
 };
 
@@ -31,6 +33,29 @@ export function useStatusQuery() {
     refetchOnWindowFocus: false,
     retry: false,
     refetchInterval: (query) => (query.state.status === "error" ? offlineRetryMs : false),
+  });
+}
+
+/** The run's live counters; the `stats` SSE frames keep this fresh after the first fetch. */
+export function useStatsQuery() {
+  return useQuery({
+    queryKey: queryKeys.stats,
+    queryFn: async (): Promise<RunStats | null> => {
+      const stats = await api.getStats();
+      return isRunStats(stats) ? stats : null;
+    },
+    staleTime: Number.POSITIVE_INFINITY,
+    refetchOnWindowFocus: false,
+    retry: false,
+    refetchInterval: (query) => (query.state.status === "error" ? offlineRetryMs : false),
+  });
+}
+
+export function useResetStats() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.resetStats(),
+    onSuccess: (stats: RunStats) => queryClient.setQueryData(queryKeys.stats, stats),
   });
 }
 

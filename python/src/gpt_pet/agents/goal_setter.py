@@ -7,7 +7,7 @@ templating is bypassed and the prompt file may contain braces).
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from string import Template
 from typing import Any
 
@@ -49,7 +49,9 @@ def render_goal_setter_prompt(state: Mapping[str, Any], settings: Settings) -> s
     )
 
 
-def build_goal_setter(settings: Settings) -> LlmAgent:
+def build_goal_setter(settings: Settings, before_model_callback: Callable[..., Any] | None = None) -> LlmAgent:
+    """`before_model_callback` is System 1's gate (`gpt_pet.s1`), when enabled."""
+
     def instruction(ctx: ReadonlyContext) -> str:
         return render_goal_setter_prompt(ctx.state, settings)
 
@@ -62,4 +64,5 @@ def build_goal_setter(settings: Settings) -> LlmAgent:
         output_key=STATE_GOAL_DECISION,
         include_contents="none",
         generate_content_config=types.GenerateContentConfig(temperature=settings.model.temperature),
+        before_model_callback=before_model_callback,
     )

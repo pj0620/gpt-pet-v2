@@ -33,6 +33,19 @@ def test_event_payloads_split_calls_responses_and_text() -> None:
     json.dumps(call_payload)  # serialisable
 
 
+def test_snapshot_frames_reach_subscribers_but_skip_the_replay_buffer() -> None:
+    async def scenario() -> None:
+        broadcaster = Broadcaster()
+        queue = broadcaster.subscribe()
+        broadcaster.publish("notice", {"kind": "rest"})
+        broadcaster.publish("stats", {"uptime_s": 1.0}, keep=False)
+        assert queue.qsize() == 2
+        assert [frame.event for frame in broadcaster.replay(after_id=0)] == ["notice"]
+        assert broadcaster.last_id == 2  # ids stay monotonic across both kinds
+
+    asyncio.run(scenario())
+
+
 def test_broadcaster_fans_out_and_replays_after_an_id() -> None:
     async def scenario() -> None:
         broadcaster = Broadcaster(history=3)

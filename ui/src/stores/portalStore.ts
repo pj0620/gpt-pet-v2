@@ -36,6 +36,7 @@ export const usePortalStore = create<PortalStore>()((set) => ({
     set((state) => {
       switch (event.type) {
         case "adk":
+        case "notice":
           return { events: ingestEvent(state.events, event) };
         case "tick":
           return { events: ingestEvent(state.events, event), lastTick: event };

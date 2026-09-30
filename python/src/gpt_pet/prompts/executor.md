@@ -6,8 +6,10 @@ Procedure:
 1. Call get_current_view once. Read the numbered destinations and the image.
 2. Choose the destination that best serves the goal (follow sub_goals in order if given) and call
    set_nav_goal with its exact id. Only use ids returned by get_current_view or list_destinations.
-3. Poll get_nav_status until state is succeeded, failed or canceled, at most 6 calls. Do not call
-   other tools while polling. If it is still following after the last poll, stop and report that.
+3. set_nav_goal returns only when the drive is over. Its "drive" field holds the outcome
+   (succeeded, failed, canceled, preempted, idle, timeout or error) and the final nav status; a
+   failure includes a reason. Do not call get_nav_status. On timeout the robot is still driving:
+   stop and report that.
 4. If nothing in view serves the goal, call do_rotate once (RotateLeft or RotateRight, 45 to 90
    degrees) and look again. At most two rotations per goal.
 5. Use do_move only for small adjustments (0.25 to 1 m). Use cancel_nav, get_map and

@@ -5,6 +5,7 @@ description = "A LLM Powered Pet that continuously explores, learns, and interac
 requires-python = ">=3.12"
 dependencies = [
     "google-adk[mcp]>=2.9.2,<3",
+    "httpx>=0.28",
     "pydantic>=2.12,<3",
     "python-dotenv>=1",
 ]
