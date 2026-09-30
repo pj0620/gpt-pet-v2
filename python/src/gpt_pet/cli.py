@@ -1,4 +1,5 @@
-"""`gpt-pet run`: the autonomous tick loop. `gpt-pet serve`: the loop plus the portal API."""
+"""`gpt-pet run`: the autonomous tick loop. `gpt-pet serve`: the loop plus the portal API.
+`gpt-pet experiment`: timed runs per test and bot config, totals appended to a CSV."""
 from __future__ import annotations
 
 import argparse
@@ -54,7 +55,48 @@ def build_parser() -> argparse.ArgumentParser:
     serve.add_argument("--no-launch-sim", action="store_true", help="do not launch ai2thor-mcp when nothing answers on the sim URL")
     serve.add_argument("--no-map-refresh", action="store_true", help="do not fetch the map after each tick")
     serve.add_argument("--scene", default=None, help="AI2-THOR scene when launching the simulator")
+
+    experiment = commands.add_parser(
+        "experiment",
+        help="run the pet for a fixed time per test and bot config and append the totals to a CSV",
+    )
+    experiment.add_argument("suite", nargs="?", help="suite JSON file: {name, test or tests, bots}")
+    experiment.add_argument("--test", help="test config (JSON file or inline JSON), used with --bot")
+    experiment.add_argument("--bot", action="append", default=[], help="bot config (JSON file or inline JSON); repeat for more bots")
+    experiment.add_argument("--name", default="adhoc", help="experiment name for --test/--bot runs")
+    experiment.add_argument("--repeats", type=int, default=None, help="override every test's repeats")
+    experiment.add_argument("--results", type=Path, default=None, help="results directory (default: gpt-pet-v2/experiments/results)")
+    experiment.add_argument("--summary", action="store_true", help="only print the summary of the results so far")
     return parser
+
+
+def experiment(args: argparse.Namespace) -> int:
+    from gpt_pet.experiment import (
+        DEFAULT_RESULTS_DIR,
+        RESULTS_CSV,
+        build_suite,
+        format_summary,
+        run_suite,
+        write_summary,
+    )
+
+    results_dir = args.results or DEFAULT_RESULTS_DIR
+    if args.summary:
+        print(format_summary(write_summary(results_dir)))
+        return 0
+    suite = build_suite(args.suite, test=args.test, bots=args.bot, name=args.name, repeats=args.repeats)
+
+    def report(row: dict) -> None:
+        outcome = f"error: {row['error']}" if row["error"] else (
+            f"{row['duration_s']} s, {row['llm_calls']} LLM calls, {row['tokens_total']} tokens, "
+            f"{row['s1_turns']} S1 turns, {row['goals_done']} goals done"
+        )
+        log.info("%s: %s", row["run_id"], outcome)
+
+    rows = asyncio.run(run_suite(suite, results_dir=results_dir, on_row=report))
+    print(format_summary(write_summary(results_dir), experiment=suite.name))
+    print(f"\n{len(rows)} runs appended to {results_dir / RESULTS_CSV}")
+    return 1 if any(row["error"] for row in rows) else 0
 
 
 def log_tick(result: TickResult) -> None:
@@ -102,6 +144,8 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     configure_logging(args.verbose)
     load_env()
+    if args.command == "experiment":
+        return experiment(args)
     settings = load_settings(args.profile)
     try:
         if args.command == "serve":

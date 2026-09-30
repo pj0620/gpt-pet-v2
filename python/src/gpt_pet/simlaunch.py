@@ -1,17 +1,21 @@
 """Attach to a running ai2thor-mcp server or launch one from the sibling checkout.
 
-Shared by `gpt-pet serve --launch-sim` and the live test suite.
+Shared by `gpt-pet serve`, the experiment harness and the live test suite. A launched server
+serves on the port of its URL and runs in its own process group, so stopping it also stops its
+Unity simulator and never touches any other simulator on the machine.
 """
 from __future__ import annotations
 
 import json
 import logging
 import os
+import signal
 import subprocess
 import time
 import urllib.error
 import urllib.request
 from pathlib import Path
+from urllib.parse import urlsplit
 
 log = logging.getLogger("gpt_pet.sim")
 
@@ -62,7 +66,8 @@ def default_scene() -> str:
 
 
 def launch_mcp_server(url: str, *, scene: str | None = None, log_path: Path | None = None) -> subprocess.Popen[bytes]:
-    """Start `uv run python/ai2thor_mcp/main.py --http` in the checkout and wait until it answers."""
+    """Start `uv run python/ai2thor_mcp/main.py --http` in the checkout, serving on `url`'s port,
+    and wait until it answers."""
     repo = ai2thor_mcp_dir()
     entry = repo / "python" / "ai2thor_mcp" / "main.py"
     if not entry.is_file():
@@ -74,6 +79,8 @@ def launch_mcp_server(url: str, *, scene: str | None = None, log_path: Path | No
         cwd=repo,
         stdout=log_file,
         stderr=subprocess.STDOUT,
+        env={**os.environ, "FASTMCP_PORT": str(urlsplit(url).port or 8000)},
+        start_new_session=True,
     )
     deadline = time.monotonic() + START_TIMEOUT_S
     while time.monotonic() < deadline:
@@ -83,7 +90,7 @@ def launch_mcp_server(url: str, *, scene: str | None = None, log_path: Path | No
             log.info("ai2thor-mcp launched at %s (scene %s, pid %d)", url, scene, process.pid)
             return process
         time.sleep(1.0)
-    process.terminate()
+    stop_mcp_server(process)
     raise TimeoutError(f"ai2thor-mcp did not answer at {url} within {START_TIMEOUT_S:.0f}s (log: {log_path})")
 
 
@@ -95,15 +102,30 @@ def ensure_mcp_server(url: str, *, scene: str | None = None, log_path: Path | No
     return launch_mcp_server(url, scene=scene, log_path=log_path)
 
 
-def stop_mcp_server(process: subprocess.Popen[bytes] | None) -> None:
-    """Terminate a server this process launched, and any orphaned Unity simulator."""
+def _group_alive(group: int) -> bool:
+    try:
+        os.killpg(group, 0)
+    except ProcessLookupError:
+        return False
+    return True
+
+
+def stop_mcp_server(process: subprocess.Popen[bytes] | None, timeout_s: float = 15.0) -> None:
+    """Stop a server this process launched together with its Unity simulator (its process group)."""
     if process is None:
         return
-    if process.poll() is None:
-        process.terminate()
-        try:
-            process.wait(timeout=15)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait(timeout=15)
-    subprocess.run(["pkill", "-f", "thor-OSXIntel64"], check=False)
+    group = process.pid  # the leader of the session `launch_mcp_server` started
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        if not _group_alive(group):
+            break
+        os.killpg(group, sig)
+        deadline = time.monotonic() + timeout_s
+        while _group_alive(group) and time.monotonic() < deadline:
+            if process.poll() is None:
+                try:
+                    process.wait(timeout=0.5)
+                except subprocess.TimeoutExpired:
+                    pass
+            else:
+                time.sleep(0.2)
+    process.poll()

@@ -1,0 +1,195 @@
+{
+  "row": {
+    "run_id": "20260930T230605Z-s1-on-vs-off-s1-on-1",
+    "experiment": "s1_on_vs_off",
+    "test": "5 min in FloorPlan_Train1_3",
+    "bot": "s1_on",
+    "repeat": 1,
+    "started_at": "2026-09-30T23:06:05+00:00",
+    "room_id": "FloorPlan_Train1_3",
+    "test_time_s": 300.0,
+    "s1_enabled": true,
+    "s1_model": "nimble",
+    "s1_min_confidence": 0.75,
+    "goal_setter_model": "gemini-3.5-flash",
+    "executor_model": "gemini-3.5-flash",
+    "goal_delay_s": 0.0,
+    "bot_overrides": "{\"brain\": {\"goal_delay_s\": 0, \"max_goals_per_run\": 0, \"tick_delay_s\": 0}, \"s1\": {\"enabled\": true}}",
+    "duration_s": 300.0,
+    "ticks": 8,
+    "tick_avg_s": 36.94,
+    "ticks_truncated": 0,
+    "llm_calls": 65,
+    "llm_calls_goal_setter": 8,
+    "llm_calls_executor": 57,
+    "llm_errors": 0,
+    "llm_calls_per_min": 13.0,
+    "llm_avg_ms": 4152,
+    "llm_p50_ms": 1680,
+    "llm_p95_ms": 4078,
+    "tokens_total": 431197,
+    "tokens_input": 421974,
+    "tokens_output": 2309,
+    "tokens_thinking": 6914,
+    "tokens_cached": 168921,
+    "tokens_per_min": 86239.2,
+    "tool_calls": 74,
+    "tool_errors": 0,
+    "tool_refusals": 9,
+    "tool_avg_ms": 62,
+    "drives": 13,
+    "drives_succeeded": 13,
+    "drives_failed": 0,
+    "driving_s": 7.8,
+    "driving_pct": 2.6,
+    "drive_checks": 28,
+    "goals_started": 8,
+    "goals_done": 6,
+    "goals_abandoned": 1,
+    "goals_done_per_min": 1.2,
+    "s1_turns": 25,
+    "s1_share_pct": 27.8,
+    "s1_rules": 16,
+    "s1_nimble": 9,
+    "s1_handoffs": 16,
+    "s1_decider_calls": 24,
+    "s1_decider_avg_ms": 1222,
+    "first_action_s": 5.1,
+    "destinations_seen": 18,
+    "error": ""
+  },
+  "test": {
+    "name": "5 min in FloorPlan_Train1_3",
+    "test_time": "5min",
+    "room_id": "FloorPlan_Train1_3",
+    "repeats": 3,
+    "warm_up": true
+  },
+  "bot": {
+    "name": "s1_on",
+    "profile": "sim",
+    "overrides": {
+      "s1": {
+        "enabled": true
+      },
+      "brain": {
+        "goal_delay_s": 0,
+        "tick_delay_s": 0,
+        "max_goals_per_run": 0
+      }
+    }
+  },
+  "stats": {
+    "started_at": 1790809573.066195,
+    "uptime_s": 300.0,
+    "llm": {
+      "calls": 65,
+      "errors": 0,
+      "per_min": 13.0,
+      "latency": {
+        "count": 65,
+        "avg_ms": 4152,
+        "p50_ms": 1680,
+        "p95_ms": 4078,
+        "last_ms": 1674
+      },
+      "by_agent": {
+        "executor": {
+          "calls": 57,
+          "tokens": 420385,
+          "avg_ms": 4205
+        },
+        "goal_setter": {
+          "calls": 8,
+          "tokens": 10812,
+          "avg_ms": 3771
+        }
+      }
+    },
+    "tokens": {
+      "input": 421974,
+      "output": 2309,
+      "thinking": 6914,
+      "cached": 168921,
+      "total": 431197,
+      "per_min": 86239.2,
+      "last_call": 7876
+    },
+    "tools": {
+      "calls": 74,
+      "errors": 0,
+      "refusals": 9,
+      "latency": {
+        "count": 65,
+        "avg_ms": 62,
+        "p50_ms": 61,
+        "p95_ms": 132,
+        "last_ms": 63
+      }
+    },
+    "ticks": {
+      "count": 8,
+      "truncated": 0,
+      "latency": {
+        "count": 8,
+        "avg_ms": 36936,
+        "p50_ms": 18851,
+        "p95_ms": 159211,
+        "last_ms": 16847
+      }
+    },
+    "goals": {
+      "started": 8,
+      "done": 6,
+      "abandoned": 1,
+      "started_per_min": 1.6,
+      "done_per_min": 1.2
+    },
+    "drives": {
+      "count": 13,
+      "outcomes": {
+        "succeeded": 13
+      },
+      "driving_s": 7.8,
+      "driving_pct": 2.6,
+      "checks": 28,
+      "latency": {
+        "count": 13,
+        "avg_ms": 599,
+        "p50_ms": 5,
+        "p95_ms": 3063,
+        "last_ms": 1021
+      }
+    },
+    "s1": {
+      "enabled": true,
+      "model": "nimble",
+      "turns": 25,
+      "share_pct": 27.8,
+      "by": {
+        "nimble": 9,
+        "rules": 16
+      },
+      "by_agent": {
+        "executor": 25
+      },
+      "escalations": {
+        "executor: unsure": 7,
+        "goal_setter: judged done": 7,
+        "goal_setter: judged abandoned": 1,
+        "goal_setter: no active goal": 1
+      },
+      "decider": {
+        "calls": 24,
+        "latency": {
+          "count": 24,
+          "avg_ms": 1222,
+          "p50_ms": 1165,
+          "p95_ms": 2019,
+          "last_ms": 820
+        }
+      }
+    },
+    "first_action_s": 5.1
+  }
+}

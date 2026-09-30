@@ -1,0 +1,8 @@
+{
+  "name": "s1_on",
+  "profile": "sim",
+  "overrides": {
+    "s1": {"enabled": true},
+    "brain": {"goal_delay_s": 0, "tick_delay_s": 0, "max_goals_per_run": 0}
+  }
+}
