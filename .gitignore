@@ -216,3 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# UI (ui/ is a Bun + Vite app; bun.lock stays tracked)
+node_modules/
+ui/dist/
+ui/test-results/
+ui/playwright-report/
+ui/blob-report/
+.vite/
+# the Python template's `lib/` rule above must not swallow shadcn's ui/src/lib
+!ui/src/lib/
