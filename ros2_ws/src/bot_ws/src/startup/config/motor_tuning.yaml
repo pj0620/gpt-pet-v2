@@ -1,0 +1,39 @@
+# Motor driver tuning. These are ROS parameters on the /gptpet_motors node, which the
+# gptpet_hardware plugin creates inside ros2_control_node. Every value here is pushed to the
+# ESP32 over serial each time the hardware interface activates, and any live change
+#   ros2 param set /gptpet_motors kp "[3.5, 3.5, 3.5, 3.5]"
+#   ros2 param set /gptpet_motors min_pwm 30
+# is forwarded immediately (the ESP32's resulting PARAMS line shows up in the launch log).
+# Array order is always L1, L2, R1, R2 (front left, rear left, front right, rear right).
+# Arrays must keep their type: write 3.0 not 3 for kp/ki/kd.
+# To keep a value after tuning, write it here and also update the defaults at the top of
+# embedded/arduino_driver/arduino_driver.ino, which are what the ESP32 uses when ROS is down.
+gptpet_motors:
+  ros__parameters:
+    # PID gains, in PWM counts per rpm of error (kp), per rpm*s (ki), per rpm/s (kd)
+    kp: [3.0, 3.0, 3.0, 3.0]
+    ki: [15.0, 15.0, 15.0, 15.0]
+    kd: [0.0, 0.0, 0.0, 0.0]
+
+    # PID output floor in PWM counts (0..254). Also the slowest the wheels can turn: at 75 the
+    # wheels ran 14-20 rpm (0.07-0.10 m/s) regardless of target.
+    min_pwm: 35
+
+    # Target clamp (rpm) in the firmware; JGB37-520 rated speed is 76 rpm at 12 V
+    max_rpm: 76.0
+
+    # Firmware stops the motors after this long without a command from ros2_control (ms)
+    watchdog_ms: 500
+
+    # Speed measurement / PID period and feedback report period (ms)
+    sample_ms: 20
+    report_ms: 20
+
+    # true bypasses the PID and maps targets straight to PWM (dead reckoning)
+    open_loop: false
+
+    # Encoder direction per motor: 1 or -1. Flip a motor whose measured speed opposes its target.
+    enc_sign: [1, 1, 1, 1]
+
+    # Motors wired backwards: flips both the PWM polarity and the measured sign
+    motor_reversed: [true, true, false, true]

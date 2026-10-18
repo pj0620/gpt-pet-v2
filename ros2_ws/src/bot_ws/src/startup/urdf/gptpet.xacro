@@ -220,8 +220,8 @@
            Joint order below must stay L1, L2, R1, R2 to match the firmware's motor order. -->
       <param name="serial_ports">/dev/ttyACM0,/dev/ttyACM1</param>
       <param name="baud_rate">115200</param>
-      <!-- JGB37-520 rated speed; only used to warn when the controller asks for more -->
-      <param name="max_rpm">76.0</param>
+      <!-- PID gains, PWM floor, max rpm etc. are ROS parameters on /gptpet_motors,
+           see startup/config/motor_tuning.yaml -->
       <!-- 11 ppr x 4 edges x 131:1 gearbox, must match COUNTS_PER_REV in the firmware -->
       <param name="encoder_counts_per_rev">5764</param>
       <!-- seconds without a report before reported wheel velocity is zeroed -->

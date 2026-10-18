@@ -27,10 +27,13 @@ def generate_launch_description():
   ## ROS CONTROL ##
   robot_description = {'robot_description': robot_description_content}
   robot_controllers = os.path.join(pkg_path, 'config', 'controllers.yaml')
+  # Motor PID / firmware tuning for the /gptpet_motors parameter node that the
+  # gptpet_hardware plugin creates inside ros2_control_node (see motor_tuning.yaml).
+  motor_tuning = os.path.join(pkg_path, 'config', 'motor_tuning.yaml')
   control_node = Node(
     package='controller_manager',
     executable='ros2_control_node',
-    parameters=[robot_description, robot_controllers, {
+    parameters=[robot_description, robot_controllers, motor_tuning, {
       'use_sim_time': False,
     }],
     output='both',
