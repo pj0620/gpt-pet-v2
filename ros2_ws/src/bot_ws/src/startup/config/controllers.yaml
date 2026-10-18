@@ -1,11 +1,11 @@
 controller_manager:
   ros__parameters:
     update_rate: 50  # Hz
-  
+
     # Declare the controllers that you want to run
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
-    
+
     mecanum_drive_controller:
       type: mecanum_drive_controller/MecanumDriveController
 
@@ -20,36 +20,32 @@ mecanum_drive_controller:
     front_right_wheel_state_joint_name: "velocity_right_1_joint"
     rear_left_wheel_state_joint_name: "velocity_left_2_joint"
     rear_right_wheel_state_joint_name: "velocity_right_2_joint"
-    
-    # Command interface configuration.
-    # reference_timeout is the EFFECTIVE command-hold for MecanumDriveController:
-    # it keeps applying the last /cmd_vel for this many seconds after the last
-    # message. cmd_vel_timeout does NOT halt this controller, so keep this short —
-    # at 10.0 s a single missed stop ran the robot into a wall. 0.5 s is safe for
-    # Nav2 (it commands at >=10 Hz) and auto-halts within 0.5 s if commands stop.
-    cmd_vel_timeout: 0.5  # seconds (not enforced by this controller; kept for clarity)
-    reference_timeout: 0.5  # seconds — failsafe: auto-stop if commands stop arriving
-    publish_rate: 50.0   # Hz
-    
-    # Time synchronization
+
+    # reference_timeout is the command hold for MecanumDriveController: it keeps applying
+    # the last /cmd_vel for this many seconds after the last message, then stops. At 10.0 s a
+    # single missed stop ran the robot into a wall. 0.5 s is safe for Nav2 (it commands at
+    # >=10 Hz) and auto-halts within 0.5 s if commands stop. The ESP32 firmware has its own
+    # 0.5 s watchdog underneath this (see embedded/arduino_driver/arduino_driver.ino).
+    reference_timeout: 0.5  # seconds
+
     use_stamped_vel: false  # Nav2 Humble publishes geometry_msgs/Twist, not TwistStamped
-    velocity_rolling_window_size: 10
-    
-    # Odometry settings - try different parameter names
-    position_feedback: true
+
+    # Odometry. The controller integrates the wheel velocity state interfaces (rad/s), which
+    # gptpet_hardware fills from the ESP32's measured rpm. Wheel speed commands are written
+    # in rad/s and converted to rpm by gptpet_hardware.
     odom_frame_id: "odom"
     base_frame_id: "base_link"
-    enable_odom_tf: false
-    publish_odom_tf: false  # EKF on server owns odom→base_link TF
-    
+    enable_odom_tf: false  # EKF on server owns odom->base_link TF
+
     kinematics:
       base_frame_offset: { x: 0.0, y: 0.0, theta: 0.0 }
       wheels_radius: 0.0485
       sum_of_robot_center_projection_on_X_Y_axis: 0.185
-      
+
     twist_covariance_diagonal: [0.0, 7.0, 14.0, 21.0, 28.0, 35.0]
     pose_covariance_diagonal: [0.0, 6.0, 12.0, 18.0, 24.0, 30.0]
-    
-    # Additional parameters to fix transform timing
-    tf_frame_prefix_enable: false
-    tf_frame_prefix: ""
+
+    # Only parameters declared by Humble's mecanum_drive_controller are set here. Earlier
+    # versions of this file also set position_feedback, cmd_vel_timeout, publish_rate,
+    # velocity_rolling_window_size, publish_odom_tf and tf_frame_prefix*, none of which this
+    # controller declares; they were silently ignored.

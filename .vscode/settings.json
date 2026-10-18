@@ -16,6 +16,7 @@
     "*.ino": "arduino",
     "cmath": "cpp"
   },
+  "cmake.sourceDirectory": "/Users/pj/Projects/GPTPet/code/gpt-pet-v2/tinyxml2-quickstart",
   // "files.associations": {
   //   "*.ino": "arduino",
   //   "istream": "cpp",
