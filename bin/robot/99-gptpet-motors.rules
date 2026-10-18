@@ -1,0 +1,6 @@
+# GPTPet ESP32 motor driver: CH343 USB-UART bridge, USB id 1a86:55d3.
+#  - a fixed name, /dev/gptpet_motors, whichever ttyACMn the kernel hands out
+#  - ModemManager must not probe it (it would send AT commands to the motor controller)
+#  - the dialout group may reset the USB device: gptpet_hardware does that when the port stalls
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d3", SYMLINK+="gptpet_motors", GROUP="dialout", MODE="0660", ENV{ID_MM_DEVICE_IGNORE}="1"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1a86", ATTR{idProduct}=="55d3", GROUP="dialout", MODE="0660"

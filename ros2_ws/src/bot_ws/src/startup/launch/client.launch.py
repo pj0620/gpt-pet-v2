@@ -1,6 +1,7 @@
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, SetEnvironmentVariable, TimerAction
-from launch.substitutions import Command
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, SetEnvironmentVariable, TimerAction
+from launch.conditions import IfCondition
+from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 import os
 from ament_index_python.packages import get_package_prefix, get_package_share_directory
@@ -71,6 +72,11 @@ def generate_launch_description():
   ])
   
   ## KINECT ##
+  # kinect:=false skips it. The node currently dies at startup (FREENECT - NO DEVICES, then a
+  # segfault) and its firmware upload re-enumerates the Kinect's USB devices on the shared hub,
+  # which once coincided with the ESP32's USB serial link stalling.
+  nodes.insert(0, DeclareLaunchArgument(
+    'kinect', default_value='true', description='Run the Kinect camera node'))
   nodes.append(
     Node(
       package="kinect_ros2",
@@ -79,7 +85,8 @@ def generate_launch_description():
       namespace="kinect",
       parameters=[
         {"use_sim_time": False}
-      ]
+      ],
+      condition=IfCondition(LaunchConfiguration('kinect')),
     )
   )
   
@@ -117,6 +124,30 @@ def generate_launch_description():
     )
   )
   
+  ## FOXGLOVE BRIDGE ##
+  # Lets the Foxglove desktop app connect straight to the robot (Open connection ->
+  # Foxglove WebSocket -> ws://gptpetclient.local:8765) with no ROS install on the laptop.
+  # Idle cost on the Nano is small; it only forwards what the client subscribes to.
+  # Disable with: ros2 launch startup client.launch.py foxglove:=false
+  nodes.insert(0, DeclareLaunchArgument(
+    'foxglove', default_value='true',
+    description='Run foxglove_bridge on the robot (ws port 8765)'))
+  nodes.append(
+    Node(
+      package="foxglove_bridge",
+      executable="foxglove_bridge",
+      name="foxglove_bridge",
+      parameters=[{
+        "port": 8765,
+        "address": "0.0.0.0",
+        "send_buffer_limit": 10000000,
+        "use_sim_time": False,
+      }],
+      condition=IfCondition(LaunchConfiguration('foxglove')),
+      output="screen",
+    )
+  )
+
   # NOTE: mecanum_drive_controller publishes wheel odometry on
   # /mecanum_drive_controller/odometry only; odom TF is provided by EKF on server.
   

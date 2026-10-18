@@ -79,6 +79,30 @@ colcon build && . ./install/setup.bash
 ros2 launch startup client.launch.py
 ```
 
+## Mac Dev Machine (this checkout)
+
+This Mac is not the server: it has a RoboStack ROS 2 Humble env (mamba `ros_env`) and talks to the
+robot directly. Multicast discovery does not cross the WiFi and the robot runs Fast DDS, so always:
+
+```bash
+source bin/mac_env.sh      # Fast DDS, domain 0, unicast peers for gptpetclient.local / pj-ubuntu.local
+ros2 topic list            # robot topics now visible; ros2 param set /gptpet_motors ... works too
+./bin/rviz.sh              # RViz2 with rviz2_config.rviz (Fixed Frame map needs the server running)
+./bin/foxglove.sh          # local foxglove_bridge on ws://localhost:8765 for the Foxglove web app
+./bin/motors/teleop.sh     # keyboard teleop clamped to 0.1 m/s, 0.5 rad/s
+./bin/motors/forward.sh 0.2 0.1
+```
+
+The robot also runs `foxglove_bridge` from `client.launch.py` on `ws://gptpetclient.local:8765`
+(Foxglove desktop app, no ROS needed). `~/.zshrc` exports CycloneDDS, which `mac_env.sh` overrides.
+
+## One-time Robot Setup
+
+`bin/robot/install_udev_rules.sh` (run on the robot) names the ESP32 motor driver
+`/dev/gptpet_motors`, keeps ModemManager off it, and lets `gptpet_hardware` reset its USB device
+when the serial link stalls. Start the client launch with `nohup setsid ... &` or inside tmux: a
+dropped SSH session kills it otherwise. `client.launch.py` takes `foxglove:=false` and `kinect:=false`.
+
 ## About the Robot
 
 - Xbox 360 Kinect camera

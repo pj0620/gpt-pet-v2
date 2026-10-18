@@ -218,7 +218,9 @@
       <plugin>gptpet_hardware/GptpetHardwareInterface</plugin>
       <!-- ESP32 motor driver over USB serial (embedded/arduino_driver/arduino_driver.ino).
            Joint order below must stay L1, L2, R1, R2 to match the firmware's motor order. -->
-      <param name="serial_ports">/dev/ttyACM0,/dev/ttyACM1</param>
+      <!-- /dev/gptpet_motors comes from bin/robot/99-gptpet-motors.rules; the by-id and ttyACM
+           names are fallbacks (the CH343 bridge moves between ttyACM0 and ttyACM1 when re-plugged) -->
+      <param name="serial_ports">/dev/gptpet_motors,/dev/serial/by-id/usb-1a86_USB_Single_Serial_5734047665-if00,/dev/ttyACM0,/dev/ttyACM1</param>
       <param name="baud_rate">115200</param>
       <!-- PID gains, PWM floor, max rpm etc. are ROS parameters on /gptpet_motors,
            see startup/config/motor_tuning.yaml -->

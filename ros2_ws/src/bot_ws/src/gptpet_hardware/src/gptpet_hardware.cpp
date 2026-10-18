@@ -23,6 +23,11 @@
 //                           COUNTS_PER_REV (default 5764 = 11 ppr * 4 edges * 131:1)
 //   feedback_timeout        seconds without a valid report before the reported wheel
 //                           velocities are zeroed (default 0.5)
+// If the port is missing at startup or disappears later (ESP32 re-plugged or re-flashed), the
+// interface keeps retrying every second and re-sends the tuning parameters once it is back.
+// If the port is present but dead (writes blocked for 1 s, or no feedback for 5 s; seen on the
+// Jetson when another device on the same USB hub re-enumerates), it is closed and reopened, and
+// on a repeat the USB device itself is reset (needs the udev rule in bin/robot/).
 //
 // Motor tuning parameters live on a ROS node this plugin creates, /gptpet_motors, so they
 // can be set from a YAML file (startup/config/motor_tuning.yaml) and changed live:
@@ -53,8 +58,12 @@
 #include "pluginlib/class_list_macros.hpp"
 
 #include <fcntl.h>
+#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
+#ifdef __linux__
+#include <linux/usbdevice_fs.h>
+#endif
 
 #include <algorithm>
 #include <atomic>
@@ -65,6 +74,7 @@
 #include <cstdio>
 #include <cstring>
 #include <deque>
+#include <fstream>
 #include <mutex>
 #include <sstream>
 #include <string>
@@ -92,6 +102,9 @@ constexpr uint8_t REPORT_PAYLOAD_LEN = 6 * NUM_MOTORS;  // 4 x (int16 rpm + int3
 constexpr size_t REPORT_LEN = 2 + REPORT_PAYLOAD_LEN + 1;  // header + len + payload + checksum
 
 constexpr size_t RX_BUFFER_MAX = 1024;   // the firmware sends ~1.4 KB/s; this is ~0.7 s of data
+constexpr double WRITE_STALL_S = 1.0;        // commands blocked (EAGAIN) this long -> port is stuck
+constexpr double FEEDBACK_STALL_S = 5.0;     // open port, nothing from the ESP32 this long -> stuck
+constexpr double STALL_ESCALATE_WINDOW_S = 30.0;  // a second stall within this -> USB reset
 constexpr size_t MAX_TEXT_LINE = 240;    // longest firmware reply we keep (PARAMS line is ~150)
 constexpr int MAX_TEXT_CMDS_PER_CYCLE = 2;  // keep parameter pushes gentle on the ESP32's UART
 
@@ -239,9 +252,10 @@ public:
     count_jump_limit_ = static_cast<int32_t>(4.0 * counts_per_rev);
     feedback_timeout_s_ = param_double("feedback_timeout", 0.5);
 
-    if (!open_serial_port()) {
-      RCLCPP_ERROR(logger_, "Failed to open the motor driver serial port");
-      return CallbackReturn::ERROR;
+    if (!open_serial_port(false)) {
+      RCLCPP_ERROR(
+        logger_, "Motor driver serial port not available yet; will keep trying every second");
+      last_reconnect_attempt_ = steady_clock_.now();
     }
 
     // Tunable parameters on their own ROS node
@@ -307,6 +321,7 @@ public:
 
   hardware_interface::return_type read(
     const rclcpp::Time & time, const rclcpp::Duration & /*period*/) override {
+    maybe_reconnect();
     read_serial_data(time);
 
     // If the ESP32 goes quiet, don't keep integrating a stale velocity into odometry
@@ -317,6 +332,16 @@ public:
       RCLCPP_WARN(
         logger_, "No motor feedback for %.2f s, reporting zero wheel velocity",
         feedback_timeout_s_);
+    }
+
+    // Port open but silent for a long time: the USB link is stuck (or the ESP32 is hung)
+    if (serial_fd_ >= 0) {
+      const double quiet_s = have_feedback_
+        ? (time - last_feedback_time_).seconds()
+        : (steady_clock_.now() - port_opened_at_).seconds();
+      if (quiet_s > FEEDBACK_STALL_S) {
+        handle_serial_stall("no feedback from the ESP32 for 5 s");
+      }
     }
     return hardware_interface::return_type::OK;
   }
@@ -539,6 +564,10 @@ private:
       std::string & cmd = pending_text_.front();
       const ssize_t n = ::write(serial_fd_, cmd.data(), cmd.size());
       if (n < 0) {
+        if (is_device_gone(errno)) {
+          handle_serial_loss("parameter write");
+          return;
+        }
         RCLCPP_WARN_THROTTLE(
           logger_, steady_clock_, 2000, "Text command write failed: %s", strerror(errno));
         return;  // retry next cycle
@@ -554,12 +583,20 @@ private:
 
   // --- serial port --------------------------------------------------------------------------
 
-  bool open_serial_port() {
+  bool open_serial_port(bool quiet) {
     for (const auto & port : serial_ports_) {
       int fd = ::open(port.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
       if (fd < 0) {
-        RCLCPP_WARN(logger_, "Unable to open serial port %s: %s", port.c_str(), strerror(errno));
+        if (!quiet) {
+          RCLCPP_WARN(logger_, "Unable to open serial port %s: %s", port.c_str(), strerror(errno));
+        }
         continue;
+      }
+
+      // Exclusive: a second ros2_control_node (e.g. a launch started twice) must fail to open the
+      // port instead of silently interleaving its commands with ours.
+      if (ioctl(fd, TIOCEXCL) != 0) {
+        RCLCPP_WARN(logger_, "Could not set exclusive mode on %s: %s", port.c_str(), strerror(errno));
       }
 
       struct termios tty;
@@ -589,11 +626,143 @@ private:
 
       tcflush(fd, TCIOFLUSH);  // drop the firmware's boot banner and any stale bytes
       serial_fd_ = fd;
+      open_port_path_ = port;
+      port_opened_at_ = steady_clock_.now();
+      write_blocked_ = false;
       RCLCPP_INFO(logger_, "Opened motor driver serial port %s", port.c_str());
       return true;
     }
-    RCLCPP_ERROR(logger_, "None of the configured serial ports could be opened");
+    if (!quiet) {
+      RCLCPP_ERROR(logger_, "None of the configured serial ports could be opened");
+    }
     return false;
+  }
+
+  static bool is_device_gone(int err) {
+    return err == EIO || err == ENODEV || err == ENXIO || err == EBADF;
+  }
+
+  // The USB device vanished (unplugged, re-flashed): drop the fd and let maybe_reconnect() retry.
+  // The firmware's own watchdog stops the motors when our commands stop arriving.
+  void handle_serial_loss(const char * during) {
+    const int err = errno;
+    RCLCPP_ERROR(
+      logger_, "Motor driver serial port lost during %s: %s. Retrying every second", during,
+      strerror(err));
+    if (serial_fd_ >= 0) {
+      ::close(serial_fd_);
+      serial_fd_ = -1;
+    }
+    std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
+    rx_buffer_.clear();
+    have_feedback_ = false;
+    feedback_stale_ = false;
+    last_reconnect_attempt_ = steady_clock_.now();
+  }
+
+  // The port is open but dead. Closing it makes the kernel abandon the stuck USB transfers, and
+  // maybe_reconnect() reopens it a second later. If that didn't cure it last time, reset the USB
+  // device (same effect as re-plugging the ESP32).
+  void handle_serial_stall(const char * why) {
+    const rclcpp::Time now = steady_clock_.now();
+    stalls_in_a_row_ = ((now - last_stall_).seconds() < STALL_ESCALATE_WINDOW_S) ? stalls_in_a_row_ + 1 : 1;
+    last_stall_ = now;
+    RCLCPP_ERROR(
+      logger_, "Motor driver serial port stalled: %s. Reopening it (stall %d)", why,
+      stalls_in_a_row_);
+    if (serial_fd_ >= 0) {
+      ::close(serial_fd_);
+      serial_fd_ = -1;
+    }
+    std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
+    rx_buffer_.clear();
+    have_feedback_ = false;
+    feedback_stale_ = false;
+    write_blocked_ = false;
+    if (stalls_in_a_row_ >= 2) {
+      usb_reset_device();
+    }
+    last_reconnect_attempt_ = now;
+  }
+
+  // Resets the USB device behind the serial port we last opened (Linux only). Needs write access
+  // to /dev/bus/usb/BBB/DDD, which the udev rule in bin/robot/99-gptpet-motors.rules grants.
+  void usb_reset_device() {
+#ifdef __linux__
+    char * real = ::realpath(open_port_path_.c_str(), nullptr);
+    if (!real) {
+      RCLCPP_WARN(logger_, "USB reset: cannot resolve %s: %s", open_port_path_.c_str(), strerror(errno));
+      return;
+    }
+    std::string tty(real);
+    std::free(real);
+    tty = tty.substr(tty.rfind('/') + 1);
+
+    char * sys = ::realpath(("/sys/class/tty/" + tty + "/device").c_str(), nullptr);
+    if (!sys) {
+      RCLCPP_WARN(logger_, "USB reset: no sysfs device for %s: %s", tty.c_str(), strerror(errno));
+      return;
+    }
+    std::string usb_interface(sys);
+    std::free(sys);
+    const std::string usb_device = usb_interface.substr(0, usb_interface.rfind('/'));
+
+    int busnum = 0, devnum = 0;
+    std::ifstream bus(usb_device + "/busnum"), dev(usb_device + "/devnum");
+    if (!(bus >> busnum) || !(dev >> devnum)) {
+      RCLCPP_WARN(logger_, "USB reset: cannot read bus/device number under %s", usb_device.c_str());
+      return;
+    }
+    char node[64];
+    std::snprintf(node, sizeof(node), "/dev/bus/usb/%03d/%03d", busnum, devnum);
+
+    int fd = ::open(node, O_WRONLY);
+    if (fd < 0) {
+      RCLCPP_ERROR(
+        logger_,
+        "Cannot open %s to reset the ESP32's USB device: %s. Re-plug the ESP32, or install "
+        "bin/robot/99-gptpet-motors.rules on the robot so this can be done automatically",
+        node, strerror(errno));
+      return;
+    }
+    if (ioctl(fd, USBDEVFS_RESET, 0) < 0) {
+      RCLCPP_ERROR(logger_, "USB reset of %s failed: %s", node, strerror(errno));
+    } else {
+      RCLCPP_WARN(logger_, "USB device %s (%s) reset; waiting for it to re-enumerate", node, tty.c_str());
+    }
+    ::close(fd);
+#else
+    RCLCPP_WARN(logger_, "USB reset is only implemented on Linux");
+#endif
+  }
+
+  void maybe_reconnect() {
+    if (serial_fd_ >= 0) {
+      return;
+    }
+    const rclcpp::Time now = steady_clock_.now();
+    if ((now - last_reconnect_attempt_).seconds() < 1.0) {
+      return;
+    }
+    last_reconnect_attempt_ = now;
+    if (!open_serial_port(true)) {
+      RCLCPP_WARN_THROTTLE(
+        logger_, steady_clock_, 10000, "Motor driver serial port still unavailable, retrying");
+      return;
+    }
+    rx_buffer_.clear();
+    rx_text_line_.clear();
+    rx_text_garbage_ = false;
+    have_counts_ = false;
+    have_feedback_ = false;
+    feedback_stale_ = false;
+    {
+      std::lock_guard<std::mutex> lock(text_mutex_);
+      pending_text_.clear();
+    }
+    send_stop();
+    push_all_parameters();
+    RCLCPP_INFO(logger_, "Motor driver serial port reconnected, tuning parameters re-sent");
   }
 
   void close_serial_port() {
@@ -622,11 +791,29 @@ private:
     pkt[CMD_LEN - 1] = xor_checksum(&pkt[1], CMD_PAYLOAD_LEN);
 
     const ssize_t written = ::write(serial_fd_, pkt, CMD_LEN);
-    if (written != static_cast<ssize_t>(CMD_LEN)) {
-      RCLCPP_WARN_THROTTLE(
-        logger_, steady_clock_, 2000, "Motor command write failed (%zd of %zu bytes): %s",
-        written, CMD_LEN, written < 0 ? strerror(errno) : "short write");
+    if (written == static_cast<ssize_t>(CMD_LEN)) {
+      write_blocked_ = false;
+      return;
     }
+    if (written < 0 && is_device_gone(errno)) {
+      handle_serial_loss("write");
+      return;
+    }
+    if (written < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+      // The kernel's USB write queue is full. A short burst is normal after a scheduling stall;
+      // a full second of it means the device stopped taking data.
+      const rclcpp::Time now = steady_clock_.now();
+      if (!write_blocked_) {
+        write_blocked_ = true;
+        write_blocked_since_ = now;
+      } else if ((now - write_blocked_since_).seconds() > WRITE_STALL_S) {
+        handle_serial_stall("USB serial output blocked for more than 1 s");
+      }
+      return;
+    }
+    RCLCPP_WARN_THROTTLE(
+      logger_, steady_clock_, 2000, "Motor command write failed (%zd of %zu bytes): %s",
+      written, CMD_LEN, written < 0 ? strerror(errno) : "short write");
   }
 
   void send_stop() {
@@ -667,7 +854,13 @@ private:
     uint8_t chunk[256];
     for (int guard = 0; guard < 16; ++guard) {
       const ssize_t n = ::read(serial_fd_, chunk, sizeof(chunk));
-      if (n <= 0) {
+      if (n < 0) {
+        if (errno != EAGAIN && errno != EWOULDBLOCK && is_device_gone(errno)) {
+          handle_serial_loss("read");
+        }
+        break;
+      }
+      if (n == 0) {
         break;
       }
       rx_buffer_.insert(rx_buffer_.end(), chunk, chunk + n);
@@ -778,6 +971,13 @@ private:
   std::atomic<double> max_rpm_{76.0};
 
   int serial_fd_ = -1;
+  std::string open_port_path_;
+  rclcpp::Time last_reconnect_attempt_{0, 0, RCL_STEADY_TIME};
+  rclcpp::Time port_opened_at_{0, 0, RCL_STEADY_TIME};
+  bool write_blocked_ = false;
+  rclcpp::Time write_blocked_since_{0, 0, RCL_STEADY_TIME};
+  rclcpp::Time last_stall_{0, 0, RCL_STEADY_TIME};
+  int stalls_in_a_row_ = 0;
   std::vector<uint8_t> rx_buffer_;
   std::string rx_text_line_;
   bool rx_text_garbage_ = false;
