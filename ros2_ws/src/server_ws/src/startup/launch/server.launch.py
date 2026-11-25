@@ -17,6 +17,7 @@ from launch.actions import DeclareLaunchArgument, ExecuteProcess, TimerAction
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
@@ -126,8 +127,8 @@ def generate_launch_description():
                 "use_map_saver": False,
 
                 "transform_publish_period": 0.05,
-                "transform_timeout": 2.0,
-                "minimum_travel_distance": 0.02,
+                "transform_timeout": 8.0,  # see slam_toolbox_parameters.yaml
+                "minimum_travel_distance": 0.1,  # see slam_toolbox_parameters.yaml
             },
         ],
     )
@@ -148,13 +149,17 @@ def generate_launch_description():
         )
     )
 
-    # base_link -> laser
+    # base_link -> laser (args: x y z yaw pitch roll). The RPLIDAR is mounted with its 0 deg ray
+    # pointing to the robot's right: measured 2026-11-15 by driving forward 0.2 m, which shortened
+    # the lidar's 90 deg range by 0.19 m and left its 0 deg range unchanged. With yaw 0 here, SLAM
+    # saw every forward move as a sideways one and rotated map->odom by 90 deg. The 0.08 m forward
+    # offset is the lidar position in the URDF (laser_joint); the old 0.2 m matched nothing.
     nodes.append(
         Node(
             package="tf2_ros",
             executable="static_transform_publisher",
             name="base_to_laser_tf",
-            arguments=["0.2", "0.0", "0.15", "0", "0", "0", "base_link", "laser"],
+            arguments=["0.08", "0.0", "0.15", str(-math.pi / 2), "0", "0", "base_link", "laser"],
             parameters=[{"use_sim_time": use_sim_time}],
         )
     )
@@ -195,6 +200,27 @@ def generate_launch_description():
 
     nav2_params = os.path.join(pkg, "config", "nav2_params.yaml")
 
+    # Nav2 publishes to /cmd_vel_nav; cmd_vel_shaper relays it to /cmd_vel. While the front-right
+    # motor cannot drive in reverse (r1_no_reverse, 2026-11-15) the shaper rewrites the commands
+    # that would need it; with r1_no_reverse:=false it is a plain relay.
+    r1_no_reverse_arg = DeclareLaunchArgument(
+        "r1_no_reverse",
+        default_value="True",
+        description="Rewrite cmd_vel so the front-right wheel never runs backwards.",
+    )
+    nodes.append(
+        Node(
+            package="startup",
+            executable="cmd_vel_shaper",
+            name="cmd_vel_shaper",
+            output="screen",
+            parameters=[{
+                "use_sim_time": use_sim_time,
+                "r1_no_reverse": ParameterValue(LaunchConfiguration("r1_no_reverse"), value_type=bool),
+            }],
+        )
+    )
+
     nav2_nodes = []
     for name, package, executable in [
         ("controller_server", "nav2_controller", "controller_server"),
@@ -209,6 +235,7 @@ def generate_launch_description():
                 name=name,
                 output="screen",
                 parameters=[nav2_params, {"use_sim_time": use_sim_time}],
+                remappings=[("cmd_vel", "cmd_vel_nav")],
                 condition=IfCondition(use_nav2),
             )
         )
@@ -252,6 +279,7 @@ def generate_launch_description():
             ),
             use_sim_time_arg,
             use_nav2_arg,
+            r1_no_reverse_arg,
             *nodes,
         ]
     )

@@ -55,3 +55,7 @@ ros2_ws/**/logs/*
 ros2_ws/**/log/*
 
 .idea/
+
+# mediamtx writes a self-signed MoQ certificate into its working directory
+auto.crt
+auto.key

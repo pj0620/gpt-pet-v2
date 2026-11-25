@@ -1,0 +1,23 @@
+# mediamtx config for the iPad test-rig camera (bin/video/ipad_record.sh runs it).
+# Pulls the iPad's RTSP stream and records it continuously in 1-minute fMP4 segments; the playback
+# server cuts any time range out of the recording:
+#   http://localhost:9996/list?path=ipad
+#   http://localhost:9996/get?path=ipad&start=2026-11-15T15:40:00-05:00&duration=30&format=mp4
+logLevel: warn
+rtmp: no
+hls: no
+webrtc: no
+srt: no
+rtspAddress: :8554            # re-serves the camera as rtsp://localhost:8554/ipad for live viewers
+playback: yes
+playbackAddress: localhost:9996
+
+paths:
+  ipad:
+    source: rtsp://192.168.1.121:554/stream   # ipad_record.sh overrides this from IPAD_URL
+    rtspTransport: tcp
+    record: yes
+    recordPath: ./recordings/%path/%Y-%m-%d_%H-%M-%S-%f%z   # ipad_record.sh points this at ~/robot-rig/recordings
+    recordFormat: fmp4
+    recordSegmentDuration: 1m
+    recordDeleteAfter: 72h

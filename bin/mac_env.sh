@@ -63,7 +63,10 @@ else
 fi
 
 # Fast DDS participant profile: unicast initial peers. One locator per metatraffic unicast port
-# (7410 + 2 * participant_id, participants 0..9) so every ROS process on a peer host is reached.
+# (7410 + 2 * participant_id, participants 0..31) so every ROS process on a peer host is reached.
+# 0..9 was not enough once the server stack itself ran on the Mac: two local nodes whose participant
+# ids were both >= 10 never discovered each other (Nav2's lifecycle manager could not see
+# controller_server).
 export FASTRTPS_DEFAULT_PROFILES_FILE="${TMPDIR:-/tmp}/gptpet_fastdds_peers.xml"
 _gptpet_xml='<?xml version="1.0" encoding="UTF-8" ?>
 <profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
@@ -72,7 +75,7 @@ _gptpet_xml='<?xml version="1.0" encoding="UTF-8" ?>
       <builtin>
         <initialPeersList>'
 for _ip in $(echo "$_gptpet_peers"); do
-  for _pid in 0 1 2 3 4 5 6 7 8 9; do
+  for _pid in $(seq 0 31); do
     _gptpet_xml="$_gptpet_xml
           <locator><udpv4><address>$_ip</address><port>$((7410 + 2 * _pid))</port></udpv4></locator>"
   done

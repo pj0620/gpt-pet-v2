@@ -11,6 +11,7 @@ find_package(xacro REQUIRED)
 find_package(robot_state_publisher REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(ros2_control REQUIRED
   COMPONENTS
     controller_manager
@@ -31,16 +32,25 @@ add_executable(magnetometer_converter src/magnetometer_converter.cpp)
 add_executable(imu_fusion src/imu_fusion.cpp)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
-ament_target_dependencies(magnetometer_converter 
-  rclcpp 
-  sensor_msgs 
-  tf2 
-  tf2_geometry_msgs
+target_link_libraries(magnetometer_converter
+  rclcpp::rclcpp
+  sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
+  tf2::tf2
+  tf2_geometry_msgs::tf2_geometry_msgs
 )
-ament_target_dependencies(imu_fusion
-  rclcpp
-  sensor_msgs
+target_link_libraries(imu_fusion
+  rclcpp::rclcpp
+  sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
+  nav_msgs::nav_msgs__rosidl_typesupport_cpp
 )
+if(APPLE)
+  # On the Mac's conda (RoboStack) ROS, rclcpp pulls in the *__rosidl_generator_py libraries, which
+  # expect libpython's symbols in the host process: without this the node dies at start with
+  # "symbol not found in flat namespace '_PyExc_RuntimeError'". The Ubuntu server does not need it.
+  find_package(Python3 REQUIRED COMPONENTS Development)
+  target_link_libraries(magnetometer_converter Python3::Python)
+  target_link_libraries(imu_fusion Python3::Python)
+endif()
 
 # Install executables
 install(TARGETS
@@ -54,6 +64,11 @@ install(PROGRAMS
   scripts/tf_relay.py
   DESTINATION lib/${PROJECT_NAME}
   RENAME tf_relay
+)
+install(PROGRAMS
+  scripts/cmd_vel_shaper.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME cmd_vel_shaper
 )
 
 install(
