@@ -1,0 +1,5 @@
+{
+  "name": "s1_on_vs_off",
+  "tests": ["../tests/5min_train1_3.json"],
+  "bots": ["../bots/s1_off.json", "../bots/s1_on.json"]
+}

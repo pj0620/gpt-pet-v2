@@ -1,0 +1,185 @@
+{
+  "row": {
+    "run_id": "20260930T230059Z-s1-on-vs-off-s1-off-3",
+    "experiment": "s1_on_vs_off",
+    "test": "5 min in FloorPlan_Train1_3",
+    "bot": "s1_off",
+    "repeat": 3,
+    "started_at": "2026-09-30T23:00:59+00:00",
+    "room_id": "FloorPlan_Train1_3",
+    "test_time_s": 300.0,
+    "s1_enabled": false,
+    "s1_model": "",
+    "s1_min_confidence": "",
+    "goal_setter_model": "gemini-3.5-flash",
+    "executor_model": "gemini-3.5-flash",
+    "goal_delay_s": 0.0,
+    "bot_overrides": "{\"brain\": {\"goal_delay_s\": 0, \"max_goals_per_run\": 0, \"tick_delay_s\": 0}, \"s1\": {\"enabled\": false}}",
+    "duration_s": 300.0,
+    "ticks": 12,
+    "tick_avg_s": 24.84,
+    "ticks_truncated": 0,
+    "llm_calls": 120,
+    "llm_calls_goal_setter": 12,
+    "llm_calls_executor": 108,
+    "llm_errors": 0,
+    "llm_calls_per_min": 24.0,
+    "llm_avg_ms": 2078,
+    "llm_p50_ms": 1613,
+    "llm_p95_ms": 4416,
+    "tokens_total": 698480,
+    "tokens_input": 679430,
+    "tokens_output": 3746,
+    "tokens_thinking": 15304,
+    "tokens_cached": 242844,
+    "tokens_per_min": 139695.27,
+    "tool_calls": 96,
+    "tool_errors": 0,
+    "tool_refusals": 7,
+    "tool_avg_ms": 57,
+    "drives": 16,
+    "drives_succeeded": 16,
+    "drives_failed": 0,
+    "driving_s": 42.9,
+    "driving_pct": 14.3,
+    "drive_checks": 100,
+    "goals_started": 11,
+    "goals_done": 10,
+    "goals_abandoned": 0,
+    "goals_done_per_min": 2.0,
+    "s1_turns": 0,
+    "s1_share_pct": 0.0,
+    "s1_rules": 0,
+    "s1_nimble": 0,
+    "s1_handoffs": 0,
+    "s1_decider_calls": 0,
+    "s1_decider_avg_ms": "",
+    "first_action_s": 6.0,
+    "destinations_seen": 41,
+    "error": ""
+  },
+  "test": {
+    "name": "5 min in FloorPlan_Train1_3",
+    "test_time": "5min",
+    "room_id": "FloorPlan_Train1_3",
+    "repeats": 3,
+    "warm_up": true
+  },
+  "bot": {
+    "name": "s1_off",
+    "profile": "sim",
+    "overrides": {
+      "s1": {
+        "enabled": false
+      },
+      "brain": {
+        "goal_delay_s": 0,
+        "tick_delay_s": 0,
+        "max_goals_per_run": 0
+      }
+    }
+  },
+  "stats": {
+    "started_at": 1790809264.6751978,
+    "uptime_s": 300.0,
+    "llm": {
+      "calls": 120,
+      "errors": 0,
+      "per_min": 24.0,
+      "latency": {
+        "count": 120,
+        "avg_ms": 2078,
+        "p50_ms": 1613,
+        "p95_ms": 4416,
+        "last_ms": 2286
+      },
+      "by_agent": {
+        "executor": {
+          "calls": 108,
+          "tokens": 679634,
+          "avg_ms": 1996
+        },
+        "goal_setter": {
+          "calls": 12,
+          "tokens": 18846,
+          "avg_ms": 2816
+        }
+      }
+    },
+    "tokens": {
+      "input": 679430,
+      "output": 3746,
+      "thinking": 15304,
+      "cached": 242844,
+      "total": 698480,
+      "per_min": 139695.27,
+      "last_call": 5301
+    },
+    "tools": {
+      "calls": 96,
+      "errors": 0,
+      "refusals": 7,
+      "latency": {
+        "count": 89,
+        "avg_ms": 57,
+        "p50_ms": 55,
+        "p95_ms": 117,
+        "last_ms": 64
+      }
+    },
+    "ticks": {
+      "count": 12,
+      "truncated": 0,
+      "latency": {
+        "count": 12,
+        "avg_ms": 24840,
+        "p50_ms": 23769,
+        "p95_ms": 37075,
+        "last_ms": 10745
+      }
+    },
+    "goals": {
+      "started": 11,
+      "done": 10,
+      "abandoned": 0,
+      "started_per_min": 2.2,
+      "done_per_min": 2.0
+    },
+    "drives": {
+      "count": 16,
+      "outcomes": {
+        "succeeded": 16
+      },
+      "driving_s": 42.9,
+      "driving_pct": 14.3,
+      "checks": 100,
+      "latency": {
+        "count": 16,
+        "avg_ms": 2678,
+        "p50_ms": 4,
+        "p95_ms": 13239,
+        "last_ms": 1528
+      }
+    },
+    "s1": {
+      "enabled": false,
+      "model": null,
+      "turns": 0,
+      "share_pct": 0.0,
+      "by": {},
+      "by_agent": {},
+      "escalations": {},
+      "decider": {
+        "calls": 0,
+        "latency": {
+          "count": 0,
+          "avg_ms": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "last_ms": null
+        }
+      }
+    },
+    "first_action_s": 6.0
+  }
+}

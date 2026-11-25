@@ -1,0 +1,186 @@
+{
+  "row": {
+    "run_id": "20260930T225553Z-s1-on-vs-off-s1-off-2",
+    "experiment": "s1_on_vs_off",
+    "test": "5 min in FloorPlan_Train1_3",
+    "bot": "s1_off",
+    "repeat": 2,
+    "started_at": "2026-09-30T22:55:53+00:00",
+    "room_id": "FloorPlan_Train1_3",
+    "test_time_s": 300.0,
+    "s1_enabled": false,
+    "s1_model": "",
+    "s1_min_confidence": "",
+    "goal_setter_model": "gemini-3.5-flash",
+    "executor_model": "gemini-3.5-flash",
+    "goal_delay_s": 0.0,
+    "bot_overrides": "{\"brain\": {\"goal_delay_s\": 0, \"max_goals_per_run\": 0, \"tick_delay_s\": 0}, \"s1\": {\"enabled\": false}}",
+    "duration_s": 300.0,
+    "ticks": 10,
+    "tick_avg_s": 27.77,
+    "ticks_truncated": 0,
+    "llm_calls": 128,
+    "llm_calls_goal_setter": 11,
+    "llm_calls_executor": 117,
+    "llm_errors": 0,
+    "llm_calls_per_min": 25.6,
+    "llm_avg_ms": 1880,
+    "llm_p50_ms": 1580,
+    "llm_p95_ms": 3452,
+    "tokens_total": 811961,
+    "tokens_input": 793959,
+    "tokens_output": 3793,
+    "tokens_thinking": 14209,
+    "tokens_cached": 318018,
+    "tokens_per_min": 162391.52,
+    "tool_calls": 107,
+    "tool_errors": 1,
+    "tool_refusals": 14,
+    "tool_avg_ms": 58,
+    "drives": 16,
+    "drives_succeeded": 11,
+    "drives_failed": 5,
+    "driving_s": 51.9,
+    "driving_pct": 17.3,
+    "drive_checks": 118,
+    "goals_started": 8,
+    "goals_done": 6,
+    "goals_abandoned": 1,
+    "goals_done_per_min": 1.2,
+    "s1_turns": 0,
+    "s1_share_pct": 0.0,
+    "s1_rules": 0,
+    "s1_nimble": 0,
+    "s1_handoffs": 0,
+    "s1_decider_calls": 0,
+    "s1_decider_avg_ms": "",
+    "first_action_s": 5.6,
+    "destinations_seen": 40,
+    "error": ""
+  },
+  "test": {
+    "name": "5 min in FloorPlan_Train1_3",
+    "test_time": "5min",
+    "room_id": "FloorPlan_Train1_3",
+    "repeats": 3,
+    "warm_up": true
+  },
+  "bot": {
+    "name": "s1_off",
+    "profile": "sim",
+    "overrides": {
+      "s1": {
+        "enabled": false
+      },
+      "brain": {
+        "goal_delay_s": 0,
+        "tick_delay_s": 0,
+        "max_goals_per_run": 0
+      }
+    }
+  },
+  "stats": {
+    "started_at": 1790808959.518272,
+    "uptime_s": 300.0,
+    "llm": {
+      "calls": 128,
+      "errors": 0,
+      "per_min": 25.6,
+      "latency": {
+        "count": 128,
+        "avg_ms": 1880,
+        "p50_ms": 1580,
+        "p95_ms": 3452,
+        "last_ms": 2567
+      },
+      "by_agent": {
+        "executor": {
+          "calls": 117,
+          "tokens": 796901,
+          "avg_ms": 1788
+        },
+        "goal_setter": {
+          "calls": 11,
+          "tokens": 15060,
+          "avg_ms": 2859
+        }
+      }
+    },
+    "tokens": {
+      "input": 793959,
+      "output": 3793,
+      "thinking": 14209,
+      "cached": 318018,
+      "total": 811961,
+      "per_min": 162391.52,
+      "last_call": 10351
+    },
+    "tools": {
+      "calls": 107,
+      "errors": 1,
+      "refusals": 14,
+      "latency": {
+        "count": 93,
+        "avg_ms": 58,
+        "p50_ms": 58,
+        "p95_ms": 115,
+        "last_ms": 59
+      }
+    },
+    "ticks": {
+      "count": 10,
+      "truncated": 0,
+      "latency": {
+        "count": 10,
+        "avg_ms": 27769,
+        "p50_ms": 20051,
+        "p95_ms": 58107,
+        "last_ms": 19912
+      }
+    },
+    "goals": {
+      "started": 8,
+      "done": 6,
+      "abandoned": 1,
+      "started_per_min": 1.6,
+      "done_per_min": 1.2
+    },
+    "drives": {
+      "count": 16,
+      "outcomes": {
+        "failed": 5,
+        "succeeded": 11
+      },
+      "driving_s": 51.9,
+      "driving_pct": 17.3,
+      "checks": 118,
+      "latency": {
+        "count": 16,
+        "avg_ms": 3245,
+        "p50_ms": 1525,
+        "p95_ms": 21354,
+        "last_ms": 4065
+      }
+    },
+    "s1": {
+      "enabled": false,
+      "model": null,
+      "turns": 0,
+      "share_pct": 0.0,
+      "by": {},
+      "by_agent": {},
+      "escalations": {},
+      "decider": {
+        "calls": 0,
+        "latency": {
+          "count": 0,
+          "avg_ms": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "last_ms": null
+        }
+      }
+    },
+    "first_action_s": 5.6
+  }
+}
