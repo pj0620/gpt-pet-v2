@@ -1,7 +1,6 @@
 """Live: the real ai2thor-mcp server through the real ADK toolset. No LLM calls here."""
 from __future__ import annotations
 
-import asyncio
 import math
 from datetime import timedelta
 
@@ -12,7 +11,7 @@ from mcp.client.streamable_http import streamablehttp_client
 
 from gpt_pet.mcp import build_toolset, mcp_media_callback
 from gpt_pet.navwait import status_from_tool_result, wait_for_drive
-from gpt_pet.settings import Settings, load_settings
+from gpt_pet.settings import Settings
 
 pytestmark = [pytest.mark.live, pytest.mark.timeout(900)]
 
@@ -151,17 +150,3 @@ async def test_do_look_tilts_the_camera_and_views_report_it(mcp_server: str, sim
             straight = await call("do_look", {"direction": "straight"})
             assert not straight["isError"], straight
             assert (await call("get_current_view", {}))["result"]["camera"]["tilt_deg"] == 0.0
-
-
-async def test_real_profile_is_defined_but_unreachable() -> None:
-    """Documents the gap: gpt-pet-mcp has no MCP server yet. Fails the day it answers."""
-    settings = load_settings("real")
-    toolset = build_toolset(settings.mcp)
-    try:
-        try:
-            tools = await asyncio.wait_for(toolset.get_tools(), timeout=settings.mcp.connect_timeout_s + 60)
-        except Exception:  # noqa: BLE001 - any connection failure is the expected outcome today
-            return
-        assert tools == [], "gpt-pet-mcp answered with tools: promote this into a real-profile smoke test"
-    finally:
-        await toolset.close()

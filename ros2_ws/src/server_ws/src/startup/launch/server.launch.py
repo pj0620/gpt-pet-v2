@@ -201,12 +201,14 @@ def generate_launch_description():
     nav2_params = os.path.join(pkg, "config", "nav2_params.yaml")
 
     # Nav2 publishes to /cmd_vel_nav; cmd_vel_shaper relays it to /cmd_vel. While the front-right
-    # motor cannot drive in reverse (r1_no_reverse, 2026-11-15) the shaper rewrites the commands
-    # that would need it; with r1_no_reverse:=false it is a plain relay.
+    # motor could not drive in reverse (r1_no_reverse, 2026-11-15) the shaper rewrote the commands
+    # that needed it; since the repair it is a plain relay by default (2026-11-25). The rewrite
+    # turns Nav2's BackUp into a stop and clockwise Spins into arcs, which breaks gpt-pet-mcp's
+    # do_move("MoveBack") and do_rotate("RotateRight"): pass r1_no_reverse:=true only if R1 dies again.
     r1_no_reverse_arg = DeclareLaunchArgument(
         "r1_no_reverse",
-        default_value="True",
-        description="Rewrite cmd_vel so the front-right wheel never runs backwards.",
+        default_value="False",
+        description="Rewrite cmd_vel so the front-right wheel never runs backwards (only while R1 has no reverse).",
     )
     nodes.append(
         Node(

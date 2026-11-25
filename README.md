@@ -49,7 +49,7 @@ All actuation goes through an MCP server chosen by a profile:
 | profile | server                                       | ini file                              |
 |---------|----------------------------------------------|---------------------------------------|
 | `sim`   | ai2thor-mcp (AI2-THOR simulator)             | `python/src/gpt_pet/config/sim.ini`   |
-| `real`  | gpt-pet-mcp (robot; server not yet written)  | `python/src/gpt_pet/config/real.ini`  |
+| `real`  | gpt-pet-mcp (the robot: ROS 2 Nav2 + Kinect, served from pj-ubuntu) | `python/src/gpt_pet/config/real.ini` |
 
 Each profile also carries `[brain]` budgets (LLM calls per tick, goal attempts), `[tool_limits]`,
 per-tick call caps per tool that bound how many times the executor can look, turn or retry, and
@@ -222,6 +222,9 @@ The live suite attaches to a server already running on port 8000, or launches on
 sibling `../../ai2thor-mcp` checkout (override with `AI2THOR_MCP_DIR`, scene with `AI2THOR_SCENE`).
 `GPTPET_TEST_MODEL` puts another model in the profile's place for goal setter and executor, e.g.
 `GPTPET_TEST_MODEL=openai/gpt-5.6-luna uv run pytest -m live` for a fraction of Gemini's cost.
+`GPTPET_TEST_PROFILE=real` points the live suite at the robot server instead (gpt-pet-mcp on
+pj-ubuntu, which must already be running; nothing is launched), e.g.
+`GPTPET_TEST_PROFILE=real uv run pytest tests/live/test_mcp_live.py -m live` for the contract tests.
 
 ## The portal (`ui/`)
 
@@ -266,7 +269,7 @@ another owner goal is still waiting queue behind it.
 will: every rendered depth frame is turned into a planar range scan at camera height and
 ray-cast into a log-odds grid (unexplored grey, free white, obstacles black; robot, path,
 destinations and goal overlaid). The simulator supplies the pose, so it is the mapping half of
-SLAM; gpt-pet-mcp will serve slam_toolbox's map in the same convention.
+SLAM; gpt-pet-mcp serves slam_toolbox's map in the same convention.
 
 **Simulator-only free camera.** With `[features] free_camera = true` (the `sim` profile), the
 Camera View panel gains a **Free** source: a camera you fly around the room (drag to look,
