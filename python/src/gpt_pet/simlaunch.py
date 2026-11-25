@@ -14,6 +14,7 @@ import subprocess
 import time
 import urllib.error
 import urllib.request
+from collections.abc import Mapping
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -65,9 +66,12 @@ def default_scene() -> str:
     return os.environ.get(AI2THOR_SCENE_ENV, DEFAULT_SCENE)
 
 
-def launch_mcp_server(url: str, *, scene: str | None = None, log_path: Path | None = None) -> subprocess.Popen[bytes]:
+def launch_mcp_server(
+    url: str, *, scene: str | None = None, log_path: Path | None = None, env: Mapping[str, str] | None = None
+) -> subprocess.Popen[bytes]:
     """Start `uv run python/ai2thor_mcp/main.py --http` in the checkout, serving on `url`'s port,
-    and wait until it answers."""
+    and wait until it answers. `env` adds to its environment (the simulator's own switches, such as
+    `AI2THOR_MCP_FIXES`)."""
     repo = ai2thor_mcp_dir()
     entry = repo / "python" / "ai2thor_mcp" / "main.py"
     if not entry.is_file():
@@ -79,7 +83,7 @@ def launch_mcp_server(url: str, *, scene: str | None = None, log_path: Path | No
         cwd=repo,
         stdout=log_file,
         stderr=subprocess.STDOUT,
-        env={**os.environ, "FASTMCP_PORT": str(urlsplit(url).port or 8000)},
+        env={**os.environ, **(env or {}), "FASTMCP_PORT": str(urlsplit(url).port or 8000)},
         start_new_session=True,
     )
     deadline = time.monotonic() + START_TIMEOUT_S
@@ -102,10 +106,14 @@ def ensure_mcp_server(url: str, *, scene: str | None = None, log_path: Path | No
     return launch_mcp_server(url, scene=scene, log_path=log_path)
 
 
-def _group_alive(group: int) -> bool:
+def _group_alive(process: subprocess.Popen[bytes]) -> bool:
+    """Whether anything in the process group `process` leads is still running. macOS refuses to
+    signal a group whose only members are unreaped zombies (EPERM), so the leader is reaped first
+    and EPERM counts as nothing running."""
+    process.poll()
     try:
-        os.killpg(group, 0)
-    except ProcessLookupError:
+        os.killpg(process.pid, 0)
+    except (ProcessLookupError, PermissionError):
         return False
     return True
 
@@ -114,18 +122,19 @@ def stop_mcp_server(process: subprocess.Popen[bytes] | None, timeout_s: float = 
     """Stop a server this process launched together with its Unity simulator (its process group)."""
     if process is None:
         return
-    group = process.pid  # the leader of the session `launch_mcp_server` started
     for sig in (signal.SIGTERM, signal.SIGKILL):
-        if not _group_alive(group):
+        if not _group_alive(process):
             break
-        os.killpg(group, sig)
+        try:
+            os.killpg(process.pid, sig)  # the leader of the session `launch_mcp_server` started
+        except (ProcessLookupError, PermissionError):
+            break
         deadline = time.monotonic() + timeout_s
-        while _group_alive(group) and time.monotonic() < deadline:
-            if process.poll() is None:
-                try:
-                    process.wait(timeout=0.5)
-                except subprocess.TimeoutExpired:
-                    pass
-            else:
-                time.sleep(0.2)
-    process.poll()
+        while _group_alive(process) and time.monotonic() < deadline:
+            time.sleep(0.2)
+    # A leader that is still exiting no longer answers signals: collect it.
+    try:
+        process.wait(timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=timeout_s)

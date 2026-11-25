@@ -79,4 +79,14 @@ describe("deriveGoalTree", () => {
     expect(node?.marker).toBe("abandoned");
     expect(node?.meta).toMatchObject({ id: 1, attempts: 3, createdTick: 1, finishedTick: 2 });
   });
+
+  it("marks goals the owner canceled", () => {
+    const canceled: PetState = {
+      ...state,
+      goal_history: state.goal_history.map((goal) => ({ ...goal, status: "canceled" as const })),
+    };
+    const [node] = deriveGoalTree({ ...canceled, current_goal: null, pending_goals: [] });
+    expect(node?.marker).toBe("canceled");
+    expect(MARKER_TEXT.canceled).toBe("[canceled]");
+  });
 });

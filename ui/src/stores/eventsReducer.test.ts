@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { emptyEvents, ingestEvent, isErrorResponse } from "@/stores/eventsReducer";
+import { emptyEvents, ingestEvent, isErrorResponse, isRefusalResponse } from "@/stores/eventsReducer";
 import type { AdkEvent, NoticeEvent, TickEvent } from "@/types/api";
 
 const call: AdkEvent = {
@@ -34,15 +34,39 @@ describe("ingestEvent", () => {
     expect(state.rows[0]?.response).toEqual(response.functionResponse?.response);
   });
 
-  it("keeps an unmatched response as its own row and flags errors", () => {
+  it("keeps an unmatched response as its own row and tells refusals from errors", () => {
     const refused: AdkEvent = {
       ...response,
       id: "12",
       functionResponse: { id: "fc-unknown", name: "do_rotate", response: { error: "budget exhausted: do_rotate" } },
     };
-    const state = ingestEvent(emptyEvents(), refused);
+    let state = ingestEvent(emptyEvents(), refused);
     expect(state.rows).toHaveLength(1);
-    expect(state.rows[0]).toMatchObject({ kind: "call", callId: null, name: "do_rotate", isError: true });
+    expect(state.rows[0]).toMatchObject({
+      kind: "call",
+      callId: null,
+      name: "do_rotate",
+      isError: false,
+      isRefused: true,
+    });
+
+    const canceled: AdkEvent = {
+      ...response,
+      id: "13",
+      functionResponse: {
+        id: "fc-2",
+        name: "get_current_view",
+        response: { error: 'goal canceled: the owner gave a new goal ("come here"). Do not call any more tools' },
+      },
+    };
+    const failed: AdkEvent = {
+      ...response,
+      id: "14",
+      functionResponse: { id: "fc-3", name: "set_nav_goal", response: { isError: true, content: [] } },
+    };
+    state = ingestEvent(ingestEvent(state, canceled), failed);
+    expect(state.rows[1]).toMatchObject({ isError: false, isRefused: true });
+    expect(state.rows[2]).toMatchObject({ isError: true, isRefused: false });
   });
 
   it("records agent text and tick markers as rows", () => {
@@ -138,10 +162,14 @@ describe("ingestEvent", () => {
 });
 
 describe("isErrorResponse", () => {
-  it("recognises MCP errors and budget refusals only", () => {
+  it("recognises MCP errors, and tells the brain's own refusals apart from them", () => {
     expect(isErrorResponse({ result: "Successfully moved", isError: false })).toBe(false);
     expect(isErrorResponse({ result: "Move blocked", isError: true })).toBe(true);
-    expect(isErrorResponse({ error: "budget exhausted: get_nav_status" })).toBe(true);
+    expect(isErrorResponse({ error: "MCP tool execution failed" })).toBe(true);
+    expect(isErrorResponse({ error: "budget exhausted: get_nav_status" })).toBe(false);
+    expect(isRefusalResponse({ error: "budget exhausted: get_nav_status" })).toBe(true);
+    expect(isRefusalResponse({ error: "goal canceled: the owner gave a new goal" })).toBe(true);
+    expect(isRefusalResponse({ error: "MCP tool execution failed" })).toBe(false);
     expect(isErrorResponse("text")).toBe(false);
   });
 });

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from gpt_pet.goals import REST_STATUS, STATE_CURRENT_GOAL, STATE_LIMIT_REACHED, STATE_TICK
-from gpt_pet.runtime import TickResult, limit_notice, next_delay, rest_notice
+from gpt_pet.runtime import TickResult, failure_backoff, failure_notice, limit_notice, next_delay, rest_notice
 from gpt_pet.settings import BrainSettings
 
 BRAIN = BrainSettings(goal_delay_s=60, tick_delay_s=2, max_goals_per_run=10)
@@ -36,3 +36,17 @@ def test_rests_and_the_goal_limit_explain_themselves_in_the_events_log() -> None
     paused = limit_notice(limited, 10)
     assert paused["kind"] == "limit" and "goal limit (10)" in paused["text"]
     assert all(isinstance(n["timestamp"], float) for n in (notice, paused))
+
+
+def test_failed_ticks_back_off_from_two_seconds_doubling_up_to_thirty() -> None:
+    assert [failure_backoff(n) for n in range(1, 7)] == [2, 4, 8, 16, 30, 30]
+
+
+def test_a_failed_tick_explains_itself_in_the_events_log() -> None:
+    failed = TickResult(number=7, seconds=20.1, events=[], state={STATE_TICK: 6}, error="TimeoutError")
+    assert failed.failed and failed.summary_dict()["error"] == "TimeoutError"
+    assert "failed=TimeoutError" in failed.summary()
+    notice = failure_notice(failed, 4)
+    assert (notice["kind"], notice["tick"], notice["seconds"]) == ("failure", 7, 4)
+    assert notice["text"] == "Tick 7 failed (TimeoutError); retrying in 4 s."
+    assert "failed=" not in result({STATE_TICK: 1}).summary()

@@ -2,7 +2,8 @@
   "name": "s1_off",
   "profile": "sim",
   "overrides": {
-    "s1": {"enabled": false},
-    "brain": {"goal_delay_s": 0, "tick_delay_s": 0, "max_goals_per_run": 0}
-  }
+    "s1": {"enabled": false, "scan_rule": false, "explore_policy": false, "unstuck_rule": false, "explore_ticks": 0},
+    "brain": {"goal_delay_s": 0, "tick_delay_s": 0, "max_goals_per_run": 0, "places_memory": false, "map_for_goals": false, "failed_guard": false, "failure_guidance": false, "max_goal_attempts": 3}
+  },
+  "sim_env": {"AI2THOR_MCP_FIXES": "none"}
 }

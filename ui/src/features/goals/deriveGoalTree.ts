@@ -1,6 +1,6 @@
 import type { Goal, PendingGoal, PetState } from "@/types/api";
 
-export type GoalMarker = "active" | "pending" | "done" | "abandoned";
+export type GoalMarker = "active" | "pending" | "done" | "abandoned" | "canceled";
 
 export interface GoalNode {
   key: string;
@@ -22,6 +22,7 @@ export const MARKER_TEXT: Record<GoalMarker, string> = {
   pending: "[...]",
   done: "[done]",
   abandoned: "[abandoned]",
+  canceled: "[canceled]",
 };
 
 function subGoals(parentKey: string, steps: string[] | undefined): GoalNode[] {
@@ -45,6 +46,11 @@ function goalNode(goal: Goal, marker: GoalMarker): GoalNode {
   };
 }
 
+function historyMarker(goal: Goal): GoalMarker {
+  if (goal.status === "done" || goal.status === "canceled") return goal.status;
+  return "abandoned";
+}
+
 function pendingNode(goal: PendingGoal, i: number): GoalNode {
   const key = `pending:${goal.id ?? i}`;
   return { key, label: goal.goal, marker: "pending", children: subGoals(key, goal.sub_goals) };
@@ -61,6 +67,6 @@ export function deriveGoalTree(state: PetState | undefined): GoalNode[] {
   (state.pending_goals ?? []).forEach((goal, i) => {
     nodes.push(pendingNode(goal, i));
   });
-  for (const goal of state.goal_history) nodes.push(goalNode(goal, goal.status === "done" ? "done" : "abandoned"));
+  for (const goal of state.goal_history) nodes.push(goalNode(goal, historyMarker(goal)));
   return nodes;
 }

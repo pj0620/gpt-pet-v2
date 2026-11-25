@@ -1,20 +1,21 @@
 """`gpt-pet serve`: the pet's tick loop plus the portal's HTTP API in one process.
 
 Endpoints (all under /api): `events` (SSE), `state`, `status`, `stats`, `stats/reset`,
-`settings`, `goals`, `control/{pause|resume|tick}`, `profile`, `frame.jpg`, `map.png`,
-`depth.png`. The built portal (`ui/dist`) is served at `/` when present.
+`settings`, `goals`, `attention`, `control/{pause|resume|tick}`, `profile`, `frame.jpg`,
+`map.png`, `depth.png`. The built portal (`ui/dist`) is served at `/` when present.
 """
 from __future__ import annotations
 
 import asyncio
 import json
 import logging
+import time
 from collections import deque
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Callable, Literal
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -28,8 +29,9 @@ import gpt_pet
 from gpt_pet.brain import build_brain
 from gpt_pet.frames import Frame, FrameStore
 from gpt_pet.mcp_proxy import McpProxy, ToolResult
-from gpt_pet.runtime import PetRuntime, TickResult
+from gpt_pet.runtime import PetRuntime, TickResult, event_payloads
 from gpt_pet.settings import Settings, load_settings
+from gpt_pet.trace import TraceRecorder
 
 log = logging.getLogger("gpt_pet.server")
 
@@ -45,37 +47,18 @@ STATS_THROTTLE_S = 1.0
 """At most one `stats` frame per second while counters change."""
 STATS_HEARTBEAT_S = 5.0
 """A `stats` frame at least this often, so uptime and per-minute rates keep moving when idle."""
+ATTENTION_POLL_ACTIVE_S = 0.5
+"""How often the robot's attention status is polled while it is attending to someone."""
+ATTENTION_POLL_IDLE_S = 1.0
+ATTENTION_POLL_FAILED_S = 30.0
+"""After a failed poll (no such tool on this server, say), wait this long before trying again."""
+ATTENTION_ACTIVE_STATES = ("aiming", "approaching", "framed", "searching")
 DEV_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 
 def default_ui_dist() -> Path:
     # src/gpt_pet/__init__.py -> gpt_pet -> src -> python -> gpt-pet-v2
     return Path(gpt_pet.__file__).resolve().parents[3] / "ui" / "dist"
-
-
-def _jsonable(value: Any) -> Any:
-    return json.loads(json.dumps(value, default=str))
-
-
-def event_payloads(event: Event, tick: int) -> list[dict[str, Any]]:
-    """The portal's `adk` payloads for one ADK event: one per tool call/response, plus text."""
-    if event.partial or event.content is None:
-        return []
-    base = {"tick": tick, "author": event.author, "timestamp": event.timestamp, "invocation_id": event.invocation_id}
-    s1 = (event.custom_metadata or {}).get("s1")
-    if s1:
-        base["s1"] = s1  # System 1 took this turn instead of Gemini
-    payloads: list[dict[str, Any]] = []
-    for call in event.get_function_calls():
-        payloads.append({**base, "functionCall": {"id": call.id or "", "name": call.name or "", "args": _jsonable(dict(call.args or {}))}})
-    for response in event.get_function_responses():
-        payloads.append(
-            {**base, "functionResponse": {"id": response.id or "", "name": response.name or "", "response": _jsonable(response.response)}}
-        )
-    text = "".join(part.text for part in (event.content.parts or []) if part.text and not part.thought).strip()
-    if text and not payloads:
-        payloads.append({**base, "text": text})
-    return payloads
 
 
 @dataclass(frozen=True)
@@ -125,10 +108,81 @@ class Broadcaster:
         return [frame for frame in self._history if frame.id > after_id]
 
 
+def _attention_where(status: dict[str, Any]) -> str:
+    """"1.3 m, 3° left" from an attention status; empty when the person is not in sight."""
+    parts: list[str] = []
+    distance, bearing = status.get("distance_m"), status.get("bearing_deg")
+    if isinstance(distance, (int, float)):
+        parts.append(f"{distance:.1f} m")
+    if isinstance(bearing, (int, float)):
+        parts.append("straight ahead" if abs(bearing) < 1 else f"{abs(bearing):.0f}° {'right' if bearing > 0 else 'left'}")
+    return ", ".join(parts)
+
+
+def attention_notice(previous: dict[str, Any] | None, current: dict[str, Any], tick: int, timestamp: float) -> dict[str, Any] | None:
+    """A notice for the Events Log when the robot's attention changes state: why it is turning,
+    looking up, walking up to someone or letting go. None while the state is unchanged."""
+    state = str(current.get("state") or "off")
+    before = str((previous or {}).get("state") or "off")
+    if state == before:
+        return None
+    label = current.get("label") or "the person"
+    where = _attention_where(current)
+    suffix = f" ({where})" if where else ""
+    if state == "aiming":
+        text = f"Attention: turning toward {label}{suffix}" if before in ("off", "lost") else f"Attention: re-aiming at {label}{suffix}"
+    elif state == "approaching":
+        text = f"Attention: walking up to {label}{suffix}, stopping {current.get('standoff_m', 1.3)} m away"
+    elif state == "framed":
+        tilt = current.get("tilt_deg") or 0
+        camera = f"camera up {tilt:.0f}°" if tilt else "camera level"
+        text = f"Attention: {label} framed{suffix}, {camera}"
+    elif state == "searching":
+        text = f"Attention: lost sight of {label}; looking where they were"
+    elif state == "lost":
+        text = f"Attention ended: {label} out of sight for {current.get('unseen_s', 0):.0f} s"
+    else:
+        text = f"Attention ended: {current.get('reason') or 'canceled'}"
+    return {"kind": "attention", "state": state, "tick": tick, "text": text, "timestamp": timestamp}
+
+
+class AttentionWatcher:
+    """Turns polled attention statuses into portal frames: an `attention` frame whenever the
+    status changes (not replayed, like stats) and a `notice` whenever its state changes (kept,
+    so the Events Log explains the robot's turns, tilts and approaches)."""
+
+    def __init__(self, publish: Callable[..., Any]) -> None:
+        self._publish = publish
+        self.last: dict[str, Any] | None = None
+
+    @property
+    def active(self) -> bool:
+        return bool(self.last and self.last.get("state") in ATTENTION_ACTIVE_STATES)
+
+    def ingest(self, status: dict[str, Any], tick: int, timestamp: float) -> bool:
+        """Publish what changed; True when the status differed from the last one."""
+        if status == self.last:
+            return False
+        previous, self.last = self.last, status
+        self._publish("attention", status, keep=False)
+        notice = attention_notice(previous, status, tick, timestamp)
+        if notice is not None:
+            self._publish("notice", notice)
+        return True
+
+
 class PetService:
     """Owns the running `PetRuntime`, swaps it on profile change, and feeds the broadcaster."""
 
-    def __init__(self, settings: Settings, broadcaster: Broadcaster, *, start_paused: bool = False, refresh_map: bool = True) -> None:
+    def __init__(
+        self,
+        settings: Settings,
+        broadcaster: Broadcaster,
+        *,
+        start_paused: bool = False,
+        refresh_map: bool = True,
+        trace_dir: Path | None = None,
+    ) -> None:
         self.settings = settings
         self.broadcaster = broadcaster
         self.frames = FrameStore()
@@ -143,6 +197,11 @@ class PetService:
         self._map_task: asyncio.Task[None] | None = None
         self._stats_task: asyncio.Task[None] | None = None
         self._stats_handle: asyncio.TimerHandle | None = None
+        self.attention = AttentionWatcher(self.broadcaster.publish)
+        self._attention_task: asyncio.Task[None] | None = None
+        self.trace_dir = trace_dir
+        self.trace: TraceRecorder | None = None
+        self._trace_task: asyncio.Task[None] | None = None
         self.frames.subscribe(self._on_frame)
 
     # --- lifecycle -------------------------------------------------------------------------
@@ -170,6 +229,15 @@ class PetService:
             on_status=self.publish_status,
             on_notice=self._on_notice,
         )
+        if self.trace_dir is not None:
+            self.trace = TraceRecorder(
+                Path(self.trace_dir) / runtime.session_id,
+                url=str(url) if url is not None else None,
+                meta={"run_id": runtime.session_id, "profile": self.settings.profile.name, "source": "gpt-pet serve"},
+            )
+            brain.listen_to_views(self.trace.view)
+            self._trace_task = asyncio.create_task(self.trace.run_sampler(), name="trace-sampler")
+            log.info("recording a trace in %s", self.trace.directory)
         await runtime.start()
         if self._start_paused:
             runtime.pause()
@@ -178,6 +246,8 @@ class PetService:
         if self._refresh_map and self.proxy is not None:
             self._map_task = asyncio.create_task(self._map_loop(), name="map-refresh")
         self._stats_task = asyncio.create_task(self._stats_loop(), name="stats-heartbeat")
+        if self.attention_enabled:
+            self._attention_task = asyncio.create_task(self._attention_loop(), name="attention-watch")
         log.info("pet loop started (profile=%s, paused=%s)", self.settings.profile.name, runtime.paused)
         self.publish_status()
 
@@ -187,7 +257,7 @@ class PetService:
         if self._stats_handle is not None:
             self._stats_handle.cancel()
             self._stats_handle = None
-        for background in (self._map_task, self._stats_task):
+        for background in (self._map_task, self._stats_task, self._attention_task, self._trace_task):
             if background is None:
                 continue
             background.cancel()
@@ -195,7 +265,11 @@ class PetService:
                 await background
             except (asyncio.CancelledError, Exception):  # noqa: BLE001
                 pass
-        self._map_task, self._stats_task = None, None
+        self._map_task, self._stats_task, self._attention_task, self._trace_task = None, None, None, None
+        if self.trace is not None:
+            self.trace.close()
+            self.trace = None
+        self.attention.last = None
         if runtime is None:
             return
         runtime.stop()
@@ -235,12 +309,36 @@ class PetService:
             "goal_limit": runtime.goal_limit if runtime else None,
             "goals_used": runtime.goals_used if runtime else 0,
             "image_versions": self.frames.versions(),
-            "features": {"free_camera": self.free_camera_enabled},
+            "features": {"free_camera": self.free_camera_enabled, "attention": self.attention_enabled},
         }
 
     @property
     def free_camera_enabled(self) -> bool:
         return bool(self.settings.features.free_camera and self.proxy is not None)
+
+    @property
+    def attention_enabled(self) -> bool:
+        return bool(self.settings.features.attention and self.proxy is not None)
+
+    async def _attention_loop(self) -> None:
+        """Poll the robot's attention status (a status call, no picture, no simulator step) and
+        tell the portal what the robot is doing: faster while it is attending to someone."""
+        while True:
+            await asyncio.sleep(ATTENTION_POLL_ACTIVE_S if self.attention.active else ATTENTION_POLL_IDLE_S)
+            proxy = self.proxy
+            if proxy is None:
+                continue
+            try:
+                result = await proxy.call("get_attention_status", {})
+                if result.is_error or not isinstance(result.data, dict):
+                    raise RuntimeError(result.text or "no attention status")
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:  # noqa: BLE001 - the portal's attention view is a nicety
+                log.warning("attention status unavailable: %s", exc)
+                await asyncio.sleep(ATTENTION_POLL_FAILED_S)
+                continue
+            self.attention.ingest(result.data, self.runtime.ticks if self.runtime else 0, time.time())
 
     async def camera_call(self, tool: str, args: dict[str, Any] | None = None) -> dict[str, Any]:
         """Drive the simulator's free camera through the proxy; stores the frame as `free`."""
@@ -283,9 +381,13 @@ class PetService:
     def _on_event(self, event: Event, tick: int) -> None:
         for payload in event_payloads(event, tick):
             self.broadcaster.publish("adk", payload)
+        if self.trace is not None:
+            self.trace.event(event, tick)
 
     def _on_notice(self, notice: dict[str, Any]) -> None:
         self.broadcaster.publish("notice", notice)
+        if self.trace is not None:
+            self.trace.notice(notice)
 
     def publish_stats(self) -> None:
         self._stats_handle = None
@@ -305,6 +407,8 @@ class PetService:
 
     def _on_tick(self, result: TickResult) -> None:
         self.broadcaster.publish("tick", result.summary_dict())
+        if self.trace is not None:
+            self.trace.tick(result)
         log.info(result.summary())
         loop = self._loop or asyncio.get_running_loop()
         loop.create_task(self.publish_state())
@@ -366,9 +470,16 @@ class CameraResetBody(BaseModel):
     mode: Literal["chase", "front", "top"] = "chase"
 
 
-def create_app(settings: Settings, *, ui_dist: Path | None = None, start_paused: bool = False, refresh_map: bool = True) -> FastAPI:
+def create_app(
+    settings: Settings,
+    *,
+    ui_dist: Path | None = None,
+    start_paused: bool = False,
+    refresh_map: bool = True,
+    trace_dir: Path | None = None,
+) -> FastAPI:
     broadcaster = Broadcaster()
-    service = PetService(settings, broadcaster, start_paused=start_paused, refresh_map=refresh_map)
+    service = PetService(settings, broadcaster, start_paused=start_paused, refresh_map=refresh_map, trace_dir=trace_dir)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
@@ -404,6 +515,11 @@ def create_app(settings: Settings, *, ui_dist: Path | None = None, start_paused:
     @app.get("/api/settings")
     async def get_settings() -> dict[str, Any]:
         return service.settings.model_dump(mode="json")
+
+    @app.get("/api/attention")
+    async def get_attention() -> dict[str, Any]:
+        """The robot's attention status as last polled (`{"state": "off"}` before the first poll)."""
+        return service.attention.last or {"state": "off"}
 
     @app.post("/api/goals")
     async def post_goal(body: GoalBody) -> dict[str, Any]:
@@ -494,6 +610,8 @@ def create_app(settings: Settings, *, ui_dist: Path | None = None, start_paused:
                 yield {"id": snapshot_id, "event": "status", "data": json.dumps(service.status(), default=str)}
                 yield {"id": snapshot_id, "event": "state", "data": json.dumps(await service.state(), default=str)}
                 yield {"id": snapshot_id, "event": "stats", "data": json.dumps(service.stats(), default=str)}
+                if service.attention.last is not None:
+                    yield {"id": snapshot_id, "event": "attention", "data": json.dumps(service.attention.last, default=str)}
                 while True:
                     if await request.is_disconnected():
                         break

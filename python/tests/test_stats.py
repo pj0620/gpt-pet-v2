@@ -42,7 +42,8 @@ def test_llm_calls_tokens_and_latency_accumulate() -> None:
     assert snapshot["started_at"] == 1_000.0 and snapshot["uptime_s"] == 60.0
     llm = snapshot["llm"]
     assert llm["calls"] == 2 and llm["per_min"] == 2.0 and llm["errors"] == 0
-    assert llm["latency"] == {"count": 2, "avg_ms": 2000, "p50_ms": 1000, "p95_ms": 3000, "last_ms": 3000}
+    assert llm["latency"] == {"count": 2, "avg_ms": 2000, "p50_ms": 1000, "p95_ms": 3000, "max_ms": 3000, "last_ms": 3000}
+    assert llm["fallbacks"] == 0 and llm["failed_latency"]["count"] == 0 and llm["failed_latency"]["max_ms"] is None
     assert llm["by_agent"] == {
         "executor": {"calls": 1, "tokens": 2020, "avg_ms": 3000},
         "goal_setter": {"calls": 1, "tokens": 1250, "avg_ms": 1000},
@@ -80,6 +81,25 @@ def test_drives_count_outcomes_checks_and_share_of_the_time() -> None:
     assert (drives["driving_s"], drives["driving_pct"], drives["checks"]) == (15.0, 25.0, 30)
 
 
+def test_drives_that_go_nowhere_to_passages_and_by_whom_are_counted() -> None:
+    def arrived(destination: str, planned: float, traveled: float) -> DriveWait:
+        final = {"state": "succeeded", "progress": {"distance_traveled_m": traveled}}
+        return DriveWait("succeeded", 5.0, final, destination_id=destination, planned_m=planned)
+
+    stats = RunStats(started=0.0)
+    stats.record_drive(arrived("obj:DiningTable|1", 0.1, 0.0))  # already there
+    stats.record_drive(arrived("psg:3", 2.5, 2.4))
+    stats.record_drive(arrived("psg:3", 0.2, 0.15))  # there again
+    stats.record_drive(DriveWait("failed", 2.0, {"state": "failed", "progress": {"distance_traveled_m": 0.6}}, destination_id="obj:Sofa|2", planned_m=3.0))
+    stats.record_drive_call("s1")
+    stats.record_drive_call("gemini")
+    stats.record_drive_call("s1")
+    drives = stats.snapshot(now=60.0)["drives"]
+    assert (drives["null"], drives["to_passages"], drives["distance_m"]) == (2, 2, 3.15)
+    assert drives["destinations_reached"] == 2  # the table and the passage; the sofa was never reached
+    assert drives["calls_by"] == {"gemini": 1, "s1": 2}
+
+
 def test_goals_are_counted_once_from_the_tick_state() -> None:
     stats = RunStats(started=0.0)
     first = {"id": 1, "status": "active", "created_tick": 1}
@@ -90,8 +110,26 @@ def test_goals_are_counted_once_from_the_tick_state() -> None:
     rest = {"id": 0, "status": "limit"}
     stats.record_tick(tick(4, rest, [{**second, "status": "abandoned"}, {**first, "status": "done"}]))
     snapshot = stats.snapshot(now=120.0)
-    assert snapshot["goals"] == {"started": 2, "done": 1, "abandoned": 1, "started_per_min": 1.0, "done_per_min": 0.5}
+    assert snapshot["goals"] == {"started": 2, "done": 1, "abandoned": 1, "canceled": 0, "started_per_min": 1.0, "done_per_min": 0.5}
     assert snapshot["ticks"]["count"] == 4 and snapshot["ticks"]["latency"]["avg_ms"] == 10_000
+
+
+def test_failed_calls_their_fallbacks_and_failed_ticks_are_counted_apart_from_answers() -> None:
+    stats = RunStats(started=0.0)
+    stats.record_llm_call("executor", 2.0, usage(100, 10))
+    stats.record_llm_error(20.0)  # a timeout: answered by a fallback
+    stats.record_llm_fallback()
+    stats.record_llm_error(20.4)  # a timeout nothing stood in for: the tick failed
+    stats.record_llm_error()  # failed before it was timed
+    stats.record_tick(TickResult(number=1, seconds=20.5, events=[], state={}, error="TimeoutError"))
+    stats.record_tick(tick(2, None, []))
+    snapshot = stats.snapshot(now=60.0)
+    llm = snapshot["llm"]
+    assert (llm["calls"], llm["errors"], llm["fallbacks"]) == (1, 3, 1)
+    assert llm["latency"]["max_ms"] == 2000  # answers only
+    assert llm["failed_latency"]["count"] == 2 and llm["failed_latency"]["max_ms"] == 20_400
+    assert snapshot["ticks"]["count"] == 2 and snapshot["ticks"]["failed"] == 1
+    assert snapshot["ticks"]["latency"]["max_ms"] == 20_500
 
 
 def test_reset_zeroes_the_counters_without_recounting_old_goals() -> None:
@@ -146,3 +184,14 @@ def test_every_change_notifies_and_a_broken_listener_is_contained() -> None:
     stats.on_change = broken
     stats.record_llm_error()
     assert stats.llm_errors == 1
+
+
+
+def test_goals_the_owner_canceled_are_counted_apart_from_abandoned_ones() -> None:
+    stats = RunStats()
+    first = {"id": 1, "goal": "explore", "status": "active"}
+    second = {"id": 2, "goal": "find the owner", "status": "active"}
+    stats.record_tick(tick(1, first, []))
+    stats.record_tick(tick(2, second, [{**first, "status": "canceled"}]))
+    goals = stats.snapshot()["goals"]
+    assert (goals["started"], goals["done"], goals["abandoned"], goals["canceled"]) == (2, 0, 0, 1)

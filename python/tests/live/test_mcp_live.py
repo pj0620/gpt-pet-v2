@@ -126,6 +126,33 @@ async def test_a_real_drive_is_waited_out_until_it_ends(mcp_server: str, sim_set
     assert 0 < wait.waited_s < sim_settings.nav.max_wait_s
 
 
+async def test_do_look_tilts_the_camera_and_views_report_it(mcp_server: str, sim_settings: Settings) -> None:
+    """The robot contract's camera tilt (the real robot's Kinect): up 27 degrees or straight."""
+    async with streamablehttp_client(
+        str(sim_settings.mcp.url),
+        timeout=timedelta(seconds=FIRST_CALL_TIMEOUT_S),
+        sse_read_timeout=timedelta(seconds=FIRST_CALL_TIMEOUT_S),
+    ) as (read_stream, write_stream, _):
+        async with ClientSession(
+            read_stream, write_stream, read_timeout_seconds=timedelta(seconds=FIRST_CALL_TIMEOUT_S)
+        ) as session:
+            await session.initialize()
+
+            async def call(tool: str, args: dict) -> dict:
+                result = await session.call_tool(tool, args)
+                dumped = result.model_dump(mode="json", by_alias=True, exclude_none=True)
+                return mcp_media_callback(None, {}, None, dumped) or dumped
+
+            camera = (await call("get_current_view", {}))["result"]["camera"]
+            assert camera["tilt_deg"] == 0.0 and 0.25 <= camera["height_m"] <= 0.35, camera  # a foot above the floor
+            up = await call("do_look", {"direction": "up"})
+            assert not up["isError"], up
+            assert (await call("get_current_view", {}))["result"]["camera"]["tilt_deg"] == 27.0
+            straight = await call("do_look", {"direction": "straight"})
+            assert not straight["isError"], straight
+            assert (await call("get_current_view", {}))["result"]["camera"]["tilt_deg"] == 0.0
+
+
 async def test_real_profile_is_defined_but_unreachable() -> None:
     """Documents the gap: gpt-pet-mcp has no MCP server yet. Fails the day it answers."""
     settings = load_settings("real")

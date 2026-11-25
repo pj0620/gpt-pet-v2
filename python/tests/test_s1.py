@@ -7,13 +7,19 @@ from google.genai import types
 
 from gpt_pet.agents.executor import BUDGET_MARKER
 from gpt_pet.goals import GoalDecision
+from gpt_pet.places import Place, Places
 from gpt_pet.s1 import (
     ASK_GEMINI,
     INJECTED_CALL_SIGNATURE,
+    MAX_DRIVE_OPTIONS,
+    NOTHING_NEW,
     REST_REPLY,
+    RULES_ONLY,
     Answer,
     S1Error,
     Step,
+    SystemOne,
+    Turn,
     action_options,
     certainty,
     executor_questions,
@@ -21,10 +27,15 @@ from gpt_pet.s1 import (
     executor_state,
     goal_escalation,
     judge_turn,
+    met_question_due,
     parse_answer,
+    policy_turn,
     rule_turn,
+    scan_turn,
     tool_steps,
 )
+from gpt_pet.settings import load_settings
+from gpt_pet.stats import RunStats
 
 LIMITS = {"get_current_view": 4, "set_nav_goal": 2, "do_rotate": 2}
 GOAL = {
@@ -193,3 +204,135 @@ def test_the_goal_gate_leaves_goal_boundaries_to_gemini() -> None:
     assert goal_escalation({**state, "last_report": " "}, 3) == "no report yet"
     continued = GoalDecision(previous_goal_status="continue", reasoning="S1 (nimble): still in progress.")
     assert GoalDecision.model_validate_json(continued.model_dump_json(exclude_none=True)).goal is None
+
+
+# --- with the places memory's marks (`[brain] places_memory`) and the scan rule (`[s1] scan_rule`)
+
+FRIDGE_GOAL = {**GOAL, "goal": "find the fridge", "success_criteria": "The fridge is within 1 m"}
+MARKED = {
+    "agent": {"x": 1.0, "z": 2.0, "yaw": 90.0},
+    "destinations": [
+        {"marker": 1, "id": "obj:DiningTable|1", "kind": "object", "label": "DiningTable", "description": "DiningTable, 0.9 m ahead", "distance_m": 0.9, "here": True},
+        {"marker": 2, "id": "obj:Sofa|2", "kind": "object", "label": "Sofa", "description": "Sofa, 2.0 m ahead", "distance_m": 2.0, "visited": True},
+        {"marker": 3, "id": "psg:4", "kind": "passage", "label": "opening", "description": "passage: opening ahead, ~2.0 m wide", "distance_m": 3.1},
+        {"marker": 4, "id": "obj:Painting|1", "kind": "object", "label": "Painting", "description": "Painting, 1.9 m ahead-left", "distance_m": 1.9},
+        {"marker": 5, "id": "obj:Television|3", "kind": "object", "label": "Television", "description": "Television, 2.4 m right", "distance_m": 2.4, "failed": 2},
+        {"marker": 6, "id": "obj:Fridge|4", "kind": "object", "label": "Fridge", "description": "Fridge, 3.5 m ahead-right", "distance_m": 3.5},
+    ],
+}
+
+
+def marked_look(view: dict = MARKED) -> Step:
+    return Step("get_current_view", {}, {"result": view, "isError": False})
+
+
+def test_marks_drop_what_is_here_or_keeps_failing_and_rank_the_rest_for_the_goal() -> None:
+    options = action_options(MARKED, goal=FRIDGE_GOAL, marks=True)
+    drives = [key for key in options if key.startswith("go_")]
+    assert drives == ["go_6", "go_3", "go_4", "go_2"]  # named by the goal, passage, unvisited, visited
+    assert options["go_2"]["text"] == "Drive to Sofa, 2.0 m ahead (visited before)"
+    assert list(options)[len(drives):] == ["turn_left", "turn_right", ASK_GEMINI]
+    assert [key for key in action_options(MARKED) if key.startswith("go_")] == [f"go_{n}" for n in range(1, 7)]  # no marks: as before
+    crowded = {"destinations": [{"marker": n, "id": f"obj:Box|{n}", "kind": "object", "label": "Box", "distance_m": 2.0 + n} for n in range(1, 13)]}
+    assert sum(key.startswith("go_") for key in action_options(crowded, goal=FRIDGE_GOAL, marks=True)) == MAX_DRIVE_OPTIONS
+
+
+def test_the_criteria_question_is_due_when_what_the_goal_names_is_here() -> None:
+    table_goal = {**GOAL, "goal": "get a close look at the dining table", "success_criteria": "The dining table is within 1 m"}
+    assert met_question_due(table_goal, [marked_look()], MARKED, marks=True)
+    assert not met_question_due(table_goal, [marked_look()], MARKED, marks=False)  # no marks: only after a drive
+    assert not met_question_due(FRIDGE_GOAL, [marked_look()], MARKED, marks=True)  # the fridge is not here yet
+    assert met_question_due(FRIDGE_GOAL, [marked_look(), drive(), marked_look()], MARKED, marks=True)
+
+
+def test_with_nothing_worth_a_drive_the_scan_rule_turns_then_reports() -> None:
+    first = scan_turn([marked_look()], LIMITS, marks=True)
+    assert (first.kind, first.tool, first.args, first.by) == ("call", "do_rotate", {"action": "RotateRight", "degrees": 90}, "rules")
+    turned_out = [marked_look(), turn(), marked_look(), turn(), marked_look()]
+    done = scan_turn(turned_out, LIMITS, marks=True)
+    assert done.kind == "report" and done.text.endswith(f"Success criteria not judged: {NOTHING_NEW} (S1 rules).")
+
+
+def test_with_the_scan_rule_s1_reports_itself_when_the_looks_run_out() -> None:
+    out_of_looks = [look(), turn(), look(), turn(), look(), drive(), look(), drive()]
+    report = rule_turn(GOAL, out_of_looks, LIMITS, scan=True)
+    assert (report.kind, report.by) == ("report", "rules")
+    assert report.text.endswith("Success criteria not judged: no looks left this stretch (S1 rules).")
+    assert rule_turn(GOAL, out_of_looks, LIMITS).reason == "no looks left"  # without it, Gemini writes the report
+
+
+def test_reports_with_marks_name_passages_first_with_their_direction() -> None:
+    report = executor_report([marked_look()], met=False, p_met=0.1, model="nimble", marks=True)
+    assert report.splitlines()[0] == (
+        "Saw: passage: opening ahead, ~2.0 m wide, DiningTable (0.9 m) [here], Sofa (2.0 m) [visited], "
+        "Painting (1.9 m), Television (2.4 m), Fridge (3.5 m)."
+    )
+    assert executor_state(FRIDGE_GOAL, [marked_look()], marks=True)["in_view"][0] == "DiningTable (0.9 m) [here]"
+
+
+# --- carrying out Gemini's direction by rule (`[s1] explore_policy`)
+
+
+def test_a_goal_s_target_is_driven_to_first_even_out_of_view() -> None:
+    places = Places()
+    places.destinations["psg:9"] = Place(id="psg:9", kind="passage", label="doorway")
+    goal = {**FRIDGE_GOAL, "kind": "visit", "target_id": "psg:9"}
+    first = policy_turn(goal, [marked_look()], MARKED, LIMITS, places)
+    assert (first.kind, first.tool, first.args, first.by) == ("call", "set_nav_goal", {"destination_id": "psg:9"}, "rules")
+    tried = [marked_look(), Step("set_nav_goal", {"destination_id": "psg:9"}, drive().response), marked_look()]
+    assert policy_turn(goal, tried, MARKED, LIMITS, places) is None  # once per stretch; then nimble decides
+    places.destinations["psg:9"].reached_tick = 3
+    assert policy_turn(goal, [marked_look()], MARKED, LIMITS, places) is None  # reached on an earlier stretch
+    here = {"destinations": [*MARKED["destinations"], {"marker": 7, "id": "psg:10", "kind": "passage", "label": "opening", "distance_m": 0.4, "here": True}]}
+    places.destinations["psg:10"] = Place(id="psg:10", kind="passage", label="opening")
+    assert policy_turn({**goal, "target_id": "psg:10"}, [marked_look(here)], here, LIMITS, places) is None
+
+
+def test_an_explore_goal_takes_unvisited_passages_first_then_the_farthest_object() -> None:
+    explore = {**GOAL, "goal": "explore the flat", "kind": "explore"}
+    first = policy_turn(explore, [marked_look()], MARKED, LIMITS, Places())
+    assert first.args == {"destination_id": "psg:4"}
+    no_passage = {"destinations": [d for d in MARKED["destinations"] if d["kind"] != "passage"]}
+    farthest = policy_turn(explore, [marked_look(no_passage)], no_passage, LIMITS, Places())
+    assert farthest.args == {"destination_id": "obj:Fridge|4"}  # 3.5 m; the sofa is visited, the TV failed twice, the table here
+    assert policy_turn({**explore, "kind": "find"}, [marked_look()], MARKED, LIMITS, Places()) is None  # not explore: nimble
+    two_drives = [marked_look(), drive(), marked_look(), drive(), marked_look()]
+    assert policy_turn(explore, two_drives, MARKED, LIMITS, Places()) is None  # out of drives
+
+
+async def test_rules_only_s1_has_no_decision_model_and_hands_its_judgments_on() -> None:
+    settings = load_settings("sim")
+    settings = settings.model_copy(update={"s1": settings.s1.model_copy(update={"enabled": True, "rules_only": True})})
+    stats = RunStats()
+    s1 = SystemOne(settings, stats)
+    assert s1.client is None
+    await s1.warm_up()  # nothing to load
+    turn = await s1._decide(GOAL, [], {}, ask_met=True)
+    assert (turn.kind, turn.reason) == ("escalate", RULES_ONLY)
+    planned = Turn("call", tool="set_nav_goal", args={"destination_id": "psg:1"})
+    assert await s1._unless_met(planned, GOAL, []) is planned  # no model to say "met" first
+    assert stats.decider.count == 0
+
+
+
+def test_a_goal_the_owner_canceled_ends_the_stretch_with_s1_s_own_report() -> None:
+    from gpt_pet.agents.executor import cancel_refusal
+    from gpt_pet.s1 import rule_turn
+
+    drove = Step("set_nav_goal", {"destination_id": "psg:1"}, {"result": {"goal_id": "g1"}, "isError": False, "drive": {"outcome": "canceled"}})
+    refused = Step("get_current_view", {}, {"error": cancel_refusal('the owner gave a new goal ("come here")')})
+    turn = rule_turn(GOAL, [marked_look(), drove, refused], LIMITS)
+    assert turn.kind == "report" and "Success criteria not judged: the owner canceled the goal (S1 rules)." in turn.text
+    assert "Final nav state: canceled." in turn.text
+
+
+def test_the_owner_s_queued_goal_starts_without_asking_a_model() -> None:
+    from gpt_pet.goals import rest_record
+    from gpt_pet.s1 import owner_goal_decision
+
+    pending = [{"id": 5, "goal": "find the owner and say hi", "sub_goals": []}]
+    decision = owner_goal_decision({"current_goal": None, "pending_goals": pending})
+    assert decision.previous_goal_status == "none" and decision.goal == "find the owner and say hi"
+    assert owner_goal_decision({"current_goal": rest_record(3), "pending_goals": pending}).goal == "find the owner and say hi"
+    assert owner_goal_decision({"current_goal": GOAL, "pending_goals": pending}) is None  # a goal in progress: the model judges it
+    assert owner_goal_decision({"current_goal": None, "pending_goals": []}) is None

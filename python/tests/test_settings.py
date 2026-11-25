@@ -25,6 +25,7 @@ EXPECTED_TOOLS = [
     "get_map",
     "do_move",
     "do_rotate",
+    "do_look",
 ]
 
 
@@ -36,13 +37,16 @@ def test_sim_profile_loads() -> None:
     assert settings.mcp.tool_filter == EXPECTED_TOOLS
     assert settings.mcp.read_timeout_s == 300
     assert settings.model.goal_setter.startswith("gemini-")
-    assert settings.brain.max_goal_attempts == 3
+    assert settings.brain.max_goal_attempts == 4  # room for explore_ticks = 3
+    assert settings.brain.failed_guard is True and settings.brain.failure_guidance is True  # fixes study, 2026-10-03
+    assert settings.s1.unstuck_rule is True and settings.s1.explore_ticks == 3
     assert settings.brain.max_llm_calls_per_tick == 40
     assert settings.brain.goal_delay_s == 60
     assert settings.brain.tick_delay_s == 0
     assert settings.brain.max_goals_per_run == 10
     assert settings.tool_limits["get_nav_status"] == 1  # the brain waits out drives, not the model
     assert settings.tool_limits["do_rotate"] == 2
+    assert settings.tool_limits["do_look"] == 3  # the camera tilt (up 27 degrees or straight), 2026-10-06
     assert set(settings.tool_limits) <= set(EXPECTED_TOOLS)
     assert settings.nav.poll_interval_s == 0.5
     assert settings.nav.max_wait_s == 120
@@ -50,6 +54,7 @@ def test_sim_profile_loads() -> None:
     assert str(settings.s1.base_url) == "http://127.0.0.1:11434/"
     assert settings.s1.min_confidence == 0.75 and settings.s1.timeout_s == 30
     assert settings.features.free_camera is True
+    assert settings.features.attention is True  # the portal shows the robot's attention (2026-10-06)
 
 
 def test_real_profile_defines_the_same_tool_contract() -> None:
@@ -61,6 +66,7 @@ def test_real_profile_defines_the_same_tool_contract() -> None:
     assert settings.nav == load_settings("sim").nav
     assert settings.s1.enabled is False  # System 1 stays off until tried on the robot
     assert settings.features.free_camera is False  # no free camera on the real robot
+    assert settings.features.attention is False  # the robot server has no attention tools yet
 
 
 def test_stdio_transport_parses_command_line(tmp_path: Path) -> None:

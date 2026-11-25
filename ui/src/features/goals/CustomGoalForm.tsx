@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { usePortalStore } from "@/stores/portalStore";
 
-/** "Enter Custom Goal": queues a goal the goal setter adopts on its next tick. */
+/** "Enter Custom Goal": the pet drops the goal in progress (shown as canceled) and starts this one
+ * at once; a goal submitted while another owner goal is still waiting queues behind it. */
 export function CustomGoalForm() {
   const connection = usePortalStore((store) => store.connection);
   const [goal, setGoal] = useState("");
@@ -37,9 +38,13 @@ export function CustomGoalForm() {
       />
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs text-muted-foreground">
-          {submit.isPending ? "Submitting…" : submit.error ? `Failed: ${submit.error.message}` : ""}
+          {submit.isPending
+            ? "Submitting…"
+            : submit.error
+              ? `Failed: ${submit.error.message}`
+              : "Replaces the goal in progress"}
         </span>
-        <Button type="submit" size="sm" disabled={!canSubmit}>
+        <Button type="submit" size="sm" disabled={!canSubmit} title="Starts now: the goal in progress is canceled">
           Submit
         </Button>
       </div>

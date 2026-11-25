@@ -1,5 +1,6 @@
 """`gpt-pet run`: the autonomous tick loop. `gpt-pet serve`: the loop plus the portal API.
-`gpt-pet experiment`: timed runs per test and bot config, totals appended to a CSV."""
+`gpt-pet experiment`: timed runs per test and bot config, totals appended to a CSV.
+`gpt-pet trace render DIR`: draw a recorded trace (what the pet saw, did, and where it was)."""
 from __future__ import annotations
 
 import argparse
@@ -55,6 +56,12 @@ def build_parser() -> argparse.ArgumentParser:
     serve.add_argument("--no-launch-sim", action="store_true", help="do not launch ai2thor-mcp when nothing answers on the sim URL")
     serve.add_argument("--no-map-refresh", action="store_true", help="do not fetch the map after each tick")
     serve.add_argument("--scene", default=None, help="AI2-THOR scene when launching the simulator")
+    serve.add_argument(
+        "--trace",
+        type=Path,
+        default=None,
+        help="record a trace (frames, actions, poses) into DIR/<session>; render it with `gpt-pet trace render`",
+    )
 
     experiment = commands.add_parser(
         "experiment",
@@ -65,9 +72,56 @@ def build_parser() -> argparse.ArgumentParser:
     experiment.add_argument("--bot", action="append", default=[], help="bot config (JSON file or inline JSON); repeat for more bots")
     experiment.add_argument("--name", default="adhoc", help="experiment name for --test/--bot runs")
     experiment.add_argument("--repeats", type=int, default=None, help="override every test's repeats")
+    experiment.add_argument(
+        "--order",
+        choices=["interleaved", "blocked"],
+        default=None,
+        help="run order of the bots (default: the suite's, else interleaved: A B, B A, ...)",
+    )
     experiment.add_argument("--results", type=Path, default=None, help="results directory (default: gpt-pet-v2/experiments/results)")
     experiment.add_argument("--summary", action="store_true", help="only print the summary of the results so far")
+    experiment.add_argument(
+        "--trace", action="store_true", help="record and render a trace of every run (runs/<run_id>.trace/), as `trace: true` in a test does"
+    )
+
+    trace = commands.add_parser("trace", help="work with recorded traces (gpt_pet.trace)")
+    trace_commands = trace.add_subparsers(dest="trace_command", required=True)
+    render = trace_commands.add_parser("render", help="draw a trace: timeline.txt, storyboard-NN.png, trajectory.png, index.html")
+    render.add_argument("directory", type=Path, help="a trace directory (holds trace.jsonl)")
+    render.add_argument("--last", type=int, default=None, help="only the last N views in the storyboard")
+    attach = trace_commands.add_parser("attach", help="record a trace of a running `gpt-pet serve` without touching it")
+    attach.add_argument("--portal", default=f"http://127.0.0.1:{DEFAULT_PORT}", help="the pet server (default: %(default)s)")
+    attach.add_argument("--out", type=Path, default=Path("traces"), help="directory for attach-<time>/ (default: %(default)s)")
+    attach.add_argument("--sim", default=None, help="MCP URL for ground truth (default: the pet's own, from /api/status)")
+    attach.add_argument("--seconds", type=float, default=None, help="stop after this long (default: until Ctrl-C)")
+    attach.add_argument("--no-render", action="store_true", help="do not draw the trace when recording stops")
     return parser
+
+
+def trace(args: argparse.Namespace) -> int:
+    from gpt_pet.trace_report import render
+
+    if args.trace_command == "attach":
+        from gpt_pet.trace_attach import attach
+
+        try:
+            directory = asyncio.run(attach(args.portal, args.out, sim_url=args.sim, seconds=args.seconds))
+        except KeyboardInterrupt:
+            directories = sorted(Path(args.out).glob("attach-*"))
+            directory = directories[-1] if directories else None
+        if directory is None:
+            return 1
+        print(f"trace: {directory}")
+        if args.no_render:
+            return 0
+        args.directory, args.last = directory, None
+    out = render(args.directory, last=args.last)
+    print(f"timeline:   {out['timeline']}")
+    print(f"trajectory: {out['trajectory']}")
+    for sheet in out["storyboards"]:
+        print(f"storyboard: {sheet}")
+    print(f"page:       {out['html']}")
+    return 0
 
 
 def experiment(args: argparse.Namespace) -> int:
@@ -84,7 +138,7 @@ def experiment(args: argparse.Namespace) -> int:
     if args.summary:
         print(format_summary(write_summary(results_dir)))
         return 0
-    suite = build_suite(args.suite, test=args.test, bots=args.bot, name=args.name, repeats=args.repeats)
+    suite = build_suite(args.suite, test=args.test, bots=args.bot, name=args.name, repeats=args.repeats, order=args.order)
 
     def report(row: dict) -> None:
         outcome = f"error: {row['error']}" if row["error"] else (
@@ -93,6 +147,8 @@ def experiment(args: argparse.Namespace) -> int:
         )
         log.info("%s: %s", row["run_id"], outcome)
 
+    if args.trace:
+        suite = suite.model_copy(update={"tests": [test.model_copy(update={"trace": True}) for test in suite.tests]})
     rows = asyncio.run(run_suite(suite, results_dir=results_dir, on_row=report))
     print(format_summary(write_summary(results_dir), experiment=suite.name))
     print(f"\n{len(rows)} runs appended to {results_dir / RESULTS_CSV}")
@@ -131,7 +187,9 @@ def serve(settings: Settings, args: argparse.Namespace) -> int:
         log_path = Path(str(resources.files("gpt_pet"))) / ".adk" / "ai2thor-mcp.log"
         log_path.parent.mkdir(parents=True, exist_ok=True)
         sim_process = ensure_mcp_server(str(url), scene=args.scene, log_path=log_path)
-    app = create_app(settings, ui_dist=args.ui_dist, start_paused=args.paused, refresh_map=not args.no_map_refresh)
+    app = create_app(
+        settings, ui_dist=args.ui_dist, start_paused=args.paused, refresh_map=not args.no_map_refresh, trace_dir=args.trace
+    )
     log.info("portal API on http://%s:%d/api (portal at / when ui/dist exists)", args.host, args.port)
     try:
         uvicorn.run(app, host=args.host, port=args.port, log_level="info" if args.verbose else "warning")
@@ -146,6 +204,8 @@ def main(argv: list[str] | None = None) -> int:
     load_env()
     if args.command == "experiment":
         return experiment(args)
+    if args.command == "trace":
+        return trace(args)
     settings = load_settings(args.profile)
     try:
         if args.command == "serve":

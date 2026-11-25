@@ -161,8 +161,10 @@ async def test_gemini_takes_over_a_tick_after_s1s_own_calls(
     mcp_server: str, gemini_key: str, nimble: str, sim_settings: Settings
 ) -> None:
     """S1 looks first (a rule), then an impossible certainty bar hands every judgment to Gemini,
-    which must accept a history that starts with S1's call. Gemini 3 rejected unsigned calls."""
-    strict = sim_settings.model_copy(update={"s1": sim_settings.s1.model_copy(update={"enabled": True, "min_confidence": 1.0})})
+    which must accept a history that starts with S1's call. Gemini 3 rejected unsigned calls. The
+    exploration rules are off: they drive and turn without a judgment, and could carry the tick."""
+    s1 = sim_settings.s1.model_copy(update={"enabled": True, "min_confidence": 1.0, "scan_rule": False, "explore_policy": False, "unstuck_rule": False})
+    strict = sim_settings.model_copy(update={"s1": s1})
     async with PetRuntime(build_brain(strict), user_id="live-handoff") as pet:
         result = await pet.run_tick()
         snapshot = pet.stats.snapshot()
@@ -176,8 +178,7 @@ async def test_gemini_takes_over_a_tick_after_s1s_own_calls(
 
 
 def test_cli_runs_one_tick(mcp_server: str, gemini_key: str) -> None:
-    env = dict(os.environ)
-    env.pop("GPTPET_CONFIG_DIR", None)
+    env = dict(os.environ)  # GPTPET_CONFIG_DIR, if set, points the CLI at the server the fixture attached to
     completed = subprocess.run(
         [sys.executable, "-m", "gpt_pet.cli", "run", "--profile", "sim", "--ticks", "1"],
         capture_output=True,

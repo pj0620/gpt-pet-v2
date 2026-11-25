@@ -15,12 +15,13 @@ import logging
 import math
 import time
 from collections import deque
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from typing import TYPE_CHECKING, Any
 
 from google.adk.plugins.base_plugin import BasePlugin
 
 from gpt_pet.agents.executor import is_budget_refusal
+from gpt_pet.agents.ollama import RELOAD_S
 
 if TYPE_CHECKING:
     from gpt_pet.navwait import DriveWait
@@ -28,7 +29,10 @@ if TYPE_CHECKING:
 
 LATENCY_WINDOW = 200
 """Percentiles cover the most recent samples; counts and means cover the whole run."""
-ACTUATION_TOOLS = frozenset({"set_nav_goal", "do_move", "do_rotate"})
+ACTUATION_TOOLS = frozenset({"set_nav_goal", "do_move", "do_rotate", "do_look"})
+DRIVE_TOOL = "set_nav_goal"
+PASSAGE_PREFIX = "psg:"
+"""Destination ids of passages (doorways, openings) in the robot contract; objects are `obj:`."""
 TOKEN_FIELDS = {
     "input": "prompt_token_count",
     "output": "candidates_token_count",
@@ -50,23 +54,73 @@ class Latencies:
     def __init__(self) -> None:
         self.count = 0
         self.total_s = 0.0
+        self.max_s = 0.0
         self.recent: deque[float] = deque(maxlen=LATENCY_WINDOW)
 
     def add(self, seconds: float) -> None:
         self.count += 1
         self.total_s += seconds
+        self.max_s = max(self.max_s, seconds)
         self.recent.append(seconds)
 
     def summary(self) -> dict[str, Any]:
         if not self.count:
-            return {"count": 0, "avg_ms": None, "p50_ms": None, "p95_ms": None, "last_ms": None}
+            return {"count": 0, "avg_ms": None, "p50_ms": None, "p95_ms": None, "max_ms": None, "last_ms": None}
         ordered = sorted(self.recent)
         return {
             "count": self.count,
             "avg_ms": round(1000 * self.total_s / self.count),
             "p50_ms": round(1000 * percentile(ordered, 50)),
             "p95_ms": round(1000 * percentile(ordered, 95)),
+            "max_ms": round(1000 * self.max_s),
             "last_ms": round(1000 * self.recent[-1]),
+        }
+
+
+class LocalModelTimes:
+    """Where a local model's calls (`gpt_pet.agents.ollama`) spent their time, by Ollama's own
+    account: loading the model (a reload: it had been unloaded, e.g. to make room for another
+    model), reading the prompt, and writing the answer."""
+
+    def __init__(self) -> None:
+        self.calls = 0
+        self.reloads = 0
+        self.load_s = 0.0
+        self.prompt_tokens = 0
+        self.prompt_s = 0.0
+        self.output_tokens = 0
+        self.output_s = 0.0
+        self.max_prompt_tokens = 0
+
+    def add(self, timed: Mapping[str, Any]) -> None:
+        self.calls += 1
+        load_s = float(timed.get("load_s") or 0)
+        self.load_s += load_s
+        if load_s > RELOAD_S:
+            self.reloads += 1
+        prompt_tokens = int(timed.get("prompt_tokens") or 0)
+        self.prompt_tokens += prompt_tokens
+        self.prompt_s += float(timed.get("prompt_s") or 0)
+        self.output_tokens += int(timed.get("output_tokens") or 0)
+        self.output_s += float(timed.get("output_s") or 0)
+        self.max_prompt_tokens = max(self.max_prompt_tokens, prompt_tokens)
+
+    def summary(self) -> dict[str, Any]:
+        if not self.calls:
+            return {"calls": 0}
+
+        def per_s(tokens: int, seconds: float) -> float | None:
+            return round(tokens / seconds, 1) if seconds > 0 else None
+
+        return {
+            "calls": self.calls,
+            "reloads": self.reloads,
+            "load_s": round(self.load_s, 1),
+            "prompt_s": round(self.prompt_s, 1),
+            "output_s": round(self.output_s, 1),
+            "prompt_tok_s": per_s(self.prompt_tokens, self.prompt_s),
+            "output_tok_s": per_s(self.output_tokens, self.output_s),
+            "max_prompt_tokens": self.max_prompt_tokens,
         }
 
 
@@ -89,6 +143,9 @@ class RunStats:
         self.on_change: Callable[[], None] | None = None
         self.s1_model: str | None = None
         """The S1 decision model when `[s1]` is enabled (configuration: a reset keeps it)."""
+        self.people_counts: Callable[[], dict[str, int]] | None = None
+        """With `[people]`: the people memory's counters (sightings, watch looks, drives the watch
+        stopped, rests it woke, attentions, goal decisions a person caused)."""
         self._goals_seen: set[Any] = set()
         self._finished_seen: set[Any] = set()
         self.reset(started, wall_started)
@@ -99,6 +156,14 @@ class RunStats:
         self.started_at = time.time() if wall_started is None else wall_started
         self.llm = Latencies()
         self.llm_errors = 0
+        self.llm_failed = Latencies()
+        """How long the failed Gemini calls took to fail (a timeout shows up here, not in `llm`)."""
+        self.llm_fallbacks = 0
+        self.by_model: dict[str, dict[str, float]] = {}
+        """Calls and tokens per model, for pricing a run (`gpt_pet.experiment.run_cost`)."""
+        self.local = LocalModelTimes()
+        self.maps_shown = 0
+        """Goal decisions Gemini made with the robot's map in view (`[brain] map_for_goals`)."""
         self.agents: dict[str, dict[str, float]] = {}
         self.tokens = dict.fromkeys(TOKEN_FIELDS, 0)
         self.last_call_tokens = 0
@@ -109,12 +174,20 @@ class RunStats:
         self.first_action_s: float | None = None
         self.ticks = Latencies()
         self.truncated = 0
+        self.ticks_failed = 0
         self.goals_started = 0
         self.goals_done = 0
         self.goals_abandoned = 0
+        self.goals_canceled = 0
         self.drives = Latencies()
         self.drive_outcomes: dict[str, int] = {}
         self.drive_checks = 0
+        self.null_drives = 0
+        self.passage_drives = 0
+        self.drive_m = 0.0
+        self.destinations_reached: set[str] = set()
+        self.drive_calls: dict[str, int] = {}
+        """set_nav_goal calls by who decided them: "s1" or "gemini"."""
         self.decider = Latencies()
         self.s1_turns: dict[str, int] = {}
         self.s1_agents: dict[str, int] = {}
@@ -123,9 +196,30 @@ class RunStats:
 
     # --- recording -------------------------------------------------------------------------
 
-    def record_llm_call(self, agent: str, seconds: float, usage: Any = None) -> None:
+    def record_llm_call(
+        self,
+        agent: str,
+        seconds: float,
+        usage: Any = None,
+        local: Mapping[str, Any] | None = None,
+        *,
+        model: str | None = None,
+        billing: Mapping[str, Any] | None = None,
+    ) -> None:
+        """One answered call; `local` is a local model's own timings (`gpt_pet.agents.ollama`),
+        `billing` what an adapter knows beyond the token counts: Anthropic's cache writes, the
+        cost OpenRouter reports."""
         tokens = usage_tokens(usage)
         self.llm.add(seconds)
+        if local:
+            self.local.add(local)
+        if model:
+            counts = self.by_model.setdefault(model, dict.fromkeys(("calls", "input", "cached", "cache_write", "output", "thinking", "billed_usd"), 0))
+            counts["calls"] += 1
+            for key in ("input", "cached", "output", "thinking"):
+                counts[key] += tokens[key]
+            counts["cache_write"] += int((billing or {}).get("cache_write_tokens") or 0)
+            counts["billed_usd"] += float((billing or {}).get("cost_usd") or 0)
         per_agent = self.agents.setdefault(agent, {"calls": 0, "tokens": 0, "seconds": 0.0})
         per_agent["calls"] += 1
         per_agent["tokens"] += tokens["total"]
@@ -135,8 +229,21 @@ class RunStats:
         self.last_call_tokens = tokens["total"]
         self._changed()
 
-    def record_llm_error(self) -> None:
+    def record_llm_error(self, seconds: float | None = None) -> None:
+        """A Gemini call that raised; `seconds` is how long it took to fail, when known."""
         self.llm_errors += 1
+        if seconds is not None:
+            self.llm_failed.add(seconds)
+        self._changed()
+
+    def record_llm_fallback(self) -> None:
+        """A failed Gemini call whose agent fallback answered instead (`gpt_pet.agents.fallbacks`)."""
+        self.llm_fallbacks += 1
+        self._changed()
+
+    def record_map_shown(self) -> None:
+        """The goal setter's request carries the robot's map."""
+        self.maps_shown += 1
         self._changed()
 
     def record_tool_call(self, name: str, seconds: float, *, error: bool = False, refused: bool = False, now: float | None = None) -> None:
@@ -156,6 +263,18 @@ class RunStats:
         self.drives.add(wait.waited_s)
         self.drive_outcomes[wait.outcome] = self.drive_outcomes.get(wait.outcome, 0) + 1
         self.drive_checks += wait.checks
+        if wait.null:
+            self.null_drives += 1
+        if (wait.destination_id or "").startswith(PASSAGE_PREFIX):
+            self.passage_drives += 1
+        self.drive_m += wait.traveled_m or 0.0
+        if wait.outcome == "succeeded" and wait.destination_id:
+            self.destinations_reached.add(wait.destination_id)
+        self._changed()
+
+    def record_drive_call(self, by: str) -> None:
+        """A set_nav_goal call, by who decided it ("s1" or "gemini")."""
+        self.drive_calls[by] = self.drive_calls.get(by, 0) + 1
         self._changed()
 
     def record_decider_call(self, seconds: float) -> None:
@@ -179,6 +298,8 @@ class RunStats:
         self.ticks.add(result.seconds)
         if result.truncated:
             self.truncated += 1
+        if result.failed:
+            self.ticks_failed += 1
         goal = result.state.get("current_goal") or {}
         if goal.get("status") == "active" and goal.get("id") not in self._goals_seen:
             self._goals_seen.add(goal.get("id"))
@@ -190,6 +311,8 @@ class RunStats:
             self._finished_seen.add(goal_id)
             if finished.get("status") == "done":
                 self.goals_done += 1
+            elif finished.get("status") == "canceled":
+                self.goals_canceled += 1  # the owner replaced it: not the pet giving up
             else:
                 self.goals_abandoned += 1
         self._changed()
@@ -219,8 +342,13 @@ class RunStats:
             "llm": {
                 "calls": self.llm.count,
                 "errors": self.llm_errors,
+                "fallbacks": self.llm_fallbacks,
+                "maps_shown": self.maps_shown,
                 "per_min": per_min(self.llm.count),
                 "latency": self.llm.summary(),
+                "failed_latency": self.llm_failed.summary(),
+                "local": self.local.summary(),
+                "by_model": {name: {key: round(value, 6) if key == "billed_usd" else int(value) for key, value in counts.items()} for name, counts in sorted(self.by_model.items())},
                 "by_agent": {
                     name: {"calls": int(a["calls"]), "tokens": int(a["tokens"]), "avg_ms": round(1000 * a["seconds"] / a["calls"])}
                     for name, a in sorted(self.agents.items())
@@ -233,11 +361,17 @@ class RunStats:
                 "refusals": self.tool_refusals,
                 "latency": self.tools.summary(),
             },
-            "ticks": {"count": self.ticks.count, "truncated": self.truncated, "latency": self.ticks.summary()},
+            "ticks": {
+                "count": self.ticks.count,
+                "truncated": self.truncated,
+                "failed": self.ticks_failed,
+                "latency": self.ticks.summary(),
+            },
             "goals": {
                 "started": self.goals_started,
                 "done": self.goals_done,
                 "abandoned": self.goals_abandoned,
+                "canceled": self.goals_canceled,
                 "started_per_min": per_min(self.goals_started),
                 "done_per_min": per_min(self.goals_done),
             },
@@ -248,6 +382,11 @@ class RunStats:
                 "driving_pct": round(100 * self.drives.total_s / uptime, 1) if uptime > 0 else 0.0,
                 "checks": self.drive_checks,
                 "latency": self.drives.summary(),
+                "null": self.null_drives,
+                "to_passages": self.passage_drives,
+                "distance_m": round(self.drive_m, 2),
+                "destinations_reached": len(self.destinations_reached),
+                "calls_by": dict(sorted(self.drive_calls.items())),
             },
             "s1": {
                 "enabled": self.s1_model is not None,
@@ -260,6 +399,7 @@ class RunStats:
                 "decider": {"calls": self.decider.count, "latency": self.decider.summary()},
             },
             "first_action_s": None if self.first_action_s is None else round(self.first_action_s, 1),
+            "people": self.people_counts() if self.people_counts is not None else None,
         }
 
 
@@ -269,25 +409,48 @@ class StatsPlugin(BasePlugin):
     def __init__(self, stats: RunStats) -> None:
         super().__init__(name="gpt_pet_stats")
         self.stats = stats
-        self._model_started: dict[tuple[str, str], float] = {}
+        self._model_started: dict[tuple[str, str], tuple[float, str]] = {}
+        """(invocation, agent) -> (when its model call started, the model it asked)."""
         self._tool_started: dict[str, float] = {}
 
     async def before_model_callback(self, *, callback_context: Any, llm_request: Any) -> None:
-        self._model_started[(callback_context.invocation_id, callback_context.agent_name)] = time.monotonic()
+        key = (callback_context.invocation_id, callback_context.agent_name)
+        self._model_started[key] = (time.monotonic(), str(getattr(llm_request, "model", None) or ""))
 
     async def after_model_callback(self, *, callback_context: Any, llm_response: Any) -> None:
         if llm_response.partial:
             return
+        metadata = llm_response.custom_metadata or {}
+        if metadata.get("fallback"):
+            # The failed call was timed by on_model_error_callback; this is its stand-in.
+            self.stats.record_llm_fallback()
+            return
         started = self._model_started.pop((callback_context.invocation_id, callback_context.agent_name), None)
         if started is not None:
-            self.stats.record_llm_call(callback_context.agent_name, time.monotonic() - started, llm_response.usage_metadata)
+            began, model = started
+            self.stats.record_llm_call(
+                callback_context.agent_name,
+                time.monotonic() - began,
+                llm_response.usage_metadata,
+                metadata.get("ollama"),
+                model=model or None,
+                billing=metadata.get("billing"),
+            )
 
     async def on_model_error_callback(self, *, callback_context: Any, llm_request: Any, error: Exception) -> None:
-        self._model_started.pop((callback_context.invocation_id, callback_context.agent_name), None)
-        self.stats.record_llm_error()
+        started = self._model_started.pop((callback_context.invocation_id, callback_context.agent_name), None)
+        self.stats.record_llm_error(None if started is None else time.monotonic() - started[0])
 
     async def before_tool_callback(self, *, tool: Any, tool_args: dict[str, Any], tool_context: Any) -> None:
         self._tool_started[_call_key(tool_context)] = time.monotonic()
+
+    async def on_event_callback(self, *, invocation_context: Any, event: Any) -> None:
+        if event.partial or event.content is None:
+            return
+        by = "s1" if (event.custom_metadata or {}).get("s1") else "gemini"
+        for call in event.get_function_calls():
+            if call.name == DRIVE_TOOL:
+                self.stats.record_drive_call(by)
 
     async def after_run_callback(self, *, invocation_context: Any) -> None:
         # A turn S1 answered never reaches after_model_callback; drop the timer it started.
