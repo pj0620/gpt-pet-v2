@@ -1,0 +1,285 @@
+"""
+server launch — EKF + SLAM + Nav2
+===================================
+Odometry:  mecanum_drive_controller wheel encoders + IMU fused by robot_localization EKF.
+SLAM:      slam_toolbox (async mapping) provides /map and map→odom TF.
+Nav2:      MPPI controller (holonomic/Omni), NavFn planner, lifecycle-managed.
+           Send goals via RViz "Nav2 Goal" button or NavigateToPose action.
+Starts a fresh map on every launch — no state is loaded or saved.
+"""
+
+import math
+import os
+
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, TimerAction
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
+
+
+def generate_launch_description():
+    pkg = get_package_share_directory("startup")
+
+    # Launch args
+    use_sim_time_arg = DeclareLaunchArgument(
+        "use_sim_time",
+        default_value="False",
+        description="Use simulation time.",
+    )
+
+    use_sim_time = LaunchConfiguration("use_sim_time")
+
+    nodes = []
+
+    # ------------------------------------------------------------
+    # On every server launch:
+    #   1. Delete stale slam_toolbox posegraph so mapping starts fresh.
+    #   2. Reset the robot's wheel-odometry accumulation so the controller
+    #      and EKF agree on (0,0,0) as the starting odom position.
+    #   3. Explicitly set the EKF's internal state to the map/odom origin
+    #      so odom→base_link is identity regardless of any residual data.
+    # ------------------------------------------------------------
+    nodes.append(
+        ExecuteProcess(
+            cmd=["bash", "-c",
+                 "rm -f ~/.ros/*.posegraph ~/.ros/*.data /tmp/*.posegraph /tmp/*.data"],
+            output="screen",
+        )
+    )
+
+    # Reset wheel odometry on the robot (silently skipped if service absent).
+    nodes.append(
+        ExecuteProcess(
+            cmd=["bash", "-c",
+                 "sleep 3 && "
+                 "ros2 service call /mecanum_drive_controller/reset_odometry "
+                 "std_srvs/srv/Empty '{}' 2>/dev/null || true"],
+            output="screen",
+        )
+    )
+
+
+    # ------------------------------------------------------------
+    # IMU pipeline
+    # ------------------------------------------------------------
+    nodes.append(
+        Node(
+            package="startup",
+            executable="magnetometer_converter",
+            name="magnetometer_converter",
+            parameters=[{"use_sim_time": use_sim_time}],
+        )
+    )
+
+    nodes.append(
+        Node(
+            package="startup",
+            executable="imu_fusion",
+            name="imu_fusion",
+            parameters=[{"use_sim_time": use_sim_time}],
+        )
+    )
+
+    # ------------------------------------------------------------
+    # EKF: fuse wheel odometry (velocities) + IMU (yaw + accel)
+    # Publishes fused /odometry/filtered and odom→base_link TF.
+    # Replaces the raw tf_relay — EKF gives SLAM much better odometry.
+    # ------------------------------------------------------------
+    nodes.append(
+        Node(
+            package="robot_localization",
+            executable="ekf_node",
+            name="ekf_filter_node",
+            output="screen",
+            parameters=[
+                os.path.join(pkg, "config", "ekf.yaml"),
+                {"use_sim_time": use_sim_time},
+            ],
+        )
+    )
+
+    # ------------------------------------------------------------
+    # SLAM TOOLBOX (mapping)
+    # odom→base_link TF now comes from mecanum_drive_controller
+    # on the client via ros2_control.
+    # ------------------------------------------------------------
+    slam_toolbox_node = Node(
+        package="slam_toolbox",
+        executable="async_slam_toolbox_node",
+        name="slam_toolbox",
+        output="screen",
+        parameters=[
+            os.path.join(pkg, "config", "slam_toolbox_parameters.yaml"),
+            {
+                "use_sim_time": use_sim_time,
+                "odom_frame": "odom",
+                "base_frame": "base_link",
+                "map_frame": "map",
+                "scan_topic": "/scan",
+                "mode": "mapping",
+
+                # Fresh map every launch
+                "load_state_filename": "",
+                "save_state_filename": "",
+                "use_map_saver": False,
+
+                "transform_publish_period": 0.05,
+                "transform_timeout": 8.0,  # see slam_toolbox_parameters.yaml
+                "minimum_travel_distance": 0.1,  # see slam_toolbox_parameters.yaml
+            },
+        ],
+    )
+    nodes.append(slam_toolbox_node)
+
+    # ------------------------------------------------------------
+    # STATIC TFs
+    # ------------------------------------------------------------
+
+    # base_link -> base_footprint
+    nodes.append(
+        Node(
+            package="tf2_ros",
+            executable="static_transform_publisher",
+            name="base_footprint_publisher",
+            arguments=["0", "0", "0", "0", "0", "0", "base_link", "base_footprint"],
+            parameters=[{"use_sim_time": use_sim_time}],
+        )
+    )
+
+    # base_link -> laser (args: x y z yaw pitch roll). The RPLIDAR is mounted with its 0 deg ray
+    # pointing to the robot's right: measured 2026-11-15 by driving forward 0.2 m, which shortened
+    # the lidar's 90 deg range by 0.19 m and left its 0 deg range unchanged. With yaw 0 here, SLAM
+    # saw every forward move as a sideways one and rotated map->odom by 90 deg. The 0.08 m forward
+    # offset is the lidar position in the URDF (laser_joint); the old 0.2 m matched nothing.
+    nodes.append(
+        Node(
+            package="tf2_ros",
+            executable="static_transform_publisher",
+            name="base_to_laser_tf",
+            arguments=["0.08", "0.0", "0.15", str(-math.pi / 2), "0", "0", "base_link", "laser"],
+            parameters=[{"use_sim_time": use_sim_time}],
+        )
+    )
+
+    # base_link -> IMU frame
+    nodes.append(
+        Node(
+            package="tf2_ros",
+            executable="static_transform_publisher",
+            name="imu_transform_publisher",
+            arguments=["0", "0", "0.1", "0", "0", "0", "base_link", "imu_icm20948"],
+            parameters=[{"use_sim_time": use_sim_time}],
+        )
+    )
+
+    # base_link -> kinect_rgb
+    nodes.append(
+        Node(
+            package="tf2_ros",
+            executable="static_transform_publisher",
+            name="kinect_transform_publisher",
+            arguments=["0", "0", "0.1", "0", str(-math.pi / 2), str(1.5 * math.pi), "base_link", "kinect_rgb"],
+            parameters=[{"use_sim_time": use_sim_time}],
+        )
+    )
+
+    # ------------------------------------------------------------
+    # Nav2 — autonomous point-to-point navigation
+    # Goals can be sent via RViz "Nav2 Goal" or NavigateToPose action.
+    # SLAM toolbox provides /map and map→odom TF; EKF provides odom→base_link.
+    # ------------------------------------------------------------
+    use_nav2_arg = DeclareLaunchArgument(
+        "use_nav2",
+        default_value="True",
+        description="Launch Nav2 navigation stack.",
+    )
+    use_nav2 = LaunchConfiguration("use_nav2")
+
+    nav2_params = os.path.join(pkg, "config", "nav2_params.yaml")
+
+    # Nav2 publishes to /cmd_vel_nav; cmd_vel_shaper relays it to /cmd_vel. While the front-right
+    # motor cannot drive in reverse (r1_no_reverse, 2026-11-15) the shaper rewrites the commands
+    # that would need it; with r1_no_reverse:=false it is a plain relay.
+    r1_no_reverse_arg = DeclareLaunchArgument(
+        "r1_no_reverse",
+        default_value="True",
+        description="Rewrite cmd_vel so the front-right wheel never runs backwards.",
+    )
+    nodes.append(
+        Node(
+            package="startup",
+            executable="cmd_vel_shaper",
+            name="cmd_vel_shaper",
+            output="screen",
+            parameters=[{
+                "use_sim_time": use_sim_time,
+                "r1_no_reverse": ParameterValue(LaunchConfiguration("r1_no_reverse"), value_type=bool),
+            }],
+        )
+    )
+
+    nav2_nodes = []
+    for name, package, executable in [
+        ("controller_server", "nav2_controller", "controller_server"),
+        ("planner_server",    "nav2_planner",    "planner_server"),
+        ("behavior_server",   "nav2_behaviors",  "behavior_server"),
+        ("bt_navigator",      "nav2_bt_navigator", "bt_navigator"),
+    ]:
+        nav2_nodes.append(
+            Node(
+                package=package,
+                executable=executable,
+                name=name,
+                output="screen",
+                parameters=[nav2_params, {"use_sim_time": use_sim_time}],
+                remappings=[("cmd_vel", "cmd_vel_nav")],
+                condition=IfCondition(use_nav2),
+            )
+        )
+
+    nav2_nodes.append(
+        Node(
+            package="nav2_lifecycle_manager",
+            executable="lifecycle_manager",
+            name="lifecycle_manager_navigation",
+            output="screen",
+            parameters=[
+                {"use_sim_time": use_sim_time},
+                {"autostart": True},
+                {"bond_timeout": 30.0},
+                {"node_names": [
+                    "controller_server",
+                    "planner_server",
+                    "behavior_server",
+                    "bt_navigator",
+                ]},
+            ],
+            condition=IfCondition(use_nav2),
+        )
+    )
+
+    # Delay Nav2 startup so the EKF fills the TF buffer with fresh odom→base_link
+    # transforms before Nav2 starts looking up sensor origins. Without this delay,
+    # stale TF entries from the previous server session cause the costmap to report
+    # the sensor (LIDAR) as being dozens of meters outside costmap bounds.
+    # 45 s delay so mecanum_drive_controller (spawned at 30 s on the bot) has
+    # time to activate and feed real odometry to the EKF before Nav2 starts
+    # querying the costmap sensor origins.
+    nodes.append(TimerAction(period=45.0, actions=nav2_nodes))
+
+    return LaunchDescription(
+        [
+            DeclareLaunchArgument(
+                "log_level",
+                default_value="info",
+                description="Logging level for SLAM Toolbox",
+            ),
+            use_sim_time_arg,
+            use_nav2_arg,
+            r1_no_reverse_arg,
+            *nodes,
+        ]
+    )

@@ -145,3 +145,53 @@ Camera View panel gains a **Free** source: a camera you fly around the room (dra
 wheel to zoom, WASD/Q/E to move, arrows to look, chase/front/top presets, follow robot). It is
 served by ai2thor-mcp's `sim_camera_view/move/reset` tools through `/api/sim/camera*`; the pet's
 executor never sees those tools, and the `real` profile has no such option.
+
+## The robot (`ros2_ws/`)
+
+Two ROS 2 Humble workspaces: `ros2_ws/src/bot_ws` runs on the robot (Jetson Nano: motors, lidar, IMU),
+`ros2_ws/src/server_ws` on the server (EKF, slam_toolbox, Nav2). See `CLAUDE.md` for launching both and
+`bin/nav/README.md` for the navigation test tools.
+
+### Client setup
+
+
+Install submodules
+
+```bash
+# install libfreenect
+sudo apt update
+sudo apt install -y git cmake build-essential libusb-1.0-0-dev pkg-config
+git clone https://github.com/OpenKinect/libfreenect.git
+cd libfreenect
+mkdir -p build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF
+make -j"$(nproc)"
+sudo make install
+sudo ldconfig
+
+# clone repo
+cd ..
+git clone https://github.com/pj0620/gpt-pet-v2.git
+cd gpt-pet-v2
+
+# submodules
+git submodule update --init --recursive
+
+# Install ROS2 Humble (see site)
+# ..steps...
+
+# Install colcon
+sudo apt update
+sudo apt install -y python3-colcon-common-extensions python3-rosdep python3-vcstool
+
+# ROS Control
+sudo apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
+
+# ROS Dep
+cd ros_ws/src/bot_ws
+rosdep install --from-paths src --ignore-src -r -y
+
+# Ros Dep
+
+
+```

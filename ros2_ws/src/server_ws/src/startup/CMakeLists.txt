@@ -1,0 +1,136 @@
+cmake_minimum_required(VERSION 3.8)
+project(startup)
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+# find dependencies
+find_package(ament_cmake REQUIRED)
+find_package(xacro REQUIRED)
+find_package(robot_state_publisher REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(ros2_control REQUIRED
+  COMPONENTS
+    controller_manager
+    controller_interface
+    hardware_interface
+    transmission_interface
+)
+
+# Install urdf/, config/, and launch/ preserving their folder names under share/
+# So you’ll get:
+#   install/share/urdf/…
+#   install/share/config/…
+#   install/share/launch/…
+# -----------------------------------------------------------------------------
+
+# Add executables
+add_executable(magnetometer_converter src/magnetometer_converter.cpp)
+add_executable(imu_fusion src/imu_fusion.cpp)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+target_link_libraries(magnetometer_converter
+  rclcpp::rclcpp
+  sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
+  tf2::tf2
+  tf2_geometry_msgs::tf2_geometry_msgs
+)
+target_link_libraries(imu_fusion
+  rclcpp::rclcpp
+  sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
+  nav_msgs::nav_msgs__rosidl_typesupport_cpp
+)
+if(APPLE)
+  # On the Mac's conda (RoboStack) ROS, rclcpp pulls in the *__rosidl_generator_py libraries, which
+  # expect libpython's symbols in the host process: without this the node dies at start with
+  # "symbol not found in flat namespace '_PyExc_RuntimeError'". The Ubuntu server does not need it.
+  find_package(Python3 REQUIRED COMPONENTS Development)
+  target_link_libraries(magnetometer_converter Python3::Python)
+  target_link_libraries(imu_fusion Python3::Python)
+endif()
+
+# Install executables
+install(TARGETS
+  magnetometer_converter
+  imu_fusion
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install Python scripts as executables
+install(PROGRAMS
+  scripts/tf_relay.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME tf_relay
+)
+install(PROGRAMS
+  scripts/cmd_vel_shaper.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME cmd_vel_shaper
+)
+
+install(
+  DIRECTORY config/
+  DESTINATION share/${PROJECT_NAME}/config
+  FILES_MATCHING
+    PATTERN "*.yaml"
+    PATTERN "*.yml"
+    PATTERN "*.lua"
+)
+
+install(
+  DIRECTORY launch/
+  DESTINATION share/${PROJECT_NAME}/launch
+  FILES_MATCHING
+    PATTERN "*.launch.py"
+    PATTERN "*.launch.xml"
+)
+
+# cmpile xacro -> urdf
+file(GLOB XACRO_FILES "${CMAKE_CURRENT_SOURCE_DIR}/urdf/*.xacro")
+set(GENERATED_URDFS "")
+set(GENERATED_URDF_DIR "${CMAKE_CURRENT_BINARY_DIR}/urdf")
+foreach(src IN LISTS XACRO_FILES)
+  get_filename_component(name "${src}" NAME_WE)  # strip path & .xacro
+  set(out "${GENERATED_URDF_DIR}/${name}.urdf")
+  list(APPEND GENERATED_URDFS "${out}")
+
+  add_custom_command(
+    OUTPUT "${out}"
+    COMMAND xacro "${src}" -o "${out}"
+    DEPENDS "${src}"
+    COMMENT "Generating URDF from ${name}.xacro"
+  )
+endforeach()
+add_custom_target(
+  generate_urdfs ALL
+  DEPENDS ${GENERATED_URDFS}
+)
+install(
+  DIRECTORY "${GENERATED_URDF_DIR}/"
+  DESTINATION share/${PROJECT_NAME}/urdf
+  FILES_MATCHING PATTERN "*.urdf"
+)
+
+install(DIRECTORY
+  urdf
+  DESTINATION share/${PROJECT_NAME}
+  OPTIONAL
+)
+
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  # the following line skips the linter which checks for copyrights
+  # comment the line when a copyright and license is added to all source files
+  set(ament_cmake_copyright_FOUND TRUE)
+  # the following line skips cpplint (only works in a git repo)
+  # comment the line when this package is in a git repo and when
+  # a copyright and license is added to all source files
+  set(ament_cmake_cpplint_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
+ament_package()

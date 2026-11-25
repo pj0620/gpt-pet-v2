@@ -1,0 +1,25 @@
+{
+  "editor.tabSize": 2,
+  "editor.rulers": [100],
+  // "ros.rosSetupScript": "/Users/pj/.local/share/mamba/envs/ros_env/setup.bash",
+  // "ros.isolateEnvironment": "false",
+  "search.exclude": {
+    "**/build": true,
+    "**/install": true,
+    "**/log": true
+  },
+  "python.analysis.extraPaths": [
+    "./ros2_ws/src/common/install/common_interfaces/lib/python3.11/site-packages",
+    "./ros2_ws/src/common/install/gptpet_common/lib/python3.11/site-packages"
+  ],
+  "files.associations": {
+    "*.ino": "arduino",
+    "cmath": "cpp"
+  },
+  "cmake.sourceDirectory": "/Users/pj/Projects/GPTPet/code/gpt-pet-v2/tinyxml2-quickstart",
+  // "files.associations": {
+  //   "*.ino": "arduino",
+  //   "istream": "cpp",
+  //   "ostream": "cpp"
+  // }
+}

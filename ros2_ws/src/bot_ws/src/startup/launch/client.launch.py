@@ -1,0 +1,177 @@
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, SetEnvironmentVariable, TimerAction
+from launch.conditions import IfCondition
+from launch.substitutions import Command, LaunchConfiguration
+from launch_ros.actions import Node
+import os
+from ament_index_python.packages import get_package_prefix, get_package_share_directory
+
+def generate_launch_description():
+  nodes = []
+
+  pkg_path = get_package_share_directory('startup')
+
+  # Increase CycloneDDS MaxBlockedTime so service responses from the
+  # controller_manager aren't dropped when the 50 Hz control loop is busy.
+  cyclone_cfg = os.path.join(pkg_path, 'config', 'cyclonedds.xml')
+  nodes.append(SetEnvironmentVariable('CYCLONEDDS_URI', cyclone_cfg))
+  # qos_override_file = os.path.join(pkg_path, 'config', 'qos_overrides.yaml')
+  # qos_override = SetEnvironmentVariable(
+  #   'RMW_QOS_OVERRIDES_FILE',
+  #   qos_override_file
+  # )
+
+  # Get URDF via xacro
+  xacro_file = os.path.join(pkg_path, 'urdf', 'gptpet.xacro')
+  robot_description_content = Command(['xacro ', xacro_file])
+  
+  ## ROS CONTROL ##
+  robot_description = {'robot_description': robot_description_content}
+  robot_controllers = os.path.join(pkg_path, 'config', 'controllers.yaml')
+  # Motor PID / firmware tuning for the /gptpet_motors parameter node that the
+  # gptpet_hardware plugin creates inside ros2_control_node (see motor_tuning.yaml).
+  motor_tuning = os.path.join(pkg_path, 'config', 'motor_tuning.yaml')
+  control_node = Node(
+    package='controller_manager',
+    executable='ros2_control_node',
+    parameters=[robot_description, robot_controllers, motor_tuning, {
+      'use_sim_time': False,
+    }],
+    output='both',
+    remappings=[
+      ('/mecanum_drive_controller/reference_unstamped', '/cmd_vel'),
+    ],
+  )
+  spawner_script = os.path.join(
+    get_package_prefix('startup'), 'lib', 'startup', 'spawn_controllers.py',
+  )
+
+  # Custom spawner with 120s per-call timeout — the standard ros2_control
+  # spawner hardcodes 10s which is too short for DDS on the non-RT Jetson Nano.
+  # joint_state_broadcaster must be active before mecanum_drive_controller.
+  # JSB spawned at 15s; mecanum at 30s (gives JSB ~15s to complete its 3 calls).
+  # Server Nav2 is delayed 45s so mecanum is active before Nav2 starts.
+  spawn_joint_state = TimerAction(
+    period=15.0,
+    actions=[ExecuteProcess(
+      cmd=['python3', spawner_script, 'joint_state_broadcaster'],
+      output='screen',
+    )],
+  )
+  spawn_mecanum = TimerAction(
+    period=30.0,
+    actions=[ExecuteProcess(
+      cmd=['python3', spawner_script, 'mecanum_drive_controller'],
+      output='screen',
+    )],
+  )
+  nodes.extend([
+    control_node,
+    spawn_joint_state,
+    spawn_mecanum,
+  ])
+  
+  ## KINECT ##
+  # kinect:=false skips it. The node currently dies at startup (FREENECT - NO DEVICES, then a
+  # segfault) and its firmware upload re-enumerates the Kinect's USB devices on the shared hub,
+  # which once coincided with the ESP32's USB serial link stalling.
+  nodes.insert(0, DeclareLaunchArgument(
+    'kinect', default_value='true', description='Run the Kinect camera node'))
+  nodes.append(
+    Node(
+      package="kinect_ros2",
+      executable="kinect_ros2_node",
+      name="kinect_ros2",
+      namespace="kinect",
+      parameters=[
+        {"use_sim_time": False}
+      ],
+      condition=IfCondition(LaunchConfiguration('kinect')),
+    )
+  )
+  
+  # IMU ##
+  nodes.append(
+    Node(
+      package="ros2_icm20948",
+      executable="icm20948_node",
+      name="icm20948_node",
+      parameters=[
+        {"i2c_address": 0x69},
+        {"frame_id": "imu_icm20948"},
+        {"pub_rate": 50},
+        {"use_sim_time": False},
+      ],
+    )
+  )
+  
+  # LIDAR (RPLIDAR A1) ##
+  nodes.append(
+    Node(
+      package="rplidar_ros",
+      executable="rplidar_node",
+      name="rplidar_node",
+      parameters=[
+        {"channel_type": "serial"},
+        {"serial_port": "/dev/ttyUSB0"},
+        {"serial_baudrate": 115200},
+        {"frame_id": "laser"},
+        {"inverted": False},
+        {"angle_compensate": True},
+        {"scan_mode": "Sensitivity"},
+      ],
+      output="screen",
+    )
+  )
+  
+  ## FOXGLOVE BRIDGE ##
+  # Lets the Foxglove desktop app connect straight to the robot (Open connection ->
+  # Foxglove WebSocket -> ws://gptpetclient.local:8765) with no ROS install on the laptop.
+  # Idle cost on the Nano is small; it only forwards what the client subscribes to.
+  # Disable with: ros2 launch startup client.launch.py foxglove:=false
+  nodes.insert(0, DeclareLaunchArgument(
+    'foxglove', default_value='true',
+    description='Run foxglove_bridge on the robot (ws port 8765)'))
+  nodes.append(
+    Node(
+      package="foxglove_bridge",
+      executable="foxglove_bridge",
+      name="foxglove_bridge",
+      parameters=[{
+        "port": 8765,
+        "address": "0.0.0.0",
+        "send_buffer_limit": 10000000,
+        "use_sim_time": False,
+      }],
+      condition=IfCondition(LaunchConfiguration('foxglove')),
+      output="screen",
+    )
+  )
+
+  # NOTE: mecanum_drive_controller publishes wheel odometry on
+  # /mecanum_drive_controller/odometry only; odom TF is provided by EKF on server.
+  
+  # ## TOPIC REMAPPING ##
+  # # Remap /cmd_vel to /mecanum_drive_controller/reference
+  # nodes.append(
+  #   Node(
+  #     package="topic_tools",
+  #     executable="relay",
+  #     name="cmd_vel_relay",
+  #     arguments=["/cmd_vel", "/mecanum_drive_controller/reference"],
+  #     parameters=[{"lazy": False}]
+  #   )
+  # )
+  
+  # # Remap /mecanum_drive_controller/odometry to /odom  
+  # nodes.append(
+  #   Node(
+  #     package="topic_tools",
+  #     executable="relay",
+  #     name="odom_relay", 
+  #     arguments=["/mecanum_drive_controller/odometry", "/odom"],
+  #     parameters=[{"lazy": False}]
+  #   )
+  # )
+
+  return LaunchDescription(nodes)
