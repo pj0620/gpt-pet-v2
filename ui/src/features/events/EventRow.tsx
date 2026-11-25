@@ -1,4 +1,14 @@
-import { CirclePause, Hourglass } from "lucide-react";
+import {
+  Ban,
+  CirclePause,
+  Eye,
+  EyeOff,
+  Heart,
+  Hourglass,
+  type LucideIcon,
+  PersonStanding,
+  TriangleAlert,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { EventDetail } from "@/features/events/EventDetail";
@@ -10,6 +20,25 @@ interface EventRowProps {
   selected: boolean;
   onToggle: () => void;
 }
+
+/** Notice kinds from the runtime and the server: rests (default), the goal limit, attention
+ *  changes, an owner's goal canceling the one in progress, a person waking the pet, and the
+ *  interest check's outcomes: someone wants to interact ("social") or is left be ("ignore"). */
+const NOTICE_ICONS: Record<string, LucideIcon> = {
+  limit: CirclePause,
+  attention: Eye,
+  cancel: Ban,
+  person: PersonStanding,
+  social: Heart,
+  ignore: EyeOff,
+};
+const NOTICE_COLOURS: Record<string, string> = {
+  attention: "text-fuchsia-300",
+  cancel: "text-rose-300",
+  person: "text-sky-300",
+  social: "text-pink-400",
+  ignore: "text-slate-400",
+};
 
 function formatTime(timestamp: number): string {
   if (!timestamp) return "";
@@ -27,10 +56,14 @@ function s1Title(row: EventRowData): string {
 /** One log line, as in the mockup (`get_current_view [raw]`); click to expand the raw payload. */
 export function EventRow({ row, selected, onToggle }: EventRowProps) {
   if (row.kind === "notice") {
-    const Icon = row.name === "limit" ? CirclePause : Hourglass;
+    const failure = row.name === "failure";
+    const Icon = failure ? TriangleAlert : (NOTICE_ICONS[row.name] ?? Hourglass);
     return (
       <div
-        className="flex items-center gap-2 border-b border-border/60 px-3 py-1.5 text-xs text-muted-foreground"
+        className={cn(
+          "flex items-center gap-2 border-b border-border/60 px-3 py-1.5 text-xs",
+          failure ? "text-destructive" : (NOTICE_COLOURS[row.name] ?? "text-muted-foreground"),
+        )}
         data-testid="event-row"
         data-kind="notice"
         data-notice={row.name}
@@ -92,6 +125,18 @@ export function EventRow({ row, selected, onToggle }: EventRowProps) {
         ) : null}
         {row.kind === "call" && row.response === undefined ? <Badge variant="outline">pending</Badge> : null}
         {row.isError ? <Badge variant="destructive">error</Badge> : null}
+        {row.isRefused ? (
+          <Badge
+            variant="outline"
+            className="text-amber-400"
+            title={String(
+              (row.response as { error?: unknown } | undefined)?.error ?? "refused by the brain's own guards",
+            )}
+            data-testid="refused-badge"
+          >
+            refused
+          </Badge>
+        ) : null}
         {row.durationMs !== undefined ? (
           <span className="shrink-0 text-[10px] text-muted-foreground">{row.durationMs} ms</span>
         ) : null}

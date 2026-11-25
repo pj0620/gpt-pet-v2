@@ -3,6 +3,7 @@ import { Camera } from "lucide-react";
 import { useStatusQuery } from "@/api/queries";
 import { PanelCard } from "@/components/PanelCard";
 import { Button } from "@/components/ui/button";
+import { AttentionStrip } from "@/features/attention/AttentionStrip";
 import { FreeCameraView } from "@/features/camera/FreeCameraView";
 import { LiveImage } from "@/features/camera/LiveImage";
 import { type CameraMode, usePortalStore } from "@/stores/portalStore";
@@ -55,16 +56,21 @@ export function CameraView() {
 
   return (
     <PanelCard title="Camera View" icon={<Camera className="size-4" />} actions={modes}>
-      {effective === "free" ? (
-        <FreeCameraView />
-      ) : (
-        <LiveImage
-          name={effective === "depth" ? "depth" : "camera"}
-          alt={effective === "depth" ? "Depth view from the robot" : "Current view from the robot's camera"}
-          testId="camera-image"
-          placeholder="Current view from the camera appears here after the first get_current_view call."
-        />
-      )}
+      <div className="flex h-full flex-col">
+        <AttentionStrip />
+        <div className="min-h-0 flex-1">
+          {effective === "free" ? (
+            <FreeCameraView />
+          ) : (
+            <LiveImage
+              name={effective === "depth" ? "depth" : "camera"}
+              alt={effective === "depth" ? "Depth view from the robot" : "Current view from the robot's camera"}
+              testId="camera-image"
+              placeholder="Current view from the camera appears here after the first get_current_view call."
+            />
+          )}
+        </div>
+      </div>
     </PanelCard>
   );
 }

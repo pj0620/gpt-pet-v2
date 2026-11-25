@@ -16,6 +16,9 @@ export interface EventRow {
   responseAt?: number;
   durationMs?: number;
   isError?: boolean;
+  /** The brain's own guards refused the call (tool budget, owner canceled the goal, already
+   *  here, failed from here): working as intended, not a tool failure. */
+  isRefused?: boolean;
   text?: string;
   /** System 1 made this call or wrote this text instead of Gemini. */
   s1?: S1Tag;
@@ -36,9 +39,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-/** True for MCP errors and executor budget refusals (both carry an `error`/`isError`). */
+/** The markers of the executor's own refusals (python/src/gpt_pet/agents/executor.py). */
+export const REFUSAL_MARKERS = ["budget exhausted", "goal canceled", "already here", "failed from here"] as const;
+
+/** True for a call the brain's own guards refused instead of running it. */
+export function isRefusalResponse(response: unknown): boolean {
+  if (!isRecord(response) || typeof response.error !== "string") return false;
+  const error = response.error;
+  return REFUSAL_MARKERS.some((marker) => error.includes(marker));
+}
+
+/** True for real tool failures: MCP errors (an `error`/`isError`), but not the brain's refusals. */
 export function isErrorResponse(response: unknown): boolean {
   if (!isRecord(response)) return false;
+  if (isRefusalResponse(response)) return false;
   return response.isError === true || response.is_error === true || "error" in response;
 }
 
@@ -139,6 +153,7 @@ export function ingestEvent(
         responseAt: event.timestamp,
         durationMs: Math.max(0, Math.round((event.timestamp - row.timestamp) * 1000)),
         isError: isErrorResponse(response.response),
+        isRefused: isRefusalResponse(response.response),
       };
       next = { rows, indexByCallId: next.indexByCallId };
     } else {
@@ -155,6 +170,7 @@ export function ingestEvent(
           response: response.response,
           responseAt: event.timestamp,
           isError: isErrorResponse(response.response),
+          isRefused: isRefusalResponse(response.response),
         },
         cap,
       );

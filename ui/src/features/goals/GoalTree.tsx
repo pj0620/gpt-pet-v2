@@ -7,6 +7,7 @@ const MARKER_CLASS: Record<NonNullable<GoalNode["marker"]>, string> = {
   pending: "text-sky-400",
   done: "text-muted-foreground",
   abandoned: "text-amber-500",
+  canceled: "text-rose-400",
 };
 
 /** How the active goal's marker is drawn: spinning while the pet works, `[paused]` while it waits. */
@@ -40,7 +41,12 @@ function GoalRow({ node, depth, activeMode }: { node: GoalNode; depth: number; a
             {marker ? MARKER_TEXT[marker] : "-"}
           </span>
         )}
-        <span className={cn("break-words", marker === "done" && "line-through decoration-muted-foreground/60")}>
+        <span
+          className={cn(
+            "break-words",
+            (marker === "done" || marker === "canceled") && "line-through decoration-muted-foreground/60",
+          )}
+        >
           {node.label}
         </span>
         {node.meta && node.meta.attempts !== undefined && node.meta.attempts > 0 ? (

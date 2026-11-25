@@ -1,7 +1,8 @@
-import { Wifi, WifiOff } from "lucide-react";
+import { Eye, Wifi, WifiOff } from "lucide-react";
 
 import { useStatusQuery } from "@/api/queries";
 import { Badge } from "@/components/ui/badge";
+import { ACTIVE_ATTENTION } from "@/features/attention/AttentionStrip";
 import { type ConnectionState, usePortalStore } from "@/stores/portalStore";
 
 const CONNECTION_LABEL: Record<ConnectionState, string> = {
@@ -13,8 +14,10 @@ const CONNECTION_LABEL: Record<ConnectionState, string> = {
 export function StatusBar() {
   const connection = usePortalStore((store) => store.connection);
   const lastTick = usePortalStore((store) => store.lastTick);
+  const attention = usePortalStore((store) => store.attention);
   const status = useStatusQuery();
   const online = connection === "open";
+  const attending = attention !== null && ACTIVE_ATTENTION.includes(attention.state);
 
   return (
     <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -36,6 +39,17 @@ export function StatusBar() {
         </>
       ) : null}
       {lastTick ? <span>last tick {lastTick.seconds.toFixed(1)} s</span> : null}
+      {attending ? (
+        <Badge
+          variant="secondary"
+          className="gap-1"
+          data-testid="attention-state"
+          title="The robot is keeping a person in view on its own (see the strip over the camera view)"
+        >
+          <Eye />
+          attention: {attention.state}
+        </Badge>
+      ) : null}
       <Badge
         variant={online ? "default" : "outline"}
         data-testid="connection-state"

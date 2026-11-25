@@ -57,6 +57,124 @@ per-tick call caps per tool that bound how many times the executor can look, tur
 `get_nav_status` itself every `poll_interval_s` (giving up after `max_wait_s`), so no LLM calls
 are spent while the robot drives.
 
+**When Gemini fails.** `[model] request_timeout_s` (20 s) bounds every Gemini call. A call that
+times out or fails transiently (dropped connection, rate limit, server error) costs one turn, not
+the tick: the executor's fallback reports what the robot did so far, and the goal setter's keeps
+the active goal (a fallback never writes one). With no goal to keep, the tick fails and the loop
+retries after a backoff (2 s, doubling up to 30 s); the Events Log says why.
+
+**Exploration** (on in `sim`, off in `real`; measured in `experiments/README.md`, Findings):
+
+- `[brain] places_memory` remembers places across ticks (`python/src/gpt_pet/places.py`) and marks
+  each view's destinations: `here` (within reach, so a drive there goes nowhere; `here_m`, plus a
+  reach learned from drives), `visited`, `failed`. With S1 on, it skips and ranks its options by
+  the marks, and the executor refuses a drive to a place marked `here`.
+- `[s1] scan_rule` turns by rule when nothing new is in view, and lets S1 write the report when the
+  tick's looks run out.
+- `[brain] map_for_goals` shows Gemini the robot's top-down map (`get_map`) when it decides a goal,
+  plus a summary of what the pet has done and the places it has seen but not visited; a new goal
+  may name one of them as `target_id`.
+- `[s1] explore_policy` carries that out by rule: drive to the target first; on an explore goal,
+  take unvisited passages first, then the farthest unvisited objects. Gemini still sets every goal.
+
+**When drives keep failing** (on in `sim` since 2026-10-03, off in `real`, whose places memory and
+System 1 are off; measured in `experiments/README.md`, Findings):
+
+- `[brain] failed_guard` remembers where each drive failed: a view marks a destination
+  `failed_here` when a drive there already failed from where the robot stands, the executor
+  refuses another such drive (as it refuses drives to `here`), and the goal setter's list notes
+  the places drives failed to reach and puts them last.
+- `[s1] unstuck_rule`: after two drives in a row failed without the robot moving, System 1 backs
+  up half a metre and turns around before anything else.
+- `[s1] explore_ticks`: an explore goal goes on by rule for up to that many stretches while
+  unvisited places remain, so the pet waits less for its goal decisions; one that reaches its last
+  attempt still exploring counts as done (`[brain] max_goal_attempts` must leave room).
+- `[brain] failure_guidance` tells the executor not to retry a failed drive from the same spot,
+  and the goal setter that one failed drive is no reason to abandon a goal.
+
+In the simulator, ai2thor-mcp runs its own navigation fixes by default (re-planning, backing up, grid
+paths followed exactly, short failure reasons, step-wise moves); `AI2THOR_MCP_FIXES` picks some or
+none, see its README.
+
+**People** (`[people]`, off by default; `python/src/gpt_pet/people.py`; measured in
+`experiments/people/README.md`). People move, so they are never places: the places memory gives
+them no marks, exploring never drives to them, and the executor gets ai2thor-mcp's attention tools
+(`set_attention`, which returns once the robot has framed the person). Three things change, all
+without model calls of their own:
+
+- the person watch looks every `watch_every_s` (1.5 s) while the robot drives and while it rests
+  between ticks: a person coming into view stops a drive that is not about them (outcome
+  `interrupted`) and wakes a resting pet; a pet that saw someone the goal setter has not heard
+  about yet does not rest at all;
+- System 1 turns to a person who comes into view and ends the stretch with a report naming them;
+  on a social goal it attends, looks, and hands the turn to the model to say what the person is
+  doing (or turns toward where they were last seen);
+- the goal setter is asked (System 1 does not decide) whenever someone new is near, and its prompt
+  lists who was seen and allows dropping the current goal for them.
+
+The pet reacts to the same person at most once every `react_every_s` (60 s) unless its goal is
+about them. A drive that failed because a person stood in the way ("blocked by Person", which
+ai2thor-mcp reports after waiting 10 s for them) does not count against the destination or as the
+robot being stuck: the person moves on.
+
+**Does this person want to interact?** (`[people] engage`, off by default; `python/src/gpt_pet/social.py`;
+gptpet-plans: People Step 3; measured in `experiments/people/README.md`). Turning to someone whose
+interest it does not know, the pet watches them for up to `engage_window_s` (10 s), looking every
+2 s, and decides from what a robot with a camera and depth can perceive: each look's frame goes to a
+small vision call (the cue reader: facing, posture, gesture, busy with, looking at me, read from
+the person's box cropped out of the frame at low image detail; `cue_model`, by default the
+executor's model, GPT-4.1 mini recommended: it reads body language far better than GPT-6 Luna,
+`experiments/people/cue_benchmark.py`; a pose detector can replace it on the robot), and the person's
+track gives approach, stop near, pass by and leave. A wave, beckon, clap or reach toward the pet,
+or crouching down facing it, decides at once; looking at the pet while standing near it, or coming
+over and staying, counts less; being busy with something, walking past or leaving count against.
+
+- Interested: the Events Log says "Human wants to interact with me!" with what they did, and the
+  goal setter picks an interaction goal (greet them close up, follow them if they beckoned and
+  walk off, go where they point). `set_attention` takes `standoff_m`, `follow` and `greet` for
+  that.
+- Not interested: "... leaving them be for 2 min"; attention ends, and the watch, System 1 and the
+  goal setter ignore them for `ignore_for_s` (120 s), doubling for each disinterest in a row up to
+  `ignore_max_s` (15 min). Exceptions: seen within 2.5 m (and not so close that a level camera
+  shows only their legs), they get a glance (one cue reading, at most every 15 s), and a wave,
+  beckon, clap, reach or crouch ends the leave-be; so does walking right up to the pet (within
+  1.5 m, closer than when it decided) and staying, and, once per decision, staying right beside it
+  (within 1 m, 20 s or more after it decided).
+- The check waits for someone still walking up to the pet (that time does not count toward the
+  window, up to 25 s in all): people often wave only once they have arrived.
+- It learns: each decision is checked afterwards against what the robot sees (still near 15 s
+  after "interested"; not coming up within a minute after "not interested"), and each cue's weight
+  follows its record (0.5x to 1.5x). The goal setter reads the lessons ("waved at me" meant they
+  wanted to interact 3 of 3 times). `memory_file` keeps it all across sessions.
+
+**Traces: what the pet saw, did, and where.** `python/src/gpt_pet/trace.py` records a run as
+`trace.jsonl` plus the JPEG of every view the brain received (as the model saw it); each view line
+carries the robot's pose, camera tilt, attention, the people in view and every destination, and
+the simulator's ground truth (robot, person, attention, nav) is sampled each second. `gpt-pet
+trace render DIR` draws it: `timeline.txt` (one line per decision, call, result and view),
+`storyboard-NN.png` (12 captioned frames a sheet: time, tick, who decided, pose, tilt, people,
+next action), `trajectory.png` (robot and person paths, numbered views with headings) and
+`index.html`. Record with `gpt-pet serve --trace DIR`, or per experiment run with `trace: true` in
+the test or `gpt-pet experiment --trace` (into `runs/<run_id>.trace/`, drawn when the run ends).
+
+**Other models for the goal setter and the executor.** `[model] goal_setter` / `executor` take
+any Gemini model id, or another provider's model by prefix (`python/src/gpt_pet/agents/models.py`):
+
+| name | provider | key (in `python/src/gpt_pet/.env`) |
+|---|---|---|
+| `gemini-3.5-flash`, `gemini-3.5-flash-lite`, ... | Gemini API (ADK's own client) | `GOOGLE_API_KEY` |
+| `openai/<model>`, e.g. `openai/gpt-5-mini` | OpenAI Chat Completions | `OPENAI_API_KEY` |
+| `anthropic/<model>`, e.g. `anthropic/claude-haiku-4-5` | Anthropic Messages | `ANTHROPIC_API_KEY` |
+| `openrouter/<vendor>/<model>` | OpenRouter (many vendors, one key) | `OPENROUTER_API_KEY` |
+| `ollama/<tag>`, e.g. `ollama/qwen3-vl:8b-instruct` | a local model served by Ollama | none |
+
+`[model] reasoning_effort` (`minimal` .. `high`; empty keeps each API's default) sets Gemini's
+thinking level and OpenAI's reasoning effort; `max_output_tokens` caps OpenAI and Anthropic
+answers. Every adapter reports tokens the way Gemini does (cached and thinking tokens apart), so
+the Stats panel and the experiment harness count every model alike, and the harness prices each
+run from `experiments/pricing.json`. `[s1] rules_only` keeps System 1's rules without its
+decision model, for machines that cannot hold nimble next to a local System 2.
+
 Swapping the backend is an ini change. `GPTPET_PROFILE` selects the profile (the CLI flag
 `--profile` overrides it); `GPTPET_CONFIG_DIR` points at another directory of ini files.
 
@@ -102,6 +220,8 @@ uv run pytest -m live         # real ai2thor-mcp server (attached or launched) +
 
 The live suite attaches to a server already running on port 8000, or launches one from the
 sibling `../../ai2thor-mcp` checkout (override with `AI2THOR_MCP_DIR`, scene with `AI2THOR_SCENE`).
+`GPTPET_TEST_MODEL` puts another model in the profile's place for goal setter and executor, e.g.
+`GPTPET_TEST_MODEL=openai/gpt-5.6-luna uv run pytest -m live` for a fraction of Gemini's cost.
 
 ## The portal (`ui/`)
 
@@ -133,6 +253,14 @@ The portal talks to `gpt-pet serve`: `GET /api/events` (SSE), `GET /api/state`, 
 `POST /api/profile`. Without the server the portal shows an offline state. The top view
 re-renders every second while a tick runs; `stats` frames arrive at most once a second while
 counters change and every 5 s otherwise.
+
+**A submitted goal replaces the goal in progress.** `POST /api/goals` cancels whatever goal the
+pet is working on: a tick running at that moment refuses its remaining tool calls ("goal
+canceled") and stops a drive under way with `cancel_nav`, so it ends within a few seconds; the
+next tick starts at once (no rest), records the old goal in the history as `canceled`, and adopts
+the owner's goal (System 1 does this by rule, without a model call). The Events Log gets a
+`cancel` notice and Stats counts canceled goals apart from abandoned ones. Goals submitted while
+another owner goal is still waiting queue behind it.
 
 **Top view = occupancy map.** ai2thor-mcp builds the map the way the real robot's SLAM stack
 will: every rendered depth frame is turned into a planar range scan at camera height and

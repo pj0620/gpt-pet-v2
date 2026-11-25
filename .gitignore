@@ -289,3 +289,6 @@ ui/blob-report/
 .vite/
 # the Python template's `lib/` rule above must not swallow shadcn's ui/src/lib
 !ui/src/lib/
+
+experiments/
+python/traces

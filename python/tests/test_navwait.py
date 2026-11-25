@@ -5,7 +5,10 @@ import json
 
 import pytest
 
-from gpt_pet.navwait import DRIVE_OUTCOMES, DriveWait, NavStatusError, drive_outcome, status_from_tool_result
+import asyncio
+
+from gpt_pet.navwait import DRIVE_OUTCOMES, DriveWait, NavStatusError, drive_outcome, status_from_tool_result, wait_for_drive
+from gpt_pet.settings import NavSettings
 
 
 def dumped_result(payload: object, is_error: bool = False) -> dict:
@@ -49,9 +52,43 @@ def test_idle_and_replaced_goals_end_the_wait() -> None:
     assert drive_outcome(status("following", goal_id="g2"), None) is None
 
 
+def test_a_drive_knows_its_destination_planned_length_and_distance_driven() -> None:
+    arrived = DriveWait("succeeded", 6.0, {**status("succeeded"), "progress": {"distance_traveled_m": 2.31}}, destination_id="psg:2", planned_m=2.4)
+    assert arrived.traveled_m == 2.31 and not arrived.null
+    already_there = DriveWait("succeeded", 0.5, status("succeeded"), destination_id="obj:DiningTable|1", planned_m=0.12)
+    assert already_there.null and already_there.traveled_m is None
+    assert not DriveWait("error", 0.2, None).null  # no plan known, so not counted as going nowhere
+    assert "destination_id" not in arrived.as_response()  # the model already knows where it sent the robot
+
+
 def test_the_model_reads_outcome_status_and_note() -> None:
     finished = DriveWait("failed", 7.04, status("failed")).as_response()
     assert finished == {"outcome": "failed", "waited_s": 7.0, "final_status": status("failed")}
     lost = DriveWait("error", 0.2, None, "get_nav_status failed").as_response()
     assert lost == {"outcome": "error", "waited_s": 0.2, "note": "get_nav_status failed"}
     assert {"succeeded", "failed", "canceled", "timeout", "error"} <= DRIVE_OUTCOMES
+
+
+def test_a_canceled_goal_stops_the_drive_being_waited_out() -> None:
+    async def scenario() -> tuple[DriveWait, int, list[str]]:
+        polls, canceled = 0, []
+        reason: list[str] = []
+
+        async def get_status() -> dict:
+            nonlocal polls
+            polls += 1
+            if polls == 3:
+                reason.append('the owner gave a new goal ("come here")')  # submitted mid-drive
+            return status("following")
+
+        async def cancel() -> None:
+            canceled.append("cancel_nav")
+
+        nav = NavSettings(poll_interval_s=0.01, max_wait_s=30)
+        wait = await wait_for_drive(get_status, "g1", nav, stop=lambda: reason[0] if reason else None, cancel=cancel)
+        return wait, polls, canceled
+
+    wait, polls, canceled = asyncio.run(scenario())
+    assert wait.outcome == "canceled" and canceled == ["cancel_nav"] and polls == 3
+    assert wait.note == 'Stopped: the owner gave a new goal ("come here"). The robot is no longer driving.'
+    assert wait.status["state"] == "following"  # the last status seen before stopping

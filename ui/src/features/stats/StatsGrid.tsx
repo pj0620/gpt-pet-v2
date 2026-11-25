@@ -53,6 +53,11 @@ export function StatsGrid({ stats }: { stats: RunStats }) {
         label="LLM calls"
         value={llm.calls}
         detail={`${formatRate(llm.per_min)}/min · setter ${agentCalls("goal_setter")} · executor ${agentCalls("executor")}${llm.errors ? ` · ${plural(llm.errors, "error")}` : ""}`}
+        title={
+          llm.errors
+            ? `${plural(llm.errors, "call")} failed (longest wait ${formatMs(llm.failed_latency.max_ms)}); fallbacks answered ${llm.fallbacks} of them`
+            : undefined
+        }
       />
       <Stat
         testId="stat-tokens"
@@ -71,8 +76,8 @@ export function StatsGrid({ stats }: { stats: RunStats }) {
         testId="stat-llm-latency"
         label="LLM latency"
         value={formatMs(llm.latency.avg_ms)}
-        detail={`p50 ${formatMs(llm.latency.p50_ms)} · p95 ${formatMs(llm.latency.p95_ms)} · last ${formatMs(llm.latency.last_ms)}`}
-        title="Average over the run; percentiles over the last 200 calls"
+        detail={`p50 ${formatMs(llm.latency.p50_ms)} · p95 ${formatMs(llm.latency.p95_ms)} · max ${formatMs(llm.latency.max_ms)}`}
+        title={`Average and max over the run; percentiles over the last 200 calls. Last call ${formatMs(llm.latency.last_ms)}.`}
       />
       <Stat
         testId="stat-s1-share"
@@ -103,14 +108,14 @@ export function StatsGrid({ stats }: { stats: RunStats }) {
         testId="stat-goals"
         label="Goals done / min"
         value={formatRate(goals.done_per_min)}
-        detail={`${goals.started} started · ${goals.done} done · ${goals.abandoned} abandoned`}
+        detail={`${goals.started} started · ${goals.done} done · ${goals.abandoned} abandoned${goals.canceled ? ` · ${goals.canceled} canceled` : ""}`}
         title={`Goals started: ${formatRate(goals.started_per_min)} per minute`}
       />
       <Stat
         testId="stat-ticks"
         label="Tick time"
         value={formatMs(ticks.latency.avg_ms)}
-        detail={`${plural(ticks.count, "tick")} · last ${formatMs(ticks.latency.last_ms)}${ticks.truncated ? ` · ${ticks.truncated} truncated` : ""}`}
+        detail={`${plural(ticks.count, "tick")} · last ${formatMs(ticks.latency.last_ms)}${ticks.failed ? ` · ${ticks.failed} failed` : ""}${ticks.truncated ? ` · ${ticks.truncated} truncated` : ""}`}
         title="Average wall time per tick, driving included"
       />
       <Stat
@@ -118,7 +123,7 @@ export function StatsGrid({ stats }: { stats: RunStats }) {
         label="Time driving"
         value={`${drives.driving_pct}%`}
         detail={`${plural(drives.count, "drive")} · ${drives.outcomes.succeeded ?? 0} reached · ${drives.checks} S1 checks`}
-        title={`Average drive ${formatMs(drives.latency.avg_ms)}; ${formatSeconds(drives.driving_s)} driven. S1 checks: get_nav_status calls the brain made itself while it waited out drives, no LLM involved.`}
+        title={`Average drive ${formatMs(drives.latency.avg_ms)}; ${formatSeconds(drives.driving_s)} and ${drives.distance_m} m driven. ${drives.null} went nowhere (already there), ${drives.to_passages} to passages. S1 checks: get_nav_status calls the brain made itself while it waited out drives, no LLM involved.`}
       />
       <Stat
         testId="stat-tools"

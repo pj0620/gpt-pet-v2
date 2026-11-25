@@ -13,6 +13,9 @@ returning None hands the turn to Gemini with the full context, camera image incl
   criteria are met, and S1 writes the report. Once Gemini takes a turn it keeps the rest of the
   tick.
 
+With `[s1] rules_only` there is no decision model: the rules still take their turns, and every
+turn the model would have judged goes to Gemini (or the local model in its place).
+
 An answer counts only at `[s1] min_confidence` or above. For a choice that is the API's
 `confidence` (1 - normalized entropy of the probabilities); for a yes/no answer it is the margin
 |p(yes) - p(no)|. nimble's probabilities are a softmax over the offered options, not calibrated
@@ -32,22 +35,35 @@ import httpx
 from google.adk.models.llm_response import LlmResponse
 from google.genai import types
 
-from gpt_pet.agents.executor import is_budget_refusal
+from gpt_pet.agents.executor import is_budget_refusal, is_cancel_refusal
+from gpt_pet.people import ATTENTION_LIMITS, ATTENTION_TOOL, EXECUTOR, People
 from gpt_pet.goals import REST_STATUS, STATE_CURRENT_GOAL, STATE_LAST_REPORT, STATE_PENDING_GOALS, GoalDecision
+from gpt_pet.navwait import NULL_DRIVE_M
+from gpt_pet.places import MAX_FAILED_DRIVES
 from gpt_pet.settings import S1Settings, Settings
 
 if TYPE_CHECKING:
+    from gpt_pet.places import Places
     from gpt_pet.stats import RunStats
 
 ENDPOINT = "/v1/systemone"
 LOOK = "get_current_view"
 DRIVE = "set_nav_goal"
 TURN = "do_rotate"
+MOVE = "do_move"
 TURN_DEGREES = 90
 TURNS = {"turn_left": "RotateLeft", "turn_right": "RotateRight"}
-ALREADY_THERE_M = 0.3
+ALREADY_THERE_M = NULL_DRIVE_M
 """A drive planned shorter than this means the pet was already at the destination."""
 ASK_GEMINI = "ask_gemini"
+STUCK_DRIVES = 2
+"""`[s1] unstuck_rule`: drives failed this many times in a row without the robot moving means stuck."""
+BACK_UP_M = 0.5
+RULES_ONLY = "rules only"
+"""Why a turn went to Gemini under `[s1] rules_only`: it needed the decision model."""
+MAX_DRIVE_OPTIONS = 8
+"""With the places memory on, at most this many destinations are offered (best first): nimble's
+latency grows with the prompt, and it favours the first options."""
 REST_REPLY = "Goal limit reached; resting."
 """What executor.md tells the executor to answer for the rest stand-in of a limited run."""
 INJECTED_CALL_SIGNATURE = base64.urlsafe_b64decode("skip_thought_signature_validator")
@@ -209,9 +225,65 @@ def destinations(view: Mapping[str, Any] | None) -> list[dict[str, Any]]:
     return [d for d in (view or {}).get("destinations") or [] if isinstance(d, dict) and d.get("id")]
 
 
-def seen(destination: Mapping[str, Any]) -> str:
+def seen(destination: Mapping[str, Any], *, marks: bool = False) -> str:
+    """How a report names a destination: a passage by its description (which says where it is),
+    an object by its label and distance; with the places memory, its mark too."""
     distance = destination.get("distance_m")
-    return f"{destination.get('label')} ({distance} m)" if distance is not None else str(destination.get("label"))
+    if marks and destination.get("kind") == "passage" and destination.get("description"):
+        text = str(destination["description"])
+    else:
+        text = f"{destination.get('label')} ({distance} m)" if distance is not None else str(destination.get("label"))
+    if marks:
+        text += "".join(f" [{mark}]" for mark in ("here", "visited") if destination.get(mark))
+    return text
+
+
+def sightings(view: Mapping[str, Any] | None, *, marks: bool = False, limit: int = 6) -> list[str]:
+    """What a report says is in view: with the places memory, every passage first."""
+    found = destinations(view)
+    if marks:
+        passages = [d for d in found if d.get("kind") == "passage"]
+        others = [d for d in found if d.get("kind") != "passage"]
+        return [seen(d, marks=True) for d in passages] + [seen(d, marks=True) for d in others[:limit]]
+    return [seen(d) for d in found[:limit]]
+
+
+def _normalized(text: str) -> str:
+    return "".join(ch for ch in text.lower() if ch.isalnum())
+
+
+def goal_words(goal: Mapping[str, Any]) -> str:
+    """The goal, its success criteria and steps as one normalized string, for name matching."""
+    parts = [str(goal.get("goal") or ""), str(goal.get("success_criteria") or ""), *map(str, goal.get("sub_goals") or [])]
+    return _normalized(" ".join(parts))
+
+
+def named_in_goal(destination: Mapping[str, Any], words: str) -> bool:
+    """The goal names this destination ("dining table" names a DiningTable)."""
+    label = _normalized(str(destination.get("label") or ""))
+    return bool(label) and label in words
+
+
+def fresh(destination: Mapping[str, Any]) -> bool:
+    """Worth a drive by the pet's marks: not within reach already, not failed too often, and not
+    failed from this very spot (`failed_here`, with `[brain] failed_guard`)."""
+    return not destination.get("here") and not destination.get("failed_here") and int(destination.get("failed") or 0) < MAX_FAILED_DRIVES
+
+
+def ranked(found: list[dict[str, Any]], words: str) -> list[dict[str, Any]]:
+    """Destinations the goal names first, then unvisited passages, unvisited objects, and the
+    visited last; the view's order (nearest first) within each group."""
+
+    def key(item: tuple[int, dict[str, Any]]) -> tuple[int, int, int, int]:
+        index, destination = item
+        return (
+            0 if named_in_goal(destination, words) else 1,
+            1 if destination.get("visited") else 0,
+            0 if destination.get("kind") == "passage" else 1,
+            index,
+        )
+
+    return [destination for _, destination in sorted(enumerate(found), key=key)]
 
 
 def describe(step: Step) -> str:
@@ -230,6 +302,9 @@ def describe(step: Step) -> str:
         return f"turned {direction} {step.args.get('degrees', TURN_DEGREES)} degrees"
     if step.name == LOOK:
         return "looked"
+    if step.name == ATTENTION_TOOL:
+        result = step.result if isinstance(step.result, dict) else {}
+        return f"turned to {step.args.get('destination_id')} (attention {result.get('state', 'unknown')})"
     return step.name
 
 
@@ -254,21 +329,40 @@ def driven_to(steps: list[Step]) -> set[str]:
     return {str(step.args.get("destination_id")) for step in steps if step.name == DRIVE}
 
 
-def action_options(view: Mapping[str, Any] | None, exclude: set[str] = frozenset()) -> dict[str, dict[str, Any]]:
+def action_options(
+    view: Mapping[str, Any] | None,
+    exclude: set[str] = frozenset(),
+    *,
+    goal: Mapping[str, Any] | None = None,
+    marks: bool = False,
+) -> dict[str, dict[str, Any]]:
     """Choice key -> option: one per destination in view (keyed by marker) except `exclude`d ids,
-    turns, and Gemini. Excluding this stretch's drives keeps S1 from repeating one."""
+    turns, and Gemini. Excluding this stretch's drives keeps S1 from repeating one. With the
+    places memory (`marks`), destinations already here or failed too often are left out, and the
+    rest are ranked for the goal (`ranked`) and capped at MAX_DRIVE_OPTIONS."""
+    found = [d for d in destinations(view) if d["id"] not in exclude]
+    if marks:
+        found = ranked([d for d in found if fresh(d)], goal_words(goal or {}))[:MAX_DRIVE_OPTIONS]
     options: dict[str, dict[str, Any]] = {}
-    for index, destination in enumerate(destinations(view), start=1):
-        if destination["id"] in exclude:
-            continue
+    for index, destination in enumerate(found, start=1):
         key = f"go_{destination.get('marker') or index}"
         # ai2thor-mcp descriptions start with the label ("Sofa, 2.0 m ahead-left"); short options
         # keep the prompt small, which is most of nimble's latency.
-        options[key] = {"destination": destination, "text": f"Drive to {destination.get('description') or destination.get('label')}"}
+        text = f"Drive to {destination.get('description') or destination.get('label')}"
+        if marks and destination.get("visited"):
+            text += " (visited before)"
+        options[key] = {"destination": destination, "text": text}
     options["turn_left"] = {"text": "Turn left 90 degrees to look for something that serves the goal"}
     options["turn_right"] = {"text": "Turn right 90 degrees to look for something that serves the goal"}
     options[ASK_GEMINI] = {"text": "None of these serves the goal, or deciding needs the camera image"}
     return options
+
+
+CRITERIA_MET_QUESTION: dict[str, Any] = {
+    "type": "noul",
+    "instructions": "Do the destinations in view and what the pet did show that the success criteria are met now?",
+    "criteria": {"true": "Clearly met now", "false": "Not met yet, or it cannot be told from this"},
+}
 
 
 def executor_questions(options: Mapping[str, Mapping[str, Any]], *, ask_met: bool) -> dict[str, Any]:
@@ -284,52 +378,187 @@ def executor_questions(options: Mapping[str, Mapping[str, Any]], *, ask_met: boo
         }
     }
     if ask_met:
-        questions["criteria_met"] = {
-            "type": "noul",
-            "instructions": "Do the destinations in view and what the pet did show that the success criteria are met now?",
-            "criteria": {"true": "Clearly met now", "false": "Not met yet, or it cannot be told from this"},
-        }
+        questions["criteria_met"] = CRITERIA_MET_QUESTION
     return questions
 
 
-def executor_state(goal: Mapping[str, Any], steps: list[Step]) -> dict[str, Any]:
+def executor_state(goal: Mapping[str, Any], steps: list[Step], *, marks: bool = False) -> dict[str, Any]:
+    in_view = destinations(latest_view(steps))
     return {
         "goal": goal.get("goal"),
         "success_criteria": goal.get("success_criteria"),
         "steps": goal.get("sub_goals") or [],
         "done_this_stretch": [describe(step) for step in steps if step.name != LOOK] or ["looked around"],
-        "in_view": [d.get("description") or d.get("label") for d in destinations(latest_view(steps))],
+        "in_view": [seen(d, marks=True) if marks else d.get("description") or d.get("label") for d in in_view],
     }
 
 
-def executor_report(steps: list[Step], *, met: bool, p_met: float, model: str) -> str:
-    """The executor's four-line report, written by S1."""
-    in_view = ", ".join(seen(d) for d in destinations(latest_view(steps))[:6]) or "nothing notable"
+NO_LOOKS_LEFT = "no looks left this stretch"
+NOTHING_NEW = "nothing new in view and no turns left this stretch"
+
+
+def executor_report(
+    steps: list[Step],
+    *,
+    met: bool | None,
+    p_met: float = 0.0,
+    model: str = "",
+    marks: bool = False,
+    unjudged: str = NO_LOOKS_LEFT,
+) -> str:
+    """The executor's four-line report, written by S1. `met=None`: S1 ended the stretch by rule
+    without judging the criteria, for the reason `unjudged`."""
+    in_view = ", ".join(sightings(latest_view(steps), marks=marks)) or "nothing notable"
     did = "; ".join(describe(step) for step in steps if step.name != LOOK) or "looked around"
     drives = [step for step in steps if step.name == DRIVE and isinstance(step.response, dict)]
     nav = (drives[-1].response.get("drive") or {}).get("outcome", "unknown") if drives else "no drive"
-    verdict = "met" if met else "not met yet"
-    return f"Saw: {in_view}.\nDid: {did}.\nFinal nav state: {nav}.\nSuccess criteria {verdict} (S1 {model}, p={p_met:.2f})."
+    if met is None:
+        verdict = f"Success criteria not judged: {unjudged} (S1 rules)."
+    else:
+        verdict = f"Success criteria {'met' if met else 'not met yet'} (S1 {model}, p={p_met:.2f})."
+    return f"Saw: {in_view}.\nDid: {did}.\nFinal nav state: {nav}.\n{verdict}"
 
 
-def rule_turn(goal: Mapping[str, Any], steps: list[Step], limits: Mapping[str, int]) -> Turn | None:
-    """The turns rules settle without any model; None when the turn needs a judgment."""
+def rule_turn(
+    goal: Mapping[str, Any], steps: list[Step], limits: Mapping[str, int], *, scan: bool = False, marks: bool = False
+) -> Turn | None:
+    """The turns rules settle without any model; None when the turn needs a judgment. With the
+    scan rule, a stretch out of looks ends with S1's own report instead of a turn for Gemini."""
     if goal.get("status") == REST_STATUS:
         return Turn("report", text=REST_REPLY)
     if not steps:
         return Turn("call", LOOK)
     last = steps[-1]
+    if is_cancel_refusal(last.response):  # the owner replaced the goal: report what happened, no model
+        return Turn("report", text=executor_report(steps, met=None, unjudged="the owner canceled the goal", marks=marks))
     if is_budget_refusal(last.response):
         return Turn("escalate", reason="tool budget")
     if last.response is None or last.failed:
         return Turn("escalate", reason="tool error")
     if last.name == LOOK:
         return None
-    if last.name in (DRIVE, TURN):
+    if last.name in (DRIVE, TURN, MOVE):
         if at_limit(steps, LOOK, limits):
+            if scan:
+                return Turn("report", text=executor_report(steps, met=None, marks=marks))
             return Turn("escalate", reason="no looks left")
         return Turn("call", LOOK)
     return Turn("escalate", reason=f"after {last.name}")
+
+
+def person_report(steps: list[Step], people: People, person_id: str, *, marks: bool = False) -> str:
+    """The stretch ends because a person came into view: what was seen and done, and who it is,
+    so the goal setter can decide whether to engage them."""
+    sighting = people.last.get(person_id)
+    attention = people.attention or {}
+    report = executor_report(steps, met=None, unjudged="a person came into view", marks=marks)
+    who = sighting.words() if sighting is not None else person_id
+    state = attention.get("state") if attention.get("target") == person_id else None
+    return report + f"\nPerson: {who}" + (f"; the robot turned to them (attention {state})." if state else ".")
+
+
+def people_turn(goal: Mapping[str, Any], steps: list[Step], people: People, limits: Mapping[str, int], *, marks: bool = False) -> Turn | None:
+    """`[people]` rules, before every other rule. On a goal about people: attend to the person in
+    view, look, and let the model say what they are doing. Otherwise a person coming into view
+    (not reacted to lately) ends the stretch: turn to them, then report, so the goal setter can
+    decide. None: nothing about people this turn."""
+    if not steps:
+        return None
+    last = steps[-1]
+    social = people.is_social(goal)
+    if last.name == ATTENTION_TOOL:
+        if last.response is None or last.failed:
+            return None  # refused or failed: the generic rules handle it
+        person_id = str(last.args.get("destination_id") or "")
+        if social:
+            return Turn("call", LOOK) if not at_limit(steps, LOOK, limits) else Turn("escalate", reason="a person to describe")
+        engagement = last.response.get("engagement") if isinstance(last.response, dict) else None
+        if isinstance(engagement, dict):
+            words = ", ".join(engagement.get("evidence") or []) or "showed no sign of wanting to interact"
+            if engagement.get("decision") == "interested":
+                return Turn("report", text=person_report(steps, people, person_id, marks=marks) + f"\nThey want to interact: {words}.")
+            # not interested: they are left be (attention has ended); the goal goes on
+            return Turn("call", LOOK) if not at_limit(steps, LOOK, limits) else Turn(
+                "report", text=executor_report(steps, met=None, unjudged="a person who is not interested held the stretch up", marks=marks)
+            )
+        if people.interest_known(person_id) and people.leaving_be(person_id):
+            return Turn("call", LOOK) if not at_limit(steps, LOOK, limits) else None
+        return Turn("report", text=person_report(steps, people, person_id, marks=marks))
+    if last.name != LOOK or last.failed or not isinstance(last.result, dict):
+        return None
+    in_view = people.in_view(last.result)
+    if not in_view:
+        if social and not used(steps, ATTENTION_TOOL) and not at_limit(steps, ATTENTION_TOOL, limits):
+            # the person is out of view: attention turns toward where they were last seen
+            target = str(goal.get("target_id") or "")
+            known = target if target in people.last else next((s.id for s in people.recent(within_s=people.react_every_s * 5)), None)
+            if known:
+                return Turn("call", ATTENTION_TOOL, {"destination_id": known})
+        return None
+    if social:
+        target = str(goal.get("target_id") or "")
+        person = next((d for d in in_view if d["id"] == target), None) or min(in_view, key=lambda d: float(d.get("distance_m") or 99.0))
+        if not people.attending(person["id"]) and not at_limit(steps, ATTENTION_TOOL, limits):
+            return Turn("call", ATTENTION_TOOL, {"destination_id": person["id"]})
+        return Turn("escalate", reason="a person to describe")
+    sighting = people.to_react(EXECUTOR, goal, [people.last[d["id"]] for d in in_view if d["id"] in people.last])
+    if sighting is None:
+        return None  # reacted to them lately: carry on with the goal
+    people.react(EXECUTOR, sighting.id)
+    if not people.attending(sighting.id) and not at_limit(steps, ATTENTION_TOOL, limits):
+        return Turn("call", ATTENTION_TOOL, {"destination_id": sighting.id})
+    return Turn("report", text=person_report(steps, people, sighting.id, marks=marks))
+
+
+def met_question_due(goal: Mapping[str, Any], steps: list[Step], view: Mapping[str, Any] | None, *, marks: bool = False) -> bool:
+    """Whether to ask if the success criteria are met: once the pet has driven this stretch, on
+    a goal's later stretch, or (with the places memory) when something the goal names is here."""
+    if used(steps, DRIVE) > 0 or int(goal.get("attempts") or 0) > 0:
+        return True
+    words = goal_words(goal)
+    return marks and any(d.get("here") and named_in_goal(d, words) for d in destinations(view))
+
+
+def policy_turn(
+    goal: Mapping[str, Any], steps: list[Step], view: Mapping[str, Any] | None, limits: Mapping[str, int], places: "Places"
+) -> Turn | None:
+    """Gemini's direction carried out by rule (`[s1] explore_policy`): drive to the goal's
+    `target_id` first, even out of view; on an explore goal, drive to the first unvisited passage
+    in view, else the farthest unvisited object. None: nothing for the policy to do."""
+    if at_limit(steps, DRIVE, limits):
+        return None
+    driven = driven_to(steps)
+    in_view = {d["id"]: d for d in destinations(view)}
+    target = str(goal.get("target_id") or "")
+    remembered = places.destinations.get(target)
+    if target and target not in driven and not (remembered and remembered.reached_tick is not None):
+        if not in_view.get(target, {}).get("here") and not (places.failed_guard and places.failed_here(target)):
+            return Turn("call", DRIVE, {"destination_id": target})
+    if goal.get("kind") != "explore":
+        return None
+    candidates = [d for d in in_view.values() if d["id"] not in driven and fresh(d) and not d.get("visited")]
+    passages = [d for d in candidates if d.get("kind") == "passage"]
+    if passages:
+        return Turn("call", DRIVE, {"destination_id": passages[0]["id"]})
+    objects = sorted(candidates, key=lambda d: -float(d.get("distance_m") or 0.0))
+    return Turn("call", DRIVE, {"destination_id": objects[0]["id"]}) if objects else None
+
+
+def unstuck_turn(steps: list[Step], limits: Mapping[str, int]) -> Turn | None:
+    """`[s1] unstuck_rule`: drives keep failing without the robot moving, so back up, then turn
+    around, before driving again. None once both are done this stretch (or out of budget)."""
+    if not any(step.name == MOVE for step in steps) and not at_limit(steps, MOVE, limits):
+        return Turn("call", MOVE, {"action": "MoveBack", "moveMagnitude": BACK_UP_M})
+    if not any(step.name == TURN and float(step.args.get("degrees") or 0) >= 180 for step in steps) and not at_limit(steps, TURN, limits):
+        return Turn("call", TURN, {"action": TURNS["turn_right"], "degrees": 180})
+    return None
+
+
+def scan_turn(steps: list[Step], limits: Mapping[str, int], *, marks: bool = False) -> Turn:
+    """Nothing in view is worth a drive: turn to see more, or report once no turns are left."""
+    if at_limit(steps, TURN, limits):
+        return Turn("report", text=executor_report(steps, met=None, marks=marks, unjudged=NOTHING_NEW))
+    return Turn("call", TURN, {"action": TURNS["turn_right"], "degrees": TURN_DEGREES})
 
 
 def judge_turn(
@@ -339,12 +568,15 @@ def judge_turn(
     limits: Mapping[str, int],
     min_certainty: float,
     model: str,
+    *,
+    marks: bool = False,
 ) -> Turn:
     """The executor turn nimble's answers call for, or an escalation when they are not good enough."""
     step, met = answers["next"], answers.get("criteria_met")
     p_met = met.probabilities.get("true", 0.0) if met else 0.0
     if met is not None and met.choice == "true" and met.certainty >= min_certainty:
-        return Turn("report", text=executor_report(steps, met=True, p_met=p_met, model=model), by="nimble", certainty=met.certainty)
+        report = executor_report(steps, met=True, p_met=p_met, model=model, marks=marks)
+        return Turn("report", text=report, by="nimble", certainty=met.certainty)
     if step.certainty < min_certainty:
         return Turn("escalate", reason="unsure", by="nimble", certainty=step.certainty)
     if step.choice == ASK_GEMINI or step.choice not in options:
@@ -355,12 +587,27 @@ def judge_turn(
         args = {"action": TURNS[step.choice], "degrees": TURN_DEGREES}
         return Turn("call", TURN, args, by="nimble", certainty=step.certainty)
     if at_limit(steps, DRIVE, limits):
-        return Turn("report", text=executor_report(steps, met=False, p_met=p_met, model=model), by="nimble", certainty=step.certainty)
+        report = executor_report(steps, met=False, p_met=p_met, model=model, marks=marks)
+        return Turn("report", text=report, by="nimble", certainty=step.certainty)
     destination_id = options[step.choice]["destination"]["id"]
     return Turn("call", DRIVE, {"destination_id": destination_id}, by="nimble", certainty=step.certainty)
 
 
 # --- goal setter decisions -----------------------------------------------------------------
+
+
+def owner_goal_decision(state: Mapping[str, Any]) -> GoalDecision | None:
+    """With no goal in progress and the owner's goals queued, the next goal is the first queued one
+    (the goal memory adopts it deterministically), so no model needs to decide; None otherwise."""
+    pending = state.get(STATE_PENDING_GOALS) or []
+    goal = state.get(STATE_CURRENT_GOAL)
+    if not pending or (isinstance(goal, dict) and goal.get("status") == "active"):
+        return None
+    first = pending[0] if isinstance(pending[0], Mapping) else {}
+    text = str(first.get("goal") or "").strip() or "the owner's goal"
+    return GoalDecision(
+        previous_goal_status="none", goal=text, reasoning="S1 rules: no goal in progress, so the owner's queued goal starts."
+    )
 
 
 def goal_escalation(state: Mapping[str, Any], max_goal_attempts: int) -> str | None:
@@ -393,17 +640,29 @@ def goal_state(state: Mapping[str, Any]) -> dict[str, Any]:
 class SystemOne:
     """The decision client and the two `before_model_callback`s that put it in front of Gemini."""
 
-    def __init__(self, settings: Settings, stats: "RunStats") -> None:
+    def __init__(self, settings: Settings, stats: "RunStats", places: "Places | None" = None, people: People | None = None) -> None:
         self.settings = settings.s1
-        self.limits = dict(settings.tool_limits)
+        self.people = people
+        """`[people]`: the people rules (`people_turn`) and a goal decision whenever someone new is near."""
+        self.limits = {**ATTENTION_LIMITS, **settings.tool_limits} if people is not None else dict(settings.tool_limits)
         self.max_goal_attempts = settings.brain.max_goal_attempts
+        self.marks = settings.brain.places_memory
+        """Views carry the places memory's marks: skip and rank destinations by them."""
+        self.scan = settings.s1.scan_rule
+        self.places = places
+        self.explore = settings.s1.explore_policy and places is not None
+        self.unstuck = settings.s1.unstuck_rule and places is not None
+        self.explore_ticks = settings.s1.explore_ticks if places is not None else 0
         self.stats = stats
-        self.client = DecisionClient(settings.s1, stats)
+        self.client = None if settings.s1.rules_only else DecisionClient(settings.s1, stats)
+        """None with `[s1] rules_only`: the turns it would decide go to Gemini."""
         self._invocation: str | None = None
         self._escalated = False
 
     async def warm_up(self) -> None:
         """Load the model before the first decision; a cold start takes seconds."""
+        if self.client is None:
+            return
         question = {"type": "noul", "instructions": "Is this a warm-up request?", "criteria": {"true": "yes", "false": "no"}}
         try:
             await self.client.decide("warm-up", {"ready": question}, record=False)
@@ -414,7 +673,17 @@ class SystemOne:
 
     async def goal_setter_turn(self, callback_context: Any, llm_request: Any) -> LlmResponse | None:
         state = callback_context.state
-        reason = goal_escalation(state, self.max_goal_attempts)
+        owner = owner_goal_decision(state)
+        if owner is not None:
+            part = types.Part(text=owner.model_dump_json(exclude_none=True))
+            return self._respond("goal_setter", part, by="rules", action="owner goal", certainty=None)
+        news = self.people.news_for_setter(state.get(STATE_CURRENT_GOAL)) if self.people is not None else None
+        nearby = "person wants to interact" if news is not None and self.people.social is not None else "person nearby"
+        reason = goal_escalation(state, self.max_goal_attempts) or (nearby if news is not None else None)
+        if reason is None and self._keeps_exploring(state.get(STATE_CURRENT_GOAL) or {}):
+            decision = GoalDecision(previous_goal_status="continue", reasoning="S1 rules: still exploring; unvisited places remain.")
+            return self._respond("goal_setter", types.Part(text=decision.model_dump_json(exclude_none=True)), by="rules", action="continue", certainty=None)
+        reason = reason or (RULES_ONLY if self.client is None else None)
         if reason is None:
             try:
                 answers = await self.client.decide(goal_state(state), GOAL_QUESTIONS)
@@ -437,6 +706,18 @@ class SystemOne:
         self.stats.record_s1_escalation("goal_setter", reason)
         return None
 
+    def _keeps_exploring(self, goal: Mapping[str, Any]) -> bool:
+        """`[s1] explore_ticks`: an explore goal goes on by rule while it has had fewer stretches,
+        unvisited places remain, and the robot is not stuck."""
+        return (
+            self.explore_ticks > 0
+            and goal.get("kind") == "explore"
+            and int(goal.get("attempts") or 0) < self.explore_ticks
+            and self.places is not None
+            and self.places.stuck_drives == 0
+            and bool(self.places.unvisited())
+        )
+
     async def executor_turn(self, callback_context: Any, llm_request: Any) -> LlmResponse | None:
         if callback_context.invocation_id != self._invocation:
             self._invocation, self._escalated = callback_context.invocation_id, False
@@ -444,27 +725,26 @@ class SystemOne:
             return None
         goal = callback_context.state.get(STATE_CURRENT_GOAL) or {}
         steps = tool_steps(llm_request.contents)
-        turn = rule_turn(goal, steps, self.limits)
+        turn = people_turn(goal, steps, self.people, self.limits, marks=self.marks) if self.people is not None else None
         if turn is None:
-            options = action_options(latest_view(steps), exclude=driven_to(steps))
-            # The criteria can only have changed by moving, or be met already on a goal's later stretch.
-            ask_met = used(steps, DRIVE) > 0 or int(goal.get("attempts") or 0) > 0
-            try:
-                answers = await self.client.decide(executor_state(goal, steps), executor_questions(options, ask_met=ask_met))
-            except S1Error as exc:
-                log.warning("S1 executor decision failed: %s", exc)
-                turn = Turn("escalate", reason="S1 error")
+            turn = rule_turn(goal, steps, self.limits, scan=self.scan, marks=self.marks)
+        if turn is None and self.unstuck and self.places.stuck_drives >= STUCK_DRIVES:
+            turn = unstuck_turn(steps, self.limits)
+            if turn is not None:
+                log.info("S1: %d drives failed without moving; %s", self.places.stuck_drives, turn.tool)
+        if turn is None:
+            view = latest_view(steps)
+            if self.people is not None:
+                view = self.people.without_people(view)  # people are not places to drive to
+            options = action_options(view, exclude=driven_to(steps), goal=goal, marks=self.marks)
+            ask_met = met_question_due(goal, steps, view, marks=self.marks)
+            planned = policy_turn(goal, steps, view, self.limits, self.places) if self.explore and self.places else None
+            if planned is not None:
+                turn = await self._unless_met(planned, goal, steps) if ask_met else planned
+            elif self.scan and not ask_met and not any(option.get("destination") for option in options.values()):
+                turn = scan_turn(steps, self.limits, marks=self.marks)
             else:
-                turn = judge_turn(answers, options, steps, self.limits, self.settings.min_confidence, self.settings.model)
-                step, met = answers["next"], answers.get("criteria_met")
-                log.info(
-                    "S1 %s: next=%s (certainty %.2f)%s -> %s",
-                    self.settings.model,
-                    options.get(step.choice, {}).get("text", step.choice),
-                    step.certainty,
-                    f", met p={met.probabilities['true']:.2f}" if met else "",
-                    turn.tool or turn.kind if turn.kind != "escalate" else f"Gemini ({turn.reason})",
-                )
+                turn = await self._decide(goal, steps, options, ask_met=ask_met)
         if turn.kind == "escalate":
             self._escalated = True
             self.stats.record_s1_escalation("executor", turn.reason or "unknown")
@@ -476,6 +756,45 @@ class SystemOne:
             function_call=types.FunctionCall(name=turn.tool, args=turn.args), thought_signature=INJECTED_CALL_SIGNATURE
         )
         return self._respond("executor", call, by=turn.by, action=turn.tool or "", certainty=turn.certainty)
+
+    async def _unless_met(self, planned: Turn, goal: Mapping[str, Any], steps: list[Step]) -> Turn:
+        """The policy's drive, unless the decision model is sure the criteria are met already."""
+        if self.client is None:
+            return planned
+        try:
+            answers = await self.client.decide(executor_state(goal, steps, marks=self.marks), {"criteria_met": CRITERIA_MET_QUESTION})
+        except S1Error as exc:
+            log.warning("S1 criteria check failed: %s", exc)
+            return planned
+        met = answers["criteria_met"]
+        if met.choice == "true" and met.certainty >= self.settings.min_confidence:
+            report = executor_report(steps, met=True, p_met=met.probabilities.get("true", 0.0), model=self.settings.model, marks=self.marks)
+            return Turn("report", text=report, by="nimble", certainty=met.certainty)
+        return planned
+
+    async def _decide(
+        self, goal: Mapping[str, Any], steps: list[Step], options: Mapping[str, Mapping[str, Any]], *, ask_met: bool
+    ) -> Turn:
+        """Ask the decision model for the next action (and, when due, whether the criteria are met)."""
+        if self.client is None:
+            return Turn("escalate", reason=RULES_ONLY)
+        try:
+            state = executor_state(goal, steps, marks=self.marks)
+            answers = await self.client.decide(state, executor_questions(options, ask_met=ask_met))
+        except S1Error as exc:
+            log.warning("S1 executor decision failed: %s", exc)
+            return Turn("escalate", reason="S1 error")
+        turn = judge_turn(answers, options, steps, self.limits, self.settings.min_confidence, self.settings.model, marks=self.marks)
+        step, met = answers["next"], answers.get("criteria_met")
+        log.info(
+            "S1 %s: next=%s (certainty %.2f)%s -> %s",
+            self.settings.model,
+            options.get(step.choice, {}).get("text", step.choice),
+            step.certainty,
+            f", met p={met.probabilities['true']:.2f}" if met else "",
+            turn.tool or turn.kind if turn.kind != "escalate" else f"Gemini ({turn.reason})",
+        )
+        return turn
 
     def _respond(self, agent: str, part: types.Part, *, by: str, action: str, certainty: float | None) -> LlmResponse:
         self.stats.record_s1_turn(agent, by)

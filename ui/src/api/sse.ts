@@ -1,16 +1,19 @@
-import type {
-  AdkEvent,
-  ImageEvent,
-  ImageName,
-  NoticeEvent,
-  PortalEvent,
-  RunStats,
-  StateEvent,
-  StatusEvent,
-  TickEvent,
+import {
+  type AdkEvent,
+  ATTENTION_STATES,
+  type AttentionState,
+  type AttentionStatus,
+  type ImageEvent,
+  type ImageName,
+  type NoticeEvent,
+  type PortalEvent,
+  type RunStats,
+  type StateEvent,
+  type StatusEvent,
+  type TickEvent,
 } from "@/types/api";
 
-export const PORTAL_EVENT_NAMES = ["adk", "state", "status", "tick", "image", "stats", "notice"] as const;
+export const PORTAL_EVENT_NAMES = ["adk", "state", "status", "tick", "image", "stats", "notice", "attention"] as const;
 export type PortalEventName = (typeof PORTAL_EVENT_NAMES)[number];
 
 const IMAGE_NAMES: readonly ImageName[] = ["camera", "map", "depth", "free"];
@@ -26,6 +29,38 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 /** True for a real stats snapshot; the server answers `{}` while no pet is running. */
 export function isRunStats(value: unknown): value is RunStats {
   return isRecord(value) && typeof value.uptime_s === "number" && isRecord(value.llm) && isRecord(value.tokens);
+}
+
+function numberOrNull(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function isAttentionState(value: unknown): value is AttentionState {
+  return typeof value === "string" && (ATTENTION_STATES as readonly string[]).includes(value);
+}
+
+/** A full AttentionStatus from a polled status payload; null when it lacks a known state. */
+export function decodeAttention(payload: Record<string, unknown>): AttentionStatus | null {
+  if (!isAttentionState(payload.state)) return null;
+  const xz = payload.target_xz;
+  return {
+    state: payload.state,
+    target: typeof payload.target === "string" ? payload.target : null,
+    label: typeof payload.label === "string" ? payload.label : null,
+    distance_m: numberOrNull(payload.distance_m),
+    bearing_deg: numberOrNull(payload.bearing_deg),
+    seen_s: numberOrNull(payload.seen_s) ?? 0,
+    unseen_s: numberOrNull(payload.unseen_s) ?? 0,
+    moving: payload.moving === true,
+    tilt_deg: numberOrNull(payload.tilt_deg) ?? 0,
+    standoff_m: numberOrNull(payload.standoff_m) ?? 0,
+    since_s: numberOrNull(payload.since_s) ?? 0,
+    target_xz:
+      Array.isArray(xz) && xz.length === 2 && typeof xz[0] === "number" && typeof xz[1] === "number"
+        ? [xz[0], xz[1]]
+        : null,
+    reason: typeof payload.reason === "string" ? payload.reason : null,
+  };
 }
 
 function parse(data: string): Record<string, unknown> | null {
@@ -127,6 +162,10 @@ export function decodeEvent(name: string, data: string, id: string): PortalEvent
       };
       if (typeof payload.seconds === "number") event.seconds = payload.seconds;
       return event;
+    }
+    case "attention": {
+      const attention = decodeAttention(payload);
+      return attention === null ? null : { type: "attention", id, attention };
     }
     default:
       return null;

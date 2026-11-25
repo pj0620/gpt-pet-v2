@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 import { type EventsState, emptyEvents, ingestEvent } from "@/stores/eventsReducer";
-import type { ImageName, PortalEvent, TickEvent } from "@/types/api";
+import type { AttentionStatus, ImageName, PortalEvent, TickEvent } from "@/types/api";
 
 export type ConnectionState = "connecting" | "open" | "closed";
 export type CameraMode = "camera" | "depth" | "free";
@@ -10,6 +10,8 @@ export interface PortalStore {
   connection: ConnectionState;
   events: EventsState;
   lastTick: TickEvent | null;
+  /** What the robot's attention is doing (null until the server has polled it once). */
+  attention: AttentionStatus | null;
   imageVersions: Record<ImageName, number>;
   selectedKey: string | null;
   toolFilter: string | null;
@@ -28,6 +30,7 @@ export const usePortalStore = create<PortalStore>()((set) => ({
   connection: "closed",
   events: emptyEvents(),
   lastTick: null,
+  attention: null,
   imageVersions: { camera: 0, map: 0, depth: 0, free: 0 },
   selectedKey: null,
   toolFilter: null,
@@ -42,6 +45,8 @@ export const usePortalStore = create<PortalStore>()((set) => ({
           return { events: ingestEvent(state.events, event), lastTick: event };
         case "image":
           return { imageVersions: { ...state.imageVersions, [event.name]: event.version } };
+        case "attention":
+          return { attention: event.attention };
         default:
           return {};
       }

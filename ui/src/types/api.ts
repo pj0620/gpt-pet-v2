@@ -1,7 +1,8 @@
 /** Wire types for the pet server's `/api/*` surface (see the plan; hand-written until the
  *  backend exists, then optionally replaced by openapi-typescript output). */
 
-export type GoalStatus = "active" | "done" | "abandoned";
+/** "canceled": the owner submitted a new goal while this one was in progress. */
+export type GoalStatus = "active" | "done" | "abandoned" | "canceled";
 
 export interface Goal {
   id: number;
@@ -56,8 +57,9 @@ export interface PetStatus {
   /** Goals this run may start (null = unlimited) and goals started so far. */
   goal_limit?: number | null;
   goals_used?: number;
-  /** Portal features the active profile offers; the free camera exists only in the simulator. */
-  features?: { free_camera?: boolean };
+  /** Portal features the active profile offers; the free camera exists only in the simulator,
+   *  attention once the robot's server has the attention tools. */
+  features?: { free_camera?: boolean; attention?: boolean };
 }
 
 export interface CameraPose {
@@ -152,6 +154,10 @@ export interface TickEvent {
   refusals: number;
   llm_calls: number;
   truncated: boolean;
+  /** Failed Gemini calls a fallback answered this tick. */
+  fallbacks?: number;
+  /** Why the tick failed (a transient error such as a Gemini timeout); null when it ran through. */
+  error?: string | null;
 }
 
 export interface ImageEvent {
@@ -167,6 +173,8 @@ export interface LatencySummary {
   avg_ms: number | null;
   p50_ms: number | null;
   p95_ms: number | null;
+  /** The longest over the whole run. */
+  max_ms: number | null;
   last_ms: number | null;
 }
 
@@ -176,10 +184,17 @@ export interface RunStats {
   started_at: number;
   uptime_s: number;
   llm: {
+    /** Gemini calls that answered; `errors` raised instead (a timeout, say). */
     calls: number;
     errors: number;
+    /** Failed calls an agent's fallback answered in Gemini's place. */
+    fallbacks: number;
+    /** Goal decisions Gemini made with the robot's map attached (`[brain] map_for_goals`). */
+    maps_shown: number;
     per_min: number;
     latency: LatencySummary;
+    /** How long the failed calls took to fail. */
+    failed_latency: LatencySummary;
     by_agent: Record<string, { calls: number; tokens: number; avg_ms: number }>;
   };
   tokens: {
@@ -193,8 +208,17 @@ export interface RunStats {
   };
   /** Every tool call the model made; refused calls (tool budget) never ran, so have no latency. */
   tools: { calls: number; errors: number; refusals: number; latency: LatencySummary };
-  ticks: { count: number; truncated: number; latency: LatencySummary };
-  goals: { started: number; done: number; abandoned: number; started_per_min: number; done_per_min: number };
+  /** `failed`: ticks a transient error ended early; the loop retries them after a backoff. */
+  ticks: { count: number; truncated: number; failed: number; latency: LatencySummary };
+  /** `canceled`: goals the owner replaced by submitting a new one (absent from older servers). */
+  goals: {
+    started: number;
+    done: number;
+    abandoned: number;
+    canceled?: number;
+    started_per_min: number;
+    done_per_min: number;
+  };
   /** Drives waited out by the brain itself (`checks` = get_nav_status calls, no LLM involved). */
   drives: {
     count: number;
@@ -203,6 +227,14 @@ export interface RunStats {
     driving_pct: number;
     checks: number;
     latency: LatencySummary;
+    /** Drives that went nowhere: the destination was already within reach. */
+    null: number;
+    /** Drives to passages (doorways, openings). */
+    to_passages: number;
+    distance_m: number;
+    destinations_reached: number;
+    /** set_nav_goal calls by who decided them: "s1" or "gemini". */
+    calls_by: Record<string, number>;
   };
   /** System 1: turns it took instead of Gemini, hand-offs to Gemini (by reason), model calls. */
   s1: {
@@ -237,4 +269,45 @@ export interface NoticeEvent {
   seconds?: number;
 }
 
-export type PortalEvent = AdkEvent | StateEvent | StatusEvent | TickEvent | ImageEvent | StatsEvent | NoticeEvent;
+export const ATTENTION_STATES = ["off", "aiming", "approaching", "framed", "searching", "lost"] as const;
+export type AttentionState = (typeof ATTENTION_STATES)[number];
+
+/** The robot keeping a person framed on its own (ai2thor-mcp's attention tools): what it is
+ *  doing and to whom, as polled by the server from `get_attention_status`. */
+export interface AttentionStatus {
+  state: AttentionState;
+  /** The person's destination id, e.g. "obj:person_0". */
+  target: string | null;
+  label: string | null;
+  distance_m: number | null;
+  /** Degrees off the view's centre, positive to the right. */
+  bearing_deg: number | null;
+  /** Seconds the person has been continuously in view (0 when not in view). */
+  seen_s: number;
+  /** Seconds since the person was last in view (0 while in view). */
+  unseen_s: number;
+  moving: boolean;
+  /** The robot camera's tilt above level, degrees. */
+  tilt_deg: number;
+  standoff_m: number;
+  since_s: number;
+  target_xz: [number, number] | null;
+  /** Why attention ended (lost, a drive started, manual control, canceled...). */
+  reason: string | null;
+}
+
+export interface AttentionEvent {
+  type: "attention";
+  id: string;
+  attention: AttentionStatus;
+}
+
+export type PortalEvent =
+  | AdkEvent
+  | StateEvent
+  | StatusEvent
+  | TickEvent
+  | ImageEvent
+  | StatsEvent
+  | NoticeEvent
+  | AttentionEvent;

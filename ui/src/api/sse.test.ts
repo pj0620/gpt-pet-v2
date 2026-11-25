@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { decodeEvent, isPortalEventName, isRunStats } from "@/api/sse";
-import { STATS_SNAPSHOT as SNAPSHOT } from "@/test/fixtures";
+import { decodeAttention, decodeEvent, isPortalEventName, isRunStats } from "@/api/sse";
+import { ATTENTION_FRAMED, STATS_SNAPSHOT as SNAPSHOT } from "@/test/fixtures";
 
 describe("decodeEvent", () => {
   it("decodes each typed frame", () => {
@@ -124,5 +124,32 @@ describe("decodeEvent", () => {
     expect(decodeEvent("image", JSON.stringify({ name: "lidar", version: 1 }), "9")).toBeNull();
     expect(decodeEvent("status", JSON.stringify({ paused: "no" }), "10")).toBeNull();
     expect(decodeEvent("state", JSON.stringify({ tick: "x" }), "11")).toBeNull();
+  });
+});
+
+describe("attention frames", () => {
+  it("decodes a polled attention status and rejects unknown states", () => {
+    expect(decodeEvent("attention", JSON.stringify(ATTENTION_FRAMED), "9")).toEqual({
+      type: "attention",
+      id: "9",
+      attention: ATTENTION_FRAMED,
+    });
+    expect(isPortalEventName("attention")).toBe(true);
+    expect(decodeEvent("attention", JSON.stringify({ state: "dreaming" }), "10")).toBeNull();
+    expect(decodeAttention({ state: "off" })).toEqual({
+      state: "off",
+      target: null,
+      label: null,
+      distance_m: null,
+      bearing_deg: null,
+      seen_s: 0,
+      unseen_s: 0,
+      moving: false,
+      tilt_deg: 0,
+      standoff_m: 0,
+      since_s: 0,
+      target_xz: null,
+      reason: null,
+    });
   });
 });
