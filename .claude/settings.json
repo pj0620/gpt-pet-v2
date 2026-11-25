@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(scp /home/pj/gpt-pet-v2/ros2_ws/src/bot_ws/src/ros2_icm20948/ros2_icm20948/icm20948_node.py gptpetclient@gptpetclient.local:/home/gptpetclient/gpt-pet-v2/ros2_ws/src/bot_ws/src/ros2_icm20948/ros2_icm20948/icm20948_node.py)",
+      "Bash(./bin/ssh/gptpetclient.sh)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(nmap -T4 -p 22 --open 192.168.1.0/24)",
+      "Bash(find /opt/ros/humble -path \"*/mecanum_drive_controller*\" -name \"*.py\" -o -path \"*/mecanum_drive_controller*\" -name \"*.hpp\" 2>/dev/null | head -20)",
+      "Read(//opt/ros/humble/**)",
+      "Read(//tmp/**)",
+      "Bash(dpkg -l*)",
+      "Bash(dpkg -L*)",
+      "Bash(grep -v \"^[a-z]$\")",
+      "Bash(wait)",
+      "Bash(awk *)",
+      "Bash(kill %1)",
+      "Bash(kill -9 *)",
+      "Bash(pkill -f *)",
+      "Bash(pkill -9 -f *)",
+      "Bash(ps aux *)",
+      "Bash(rm -f /tmp/*)",
+      "Bash(sleep * && grep *)",
+      "Bash(grep *)",
+      "Bash(tail *)",
+      "Bash(cat /tmp/*)",
+      "Bash(uptime)",
+      "Bash(pgrep -af *)",
+      "Bash(colcon build*)",
+      "Bash(ros2 *)",
+      "Bash(timeout * ros2 *)",
+      "Bash(RMW_IMPLEMENTATION=* ros2 *)",
+      "Bash(RMW_IMPLEMENTATION=* timeout * ros2 *)"
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+[patch.crates-io.rclrs]
+path = "/home/pj/gpt-pet-v2/ros2_ws/src/server/src/install/rclrs/share/rclrs/rust"
+
+[patch.crates-io.test_msgs]
+path = "/home/pj/gpt-pet-v2/ros2_ws/src/server/src/install/test_msgs/share/test_msgs/rust"
+
+[patch.crates-io.example_interfaces]
+path = "/home/pj/gpt-pet-v2/ros2_ws/src/server/src/install/example_interfaces/share/example_interfaces/rust"
+
+[patch.crates-io.std_msgs]
+path = "/home/pj/gpt-pet-v2/ros2_ws/src/server/src/install/std_msgs/share/std_msgs/rust"
+
+[patch.crates-io.rosgraph_msgs]
+path = "/home/pj/gpt-pet-v2/ros2_ws/src/server/src/install/rosgraph_msgs/share/rosgraph_msgs/rust"
+
+[patch.crates-io.rcl_interfaces]
+path = "/home/pj/gpt-pet-v2/ros2_ws/src/server/src/install/rcl_interfaces/share/rcl_interfaces/rust"
+
+[patch.crates-io.action_msgs]
+path = "/home/pj/gpt-pet-v2/ros2_ws/src/server/src/install/action_msgs/share/action_msgs/rust"
+
+[patch.crates-io.unique_identifier_msgs]
+path = "/home/pj/gpt-pet-v2/ros2_ws/src/server/src/install/unique_identifier_msgs/share/unique_identifier_msgs/rust"
+
+[patch.crates-io.builtin_interfaces]
+path = "/home/pj/gpt-pet-v2/ros2_ws/src/server/src/install/builtin_interfaces/share/builtin_interfaces/rust"
+
+[patch.crates-io.rosidl_runtime_rs]
+path = "/home/pj/gpt-pet-v2/ros2_ws/src/server/src/install/rosidl_runtime_rs/share/rosidl_runtime_rs/rust"
+
+[patch.crates-io.rclrs_example_msgs]
+path = "/home/pj/gpt-pet-v2/ros2_ws/src/server/src/install/rclrs_example_msgs/share/rclrs_example_msgs/rust"

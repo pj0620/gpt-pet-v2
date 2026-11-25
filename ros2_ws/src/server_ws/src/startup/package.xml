@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>startup</name>
+  <version>0.0.0</version>
+  <description>TODO: Package description</description>
+  <maintainer email="pjm7748@g.rit.edu">pj</maintainer>
+  <license>TODO: License declaration</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <build_depend>xacro</build_depend>
+  <build_export_depend>xacro</build_export_depend>
+
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>ros2_control</depend>
+  <depend>controller_interface</depend>
+  <depend>hardware_interface</depend>
+  <depend>transmission_interface</depend>
+  <depend>launch</depend>
+  <depend>launch_ros</depend>
+
+  <!-- Nav2 packages (example: bringup, map_server, etc.) -->
+  <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>nav2_map_server</exec_depend>
+  <exec_depend>nav2_amcl</exec_depend>
+  <exec_depend>nav2_bt_navigator</exec_depend>
+  <exec_depend>nav2_controller</exec_depend>
+  <exec_depend>nav2_planner</exec_depend>
+  <exec_depend>nav2_recoveries</exec_depend>
+  <exec_depend>nav2_behavior_tree</exec_depend>
+  <exec_depend>nav2_msgs</exec_depend>
+  <exec_depend>ros2launch</exec_depend>
+  <exec_depend>depthimage_to_laserscan</exec_depend>
+
+  <!-- Localization -->
+  <exec_depend>robot_localization</exec_depend>
+
+  <!-- scripts/cmd_vel_shaper.py -->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

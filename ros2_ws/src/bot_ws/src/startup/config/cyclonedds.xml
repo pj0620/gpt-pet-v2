@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CycloneDDS>
+  <Domain id="any">
+    <Internal>
+      <!-- Prevent service response writes from being dropped when the
+           controller_manager's 50 Hz control thread is busy. The default
+           MaxBlockedTime is very short; increasing it lets CycloneDDS wait
+           long enough to deliver load_controller / list_controllers responses
+           even under CPU pressure on a non-RT Jetson Nano. -->
+      <MaxBlockedTime>30s</MaxBlockedTime>
+    </Internal>
+  </Domain>
+</CycloneDDS>
