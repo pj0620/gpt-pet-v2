@@ -32,14 +32,19 @@ def pytest_configure(config: pytest.Config) -> None:
 
 
 TEST_MODEL_ENV = "GPTPET_TEST_MODEL"
+TEST_PROFILE_ENV = "GPTPET_TEST_PROFILE"
+TEST_PROFILE = os.environ.get(TEST_PROFILE_ENV, "sim")
+"""Which profile the live tests drive: `sim` (ai2thor-mcp, launched when not running) or `real`
+(gpt-pet-mcp on the robot server, which must already answer at the profile's URL)."""
 
 
 @pytest.fixture(scope="session")
 def sim_settings() -> Settings:
-    """The `sim` profile. `GPTPET_TEST_MODEL` puts another model in its place for the goal setter
-    and the executor, e.g. `openai/gpt-5.6-luna` (OpenAI's without reasoning, as the experiments
-    run them) for a fraction of Gemini 3.5 Flash's cost."""
-    settings = load_settings("sim")
+    """The profile under test (`sim` unless GPTPET_TEST_PROFILE says `real`). `GPTPET_TEST_MODEL`
+    puts another model in its place for the goal setter and the executor, e.g.
+    `openai/gpt-5.6-luna` (OpenAI's without reasoning, as the experiments run them) for a fraction
+    of Gemini 3.5 Flash's cost."""
+    settings = load_settings(TEST_PROFILE)
     name = os.environ.get(TEST_MODEL_ENV)
     if not name:
         return settings
@@ -71,13 +76,16 @@ def nimble(sim_settings: Settings) -> str:
 
 @pytest.fixture(scope="session")
 def mcp_server(sim_settings: Settings, tmp_path_factory: pytest.TempPathFactory):
-    """The real ai2thor-mcp server URL: attach to a running one, else launch it from the checkout
-    on the URL's port. A launched server is stopped with its own process group only, so no other
-    simulator on the machine is touched."""
+    """The real MCP server URL of the profile under test. `sim`: attach to a running ai2thor-mcp,
+    else launch it from the checkout on the URL's port (a launched server is stopped with its own
+    process group only, so no other simulator on the machine is touched). `real`: gpt-pet-mcp must
+    already answer on the robot server; nothing is launched."""
     url = str(sim_settings.mcp.url)
     if mcp_alive(url):
         yield url
         return
+    if TEST_PROFILE != "sim":
+        pytest.fail(f"no robot server answers at {url}: run `gpt-pet-mcp --http` on pj-ubuntu first")
 
     repo = ai2thor_mcp_dir()
     if not (repo / "python" / "ai2thor_mcp" / "main.py").is_file():

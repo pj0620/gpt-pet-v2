@@ -72,9 +72,13 @@ def generate_launch_description():
   ])
   
   ## KINECT ##
-  # kinect:=false skips it. The node currently dies at startup (FREENECT - NO DEVICES, then a
-  # segfault) and its firmware upload re-enumerates the Kinect's USB devices on the shared hub,
-  # which once coincided with the ESP32's USB serial link stalling.
+  # kinect:=false skips it. The kinect_ros2 fork (submodule) waits for the device instead of dying
+  # (the old node died at startup: FREENECT - NO DEVICES, then a segfault), opens only the camera and
+  # motor subdevices (no audio firmware upload on the shared USB hub, which once coincided with the
+  # ESP32's serial link stalling), publishes registered depth at publish_rate_hz (5 Hz: the frames
+  # cross the WiFi to gpt-pet-mcp on the server; `ros-humble-image-transport-plugins` on the Jetson
+  # adds the compressed topics it reads) and drives the tilt motor from the `tilt_deg` parameter
+  # (gpt-pet-mcp's do_look). respawn restarts it when the Kinect drops off the USB bus.
   nodes.insert(0, DeclareLaunchArgument(
     'kinect', default_value='true', description='Run the Kinect camera node'))
   nodes.append(
@@ -84,8 +88,10 @@ def generate_launch_description():
       name="kinect_ros2",
       namespace="kinect",
       parameters=[
-        {"use_sim_time": False}
+        {"use_sim_time": False, "depth_registered": True, "publish_rate_hz": 5.0, "tilt_deg": 0.0}
       ],
+      respawn=True,
+      respawn_delay=5.0,
       condition=IfCondition(LaunchConfiguration('kinect')),
     )
   )
