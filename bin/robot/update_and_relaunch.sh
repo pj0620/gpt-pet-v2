@@ -30,8 +30,11 @@ if ! dpkg -s ros-humble-image-transport-plugins >/dev/null 2>&1; then
   sudo -n apt-get install -y -o Acquire::ForceIPv4=true ros-humble-image-transport-plugins
 fi
 
+# ROS's setup scripts read unset variables (AMENT_TRACE_SETUP_FILES...): source them without nounset
+set +u
 # shellcheck disable=SC1091
 source /opt/ros/humble/setup.bash
+set -u
 cd "$BOT_WS"
 colcon build --packages-select kinect_ros2 startup --cmake-args -DCMAKE_BUILD_TYPE=Release
 
