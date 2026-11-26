@@ -245,9 +245,9 @@ class FeatureSettings(_Strict):
     """Simulator only: a portal-controlled camera that flies around the room. Needs the
     `sim_camera_*` tools of ai2thor-mcp; the real robot has no such thing."""
     attention: bool = False
-    """The robot can keep a person framed on its own (ai2thor-mcp's set_attention tools, a
-    robot-contract feature the real server does not have yet): the portal polls
-    get_attention_status and shows what the robot is doing when it turns, tilts or walks up."""
+    """The robot can keep a person framed on its own (the set_attention tools of ai2thor-mcp and
+    of gpt-pet-mcp on the real robot): the portal polls get_attention_status and shows what the
+    robot is doing when it turns, tilts or walks up."""
 
 
 class Settings(_Strict):

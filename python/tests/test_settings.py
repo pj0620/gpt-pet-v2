@@ -66,7 +66,7 @@ def test_real_profile_defines_the_same_tool_contract() -> None:
     assert settings.nav == load_settings("sim").nav
     assert settings.s1.enabled is False  # System 1 stays off until tried on the robot
     assert settings.features.free_camera is False  # no free camera on the real robot
-    assert settings.features.attention is False  # the robot server has no attention tools yet
+    assert settings.features.attention is True  # gpt-pet-mcp serves the attention tools (2026-11-26)
 
 
 def test_stdio_transport_parses_command_line(tmp_path: Path) -> None:
