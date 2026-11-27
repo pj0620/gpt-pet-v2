@@ -88,11 +88,11 @@ controller_server:
       model_dt: 0.1  # must equal 1/controller_frequency
       batch_size: 2000
       vx_std: 0.2
-      vy_std: 0.2
+      vy_std: 0.0  # no sideways sampling: DiffDrive
       wz_std: 0.4
       vx_max: 0.1
       vx_min: -0.1
-      vy_max: 0.1
+      vy_max: 0.0
       vy_min: -0.1
       wz_max: 1.0
       iteration_count: 1
@@ -104,7 +104,11 @@ controller_server:
       # 35 deg (2026-11-15), and with Omni the controller sat for 30 s commanding a strafe the robot
       # could not perform. Switch back to Omni once the front-right motor drives in reverse again
       # (see the cmd_vel_shaper note in server.launch.py) and strafing has been re-measured.
-      motion_model: "Omni"  # trial 2026-11-24 after the R1 repair: strafe 0.2 m -> 0.15-0.17 m with 4-10 deg yaw
+      # 2026-11-27: DiffDrive again, by decision. With Omni every drive down the 1.5 m hallway
+      # turned the robot ~90 deg within 5 s and crabbed it sideways: mecanum strafes slip 2:1 and yaw
+      # (campaign S6: 20 cm real for 30 commanded, 45-170 deg of yaw), and the robot's camera then
+      # faced the furniture instead of the way it moved. gpt-pet-mcp side-steps by turning now too.
+      motion_model: "DiffDrive"
       visualize: false
       critics:
         - "ConstraintCritic"
