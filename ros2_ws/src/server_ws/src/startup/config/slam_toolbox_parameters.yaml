@@ -1,6 +1,11 @@
 slam_toolbox:
   ros__parameters:
     mode: mapping
+    # A cell counts as occupied above this hit probability. slam_toolbox's default 0.1 turned
+    # every person or object that stood in the lidar for a few scans into a permanent wall: on
+    # 2026-11-27 the hallway in front of the robot was closed by such specks (each inflated by
+    # the costmap's inscribed radius) and Nav2 could not plan 1 m ahead. 0.65 keeps real walls.
+    occupancy_threshold: 0.65
     map_file_name: ""
     base_frame: base_link
     odom_frame: odom
